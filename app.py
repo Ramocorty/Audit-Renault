@@ -2,109 +2,43 @@ import streamlit as st
 import requests
 import pandas as pd
 
-API_KEY = "TA_CLE_API_ICI"
+API_URL = "https://api.apify.com/v2/acts/parseforge~pdf-to-json-parser/run-sync-get-dataset-items"
 
-# -----------------------------
-# Upload PDF
-# -----------------------------
-def upload_pdf(file):
-    url = "https://api.pdf.ai/v1/upload"
+API_TOKEN = "TA_CLE_APIFY"
 
-    headers = {
-        "Authorization": f"Bearer {API_KEY}"
-    }
-
+def analyse_pdf(file):
     files = {
         "file": file
     }
 
-    response = requests.post(url, headers=headers, files=files)
-
-    # ✅ ne plus jamais planter ici
-    try:
-        return response.json()
-    except:
-        return {
-            "error": True,
-            "status_code": response.status_code,
-            "text": response.text
-        }
-
-
-# -----------------------------
-# Question IA
-# -----------------------------
-def ask_pdf(doc_id):
-    url = "https://api.pdf.ai/v1/ask"
-
-    headers = {
-        "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json"
+    params = {
+        "token": API_TOKEN
     }
 
-    payload = {
-        "doc_id": doc_id,
-        "query": "Retourne un JSON avec nombre_ok, nombre_nok et score"
-    }
+    response = requests.post(API_URL, params=params, files=files)
 
-    response = requests.post(url, headers=headers, json=payload)
+    if response.status_code != 200:
+        return {"error": response.text}
 
-    try:
-        return response.json()
-    except:
-        return {
-            "error": True,
-            "status_code": response.status_code,
-            "text": response.text
-        }
+    return response.json()
 
 
-# -----------------------------
-# UI
-# -----------------------------
-st.title("🤖 Audit Renault IA")
+st.title("🤖 Audit Renault IA (Stable)")
 
 file = st.file_uploader("Upload PDF", type=["pdf"])
 
 if file:
-
     if st.button("Analyser"):
 
-        st.info("Upload du PDF...")
+        result = analyse_pdf(file)
 
-        upload_result = upload_pdf(file)
-
-        if upload_result.get("error"):
-            st.error("❌ Erreur upload")
-            st.write(upload_result)
-        elif "doc_id" not in upload_result:
-            st.error("❌ doc_id non reçu")
-            st.write(upload_result)
+        if "error" in result:
+            st.error(result)
         else:
-            doc_id = upload_result["doc_id"]
+            st.subheader("📦 Donnée brute")
+            st.write(result)
 
-            st.success("✅ PDF uploadé")
+            df = pd.DataFrame(result)
 
-            st.info("Analyse IA...")
-
-            result = ask_pdf(doc_id)
-
-            if result.get("error"):
-                st.error("❌ Erreur analyse")
-                st.write(result)
-            else:
-                st.success("✅ Réponse IA")
-
-                st.subheader("📦 Résultat brut")
-                st.json(result)
-
-                # ⚠️ ici réponse souvent texte
-                answer = result.get("answer", "")
-
-                df = pd.DataFrame({
-                    "KPI": ["Résultat IA"],
-                    "Valeur": [answer]
-                })
-
-                st.subheader("📊 KPI")
-                st.dataframe(df)
+            st.subheader("📊 Données structurées")
+            st.dataframe(df)
