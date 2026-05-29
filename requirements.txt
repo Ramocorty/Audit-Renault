@@ -4,3 +4,4 @@ plotly
 pypdf
 openpyxl
 streamlit-option-menu
+PyPDF2
