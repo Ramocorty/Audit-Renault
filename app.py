@@ -97,22 +97,22 @@ def main():
 
     # --- Barre Latérale ---
     st.sidebar.image(RENAULT_LOGO_PATH, use_column_width=True)
-    st.sidebar.title(" page Streamlit.
+    st.sidebar.title(" page Streamlit")
     st.set_page_config(layout="wide", page_title="Renault Audit Application")
 
     # --- Barre Latérale ---
     st.sidebar.image(RENAULT_LOGO_PATH, use_column_width=True)
-    st.sidebar.title(" page Streamlit.
+    st.sidebar.title(" page Streamlit")
     st.set_page_config(layout="wide", page_title="Renault Audit Application")
 
     # --- Barre Latérale ---
     st.sidebar.image(RENAULT_LOGO_PATH, use_column_width=True)
-    st.sidebar.title(" page Streamlit.
+    st.sidebar.title(" page Streamlit")
     st.set_page_config(layout="wide", page_title="Renault Audit Application")
 
     # --- Barre Latérale ---
     st.sidebar.image(RENAULT_LOGO_PATH, use_column_width=True)
-    st.sidebar.title(" page Streamlit.
+    st.sidebar.title(" page Streamlit")
     st.set_page_config(layout="wide", page_title="Renault Audit Application")
 
     # --- Barre Latérale ---
