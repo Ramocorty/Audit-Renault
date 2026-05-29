@@ -182,4 +182,3 @@ elif st.session_state.page=="map":
     ])
 
     st.map(df_sites)
-``
