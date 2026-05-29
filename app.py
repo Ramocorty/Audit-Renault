@@ -2,14 +2,8 @@ import streamlit as st
 import requests
 import pandas as pd
 
-# -----------------------------
-# CONFIG
-# -----------------------------
-API_KEY = "TA_CLE_API_ICI"  # 🔑 mets ta clé PDF.ai
+API_KEY = "TA_CLE_API_ICI"
 
-# -----------------------------
-# Fonction appel API IA
-# -----------------------------
 def analyse_pdf_with_ai(file):
     url = "https://api.pdf.ai/v1/extract"
 
@@ -21,59 +15,66 @@ def analyse_pdf_with_ai(file):
         "file": file
     }
 
-    prompt = """
-    Tu es un expert HSE Renault.
-    Analyse ce document d'audit et retourne un JSON avec :
-    - nombre_ok
-    - nombre_nok
-    - sections (liste)
-    - score (entre 0 et 100)
-    """
-
     data = {
-        "prompt": prompt
+        "prompt": """
+        Retourne uniquement un JSON avec :
+        {
+          "nombre_ok": int,
+          "nombre_nok": int,
+          "score": int
+        }
+        """
     }
 
     response = requests.post(url, headers=headers, files=files, data=data)
 
-    return response.json()
+    # ✅ GESTION ERREUR PROPRE
+    try:
+        return response.json()
+    except:
+        return {
+            "error": "Réponse non JSON",
+            "status_code": response.status_code,
+            "text": response.text
+        }
 
-# -----------------------------
-# UI STREAMLIT
-# -----------------------------
-st.title("🤖 Audit Renault IA - PDF → KPI")
 
-file = st.file_uploader("Upload ton PDF", type=["pdf"])
+st.title("🤖 Audit Renault IA")
+
+file = st.file_uploader("Upload PDF", type=["pdf"])
 
 if file:
-    st.success("✅ PDF chargé")
+    st.success("PDF chargé")
 
-    if st.button("🚀 Lancer analyse IA"):
-        with st.spinner("Analyse en cours..."):
-            result = analyse_pdf_with_ai(file)
+    if st.button("Analyser"):
+        result = analyse_pdf_with_ai(file)
 
-        st.subheader("📊 Résultat IA brut")
-        st.json(result)
+        # ✅ DEBUG IMPORTANT
+        if "error" in result:
+            st.error("❌ Erreur API")
+            st.write(result)
+        else:
+            st.success("✅ Réponse reçue")
 
-        # -----------------------------
-        # Essai extraction KPI
-        # -----------------------------
-        try:
-            data = result.get("data", {})
+            st.subheader("📦 JSON brut")
+            st.json(result)
 
-            df = pd.DataFrame({
-                "KPI": ["OK", "NOK", "Score"],
-                "Valeur": [
-                    data.get("nombre_ok", 0),
-                    data.get("nombre_nok", 0),
-                    data.get("score", 0)
-                ]
-            })
+            try:
+                data = result.get("data", result)
 
-            st.subheader("📈 KPI")
-            st.dataframe(df)
+                df = pd.DataFrame({
+                    "KPI": ["OK", "NOK", "Score"],
+                    "Valeur": [
+                        data.get("nombre_ok", 0),
+                        data.get("nombre_nok", 0),
+                        data.get("score", 0)
+                    ]
+                })
 
-            st.bar_chart(df.set_index("KPI"))
+                st.subheader("📊 KPI")
+                st.dataframe(df)
+                st.bar_chart(df.set_index("KPI"))
 
-        except:
-            st.warning("⚠️ Impossible de parser proprement la réponse IA")
+            except:
+                st.warning("⚠️ Parsing impossible")
+``
