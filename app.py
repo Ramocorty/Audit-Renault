@@ -257,4 +257,4 @@ def parse_pdf_text(uploaded_pdf):
     except Exception as e:
         return f"Erreur de lecture PDF : {e}"
 
-def extract_pdf_fields(text):
+def extract_pdf_fields(text)
