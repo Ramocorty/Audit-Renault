@@ -4,8 +4,11 @@ import pandas as pd
 
 API_KEY = "TA_CLE_API_ICI"
 
-def analyse_pdf_with_ai(file):
-    url = "https://api.pdf.ai/v1/extract"
+# -----------------------------
+# Upload PDF
+# -----------------------------
+def upload_pdf(file):
+    url = "https://api.pdf.ai/v1/upload"
 
     headers = {
         "Authorization": f"Bearer {API_KEY}"
@@ -15,44 +18,76 @@ def analyse_pdf_with_ai(file):
         "file": file
     }
 
-    data = {
-        "prompt": "Retourne un JSON avec nombre_ok, nombre_nok, score"
+    response = requests.post(url, headers=headers, files=files)
+    
+    return response.json()
+
+
+# -----------------------------
+# Question au PDF
+# -----------------------------
+def ask_pdf(doc_id):
+    url = "https://api.pdf.ai/v1/ask"
+
+    headers = {
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json"
     }
 
-    response = requests.post(url, headers=headers, files=files, data=data)
+    json_data = {
+        "doc_id": doc_id,
+        "query": "Donne moi le nombre de OK, NOK et le score qualité en JSON"
+    }
+
+    response = requests.post(url, headers=headers, json=json_data)
 
     try:
         return response.json()
     except:
-        return {
-            "error": "Réponse non JSON",
-            "status_code": response.status_code,
-            "text": response.text
-        }
+        return {"error": response.text}
 
-st.title("Audit Renault IA")
+
+# -----------------------------
+# UI
+# -----------------------------
+st.title("🤖 Audit Renault IA")
 
 file = st.file_uploader("Upload PDF", type=["pdf"])
 
 if file:
-    if st.button("Analyser"):
-        result = analyse_pdf_with_ai(file)
+    st.success("PDF chargé")
 
-        if "error" in result:
-            st.error(result)
+    if st.button("Analyser"):
+        
+        # Step 1: Upload
+        upload_result = upload_pdf(file)
+
+        if "doc_id" not in upload_result:
+            st.error("❌ Upload échoué")
+            st.write(upload_result)
         else:
+            doc_id = upload_result["doc_id"]
+
+            st.info("PDF uploadé ✅")
+
+            # Step 2: Ask
+            result = ask_pdf(doc_id)
+
+            st.subheader("📦 Réponse IA")
             st.json(result)
 
-            data = result.get("data", result)
+            # Essai extraction KPI
+            try:
+                answer = result.get("answer", "")
 
-            df = pd.DataFrame({
-                "KPI": ["OK", "NOK", "Score"],
-                "Valeur": [
-                    data.get("nombre_ok", 0),
-                    data.get("nombre_nok", 0),
-                    data.get("score", 0)
-                ]
-            })
+                # petit parsing simple
+                df = pd.DataFrame({
+                    "KPI": ["Résultat brut"],
+                    "Valeur": [answer]
+                })
 
-            st.dataframe(df)
-            st.bar_chart(df.set_index("KPI"))
+                st.subheader("📊 KPI")
+                st.dataframe(df)
+
+            except:
+                st.warning("⚠️ Impossible de parser")
