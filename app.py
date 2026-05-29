@@ -1,260 +1,226 @@
+import streamlit as st
+import pandas as pd
 import os
-import re
 import uuid
 from datetime import datetime
-
-import pandas as pd
 import plotly.express as px
-import streamlit as st
-from pypdf import PdfReader
 
 # =========================================================
 # CONFIG
 # =========================================================
-st.set_page_config(
-    page_title="Audit Conformité Renault - MVP",
-    page_icon="📋",
-    layout="wide",
-    initial_sidebar_state="collapsed"
-)
+st.set_page_config(layout="wide")
 
 DATA_FILE = "audits.csv"
 UPLOAD_DIR = "uploads"
-LOGO_FILE = "nouveau_logo_renault.webp"  # ajoute ce fichier dans ton repo GitHub
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-SITES = {
-    "Aubevoye": {"lat": 49.1720, "lon": 1.3380},
-    "Lardy": {"lat": 48.5200, "lon": 2.2600},
-    "Guyancourt": {"lat": 48.7610, "lon": 2.0820},
-    "Villiers-Saint-Frédéric": {"lat": 48.8200, "lon": 1.9000},
-    "Boulogne": {"lat": 48.8350, "lon": 2.2400},
-}
-
-TYPES_ESPACE = ["Parking", "Site", "Salle de réunion", "Chantier"]
-CATEGORIES = ["Sécurité", "Propreté", "Maintenance", "Signalétique", "Accessibilité", "Autre"]
-GRAVITES = ["Mineure", "Majeure", "Critique"]
-CONFORMITES = ["Conforme", "Non conforme"]
-STATUTS = ["Ouvert", "En cours", "Clos"]
-
-OBJETS_OBSERVES = [
-    "Être humain",
-    "Table",
-    "Chaise",
-    "Salle de réunion",
-    "PC",
-    "Parking",
-    "Barrière",
-    "Lampe",
-    "Chantier",
-    "Chaîne",
-    "Porte",
-    "Fenêtre",
-    "Véhicule",
-    "Signalisation",
-    "Autre"
-]
-
-AUDIT_COLUMNS = [
-    "id_audit",
-    "date_audit",
-    "site",
-    "type_espace",
-    "zone",
-    "reference_local",
-    "mode_saisie",
-    "media_nom",
-    "source_document",
-    "conformite",
-    "gravite",
-    "categorie",
-    "commentaire",
-    "auditeur",
-    "action_immediate",
-    "statut",
-    "objets_observes",
-    "nb_humains",
-    "synthèse_import"
-]
-
 # =========================================================
-# STYLE
+# STYLE DARK + MOBILE
 # =========================================================
 st.markdown("""
 <style>
 .stApp {
-    background: linear-gradient(180deg, #242734 0%, #2F3444 35%, #394258 100%);
-    color: white;
+    background: linear-gradient(180deg,#1c1e26,#2d3142);
+    color:white;
 }
 
-html, body, [class*="css"] {
-    font-family: Arial, sans-serif;
-}
-
-.main-title {
-    font-size: 2.2rem;
-    font-weight: 800;
-    color: #ffffff;
-    margin-bottom: 0.2rem;
-}
-
-.sub-title {
-    font-size: 1rem;
-    color: #d1d5db;
-    margin-bottom: 1.2rem;
+h1,h2,h3,h4,h5,p,span {
+    color:white!important;
 }
 
 .card {
-    background: rgba(255,255,255,0.10);
-    backdrop-filter: blur(6px);
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 22px;
-    padding: 1rem 1.1rem;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
-    margin-bottom: 1rem;
-    color: white;
-}
-
-.metric-card {
-    background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.08) 100%);
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 18px;
-    padding: 1rem;
-    box-shadow: 0 8px 22px rgba(0,0,0,0.15);
-    text-align: center;
-    color: white;
-}
-
-.metric-title {
-    font-size: 0.9rem;
-    color: #d1d5db;
-    margin-bottom: 0.2rem;
-}
-
-.metric-value {
-    font-size: 1.8rem;
-    font-weight: 800;
-    color: #ffffff;
-}
-
-.chip-green {
-    background: #86efac;
-    color: #14532d;
-    padding: 0.35rem 0.65rem;
-    border-radius: 999px;
-    font-weight: 700;
-    font-size: 0.82rem;
-    display: inline-block;
-}
-
-.chip-red {
-    background: #fca5a5;
-    color: #7f1d1d;
-    padding: 0.35rem 0.65rem;
-    border-radius: 999px;
-    font-weight: 700;
-    font-size: 0.82rem;
-    display: inline-block;
-}
-
-.chip-orange {
-    background: #fdba74;
-    color: #7c2d12;
-    padding: 0.35rem 0.65rem;
-    border-radius: 999px;
-    font-weight: 700;
-    font-size: 0.82rem;
-    display: inline-block;
-}
-
-.nav-title {
-    font-size: 1.05rem;
-    font-weight: 800;
-    color: #ffffff;
-    margin-bottom: 0.6rem;
-}
-
-.small-note {
-    color: #d1d5db;
-    font-size: 0.88rem;
-}
-
-.stButton > button {
-    border-radius: 14px !important;
-    border: none !important;
-    background: linear-gradient(135deg, #F97316 0%, #EA580C 100%) !important;
-    color: white !important;
-    font-weight: 700 !important;
-    box-shadow: 0 8px 18px rgba(0,0,0,0.12);
-}
-
-.stTextInput input,
-.stTextArea textarea,
-.stNumberInput input {
-    border-radius: 12px !important;
-}
-
-.bottom-nav {
     background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 18px;
-    padding: 0.7rem 0.8rem;
-    margin-top: 1rem;
-    box-shadow: 0 8px 22px rgba(0,0,0,0.18);
+    border-radius:20px;
+    padding:15px;
+    margin-bottom:10px;
 }
+
+button {
+    border-radius:12px!important;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
 # =========================================================
-# STOCKAGE
+# LOGO RENAULT
 # =========================================================
-def init_storage():
-    if not os.path.exists(DATA_FILE):
-        pd.DataFrame(columns=AUDIT_COLUMNS).to_csv(DATA_FILE, index=False)
-
-def load_audits():
-    init_storage()
-    df = pd.read_csv(DATA_FILE)
-    if not df.empty and "date_audit" in df.columns:
-        df["date_audit"] = pd.to_datetime(df["date_audit"], errors="coerce")
-    return df
-
-def save_audits(df):
-    df2 = df.copy()
-    if "date_audit" in df2.columns:
-        df2["date_audit"] = pd.to_datetime(df2["date_audit"], errors="coerce")
-        df2["date_audit"] = df2["date_audit"].dt.strftime("%Y-%m-%d %H:%M:%S")
-    df2.to_csv(DATA_FILE, index=False)
-
-def append_audit(row_dict):
-    df = load_audits()
-    new_row = pd.DataFrame([row_dict])
-    df = pd.concat([df, new_row], ignore_index=True)
-    save_audits(df)
+st.image("nouveau_logo_renault.webp", width=90)
 
 # =========================================================
-# OUTILS
+# NAVIGATION SIMPLE (MOBILE)
 # =========================================================
-def save_uploaded_file(uploaded_file):
-    if uploaded_file is None:
+page = st.radio(
+    "",
+    ["🏠 Accueil","📷 Audit","📄 Import","📊 KPI","🗺️ Carte"],
+    horizontal=True
+)
+
+# =========================================================
+# SITES
+# =========================================================
+SITES = ["Aubevoye","Lardy","Guyancourt","VSF","Boulogne"]
+
+# =========================================================
+# DATA
+# =========================================================
+if not os.path.exists(DATA_FILE):
+    pd.DataFrame().to_csv(DATA_FILE)
+
+df = pd.read_csv(DATA_FILE)
+
+# =========================================================
+# FONCTIONS
+# =========================================================
+
+def save_media(file):
+    if file is None:
         return ""
-    filename = f"{uuid.uuid4().hex}_{uploaded_file.name}"
-    filepath = os.path.join(UPLOAD_DIR, filename)
-    with open(filepath, "wb") as f:
-        f.write(uploaded_file.getbuffer())
-    return filename
+    name = str(uuid.uuid4()) + "_" + file.name
+    path = os.path.join(UPLOAD_DIR, name)
+    with open(path,"wb") as f:
+        f.write(file.getbuffer())
+    return name
 
-def parse_pdf_text(uploaded_pdf):
-    try:
-        reader = PdfReader(uploaded_pdf)
-        text = ""
-        for page in reader.pages:
-            page_text = page.extract_text()
-            if page_text:
-                text += page_text + "\n"
-        return text
-    except Exception as e:
-        return f"Erreur de lecture PDF : {e}"
+def add_audit(data):
+    global df
+    new_df = pd.DataFrame([data])
+    df = pd.concat([df,new_df],ignore_index=True)
+    df.to_csv(DATA_FILE,index=False)
 
-def extract_pdf_fields(text)
+def compute_kpi(df):
+    if df.empty:
+        return 0,0,0,0
+    total = len(df)
+    conformes = (df["conformite"]=="Conforme").sum()
+    non_conformes = (df["conformite"]=="Non conforme").sum()
+    pct = int((conformes/total)*100) if total>0 else 0
+    return total, conformes, non_conformes, pct
+
+# =========================================================
+# ACCUEIL
+# =========================================================
+if page=="🏠 Accueil":
+
+    st.title("Audit Renault Mobile")
+
+    total, conformes, non_conformes, pct = compute_kpi(df)
+
+    c1,c2,c3,c4 = st.columns(4)
+    c1.metric("Audits",total)
+    c2.metric("% Conformité",str(pct)+"%")
+    c3.metric("Conformes",conformes)
+    c4.metric("Non conformes",non_conformes)
+
+    st.write("Application audit terrain + KPI")
+
+# =========================================================
+# AUDIT PHOTO
+# =========================================================
+elif page=="📷 Audit":
+
+    st.subheader("Audit terrain")
+
+    site = st.selectbox("Site",SITES)
+    type_espace = st.selectbox("Type espace",["chantier","parking","salle","bureau","zone"])
+
+    col1,col2 = st.columns(2)
+
+    with col1:
+        conformite = st.radio("Conformité",["Conforme","Non conforme"])
+        gravite = st.selectbox("Gravité",["Faible","Moyenne","Critique"])
+
+    with col2:
+        categorie = st.selectbox("Catégorie",["Sécurité","Propreté","Technique"])
+        auditeur = st.text_input("Auditeur")
+
+    # PHOTO
+    photo = st.camera_input("Prendre une photo")
+    upload = st.file_uploader("ou uploader une image",type=["jpg","png"])
+
+    # SIMULATION DETECTION
+    objets = st.multiselect("Objets détectés",
+        ["Humain","Table","Chaise","PC","Parking","Barrière","Lampe","Chantier","Véhicule"])
+
+    commentaire = st.text_area("Commentaire")
+
+    if st.button("Enregistrer"):
+
+        media = save_media(photo if photo else upload)
+
+        add_audit({
+            "date":datetime.now(),
+            "site":site,
+            "type_espace":type_espace,
+            "conformite":conformite,
+            "gravite":gravite,
+            "categorie":categorie,
+            "auditeur":auditeur,
+            "objets":",".join(objets),
+            "media":media,
+            "commentaire":commentaire
+        })
+
+        st.success("Audit enregistré")
+
+# =========================================================
+# IMPORT PDF / EXCEL
+# =========================================================
+elif page=="📄 Import":
+
+    st.subheader("Import formulaire")
+
+    file = st.file_uploader("Importer PDF / Excel / CSV")
+
+    if file:
+
+        st.write("Aperçu fichier")
+
+        if file.name.endswith(".csv"):
+            df_import = pd.read_csv(file)
+        else:
+            df_import = pd.read_excel(file)
+
+        st.dataframe(df_import)
+
+        if st.button("Importer"):
+
+            df_final = pd.concat([df,df_import],ignore_index=True)
+            df_final.to_csv(DATA_FILE,index=False)
+
+            st.success("Import réussi")
+
+# =========================================================
+# KPI
+# =========================================================
+elif page=="📊 KPI":
+
+    st.subheader("Dashboard")
+
+    if df.empty:
+        st.warning("Pas de données")
+    else:
+
+        total, conformes, non_conformes, pct = compute_kpi(df)
+
+        st.metric("% conformité",pct)
+
+        fig = px.histogram(df, x="site", color="conformite")
+        st.plotly_chart(fig,use_container_width=True)
+
+        st.dataframe(df)
+
+# =========================================================
+# MAP
+# =========================================================
+elif page=="🗺️ Carte":
+
+    st.subheader("Carte sites")
+
+    map_data = pd.DataFrame({
+        "lat":[49.17,48.52,48.76,48.82,48.83],
+        "lon":[1.33,2.26,2.08,1.90,2.24]
+    })
+
+    st.map(map_data)
