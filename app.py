@@ -14,9 +14,8 @@ def extract_text(file):
                 text += content + "\n"
     return text
 
-
 # -----------------------------
-# Transformation en table
+# Parsing intelligent (corrigé)
 # -----------------------------
 def parse_audit(text):
     lines = text.split("\n")
@@ -24,42 +23,46 @@ def parse_audit(text):
     data = []
     current_section = "Non défini"
 
-    for line in lines:
-        l = line.strip().lower()
+    for i in range(len(lines)):
+        line = lines[i].strip().lower()
 
         # Détection sections
-        if "plan de prévention" in l:
+        if "plan de prévention" in line:
             current_section = "Plan de prévention"
-        elif "balisage" in l:
+        elif "balisage" in line:
             current_section = "Balisage"
-        elif "protection collective" in l:
+        elif "protection collective" in line:
             current_section = "Protection collective"
-        elif "protection individuelles" in l:
+        elif "protection individuelle" in line:
             current_section = "Protection individuelle"
-        elif "outillage" in l:
+        elif "outillage" in line:
             current_section = "Outillage"
-        elif "produits chimiques" in l:
+        elif "produits chimiques" in line:
             current_section = "Produits chimiques"
-        elif "environnement" in l:
+        elif "environnement" in line:
             current_section = "Environnement"
 
-        # Détection statut
-        if "oui" in l or "non" in l or "x" in l:
-            if "non" in l:
-                statut = "NOK"
-            elif "oui" in l or "x" in l:
-                statut = "OK"
-            else:
-                statut = "NC"
+        # Logique principale : question + ligne suivante = statut
+        if i < len(lines) - 1:
+            next_line = lines[i + 1].strip().lower()
 
-            data.append({
-                "Section": current_section,
-                "Ligne": l,
-                "Statut": statut
-            })
+            # On considère une "question"
+            if len(line) > 20:
+
+                if "x" in next_line or "k" in next_line:
+                    statut = "OK"
+                elif "non" in next_line:
+                    statut = "NOK"
+                else:
+                    continue
+
+                data.append({
+                    "Section": current_section,
+                    "Question": line,
+                    "Statut": statut
+                })
 
     return pd.DataFrame(data)
-
 
 # -----------------------------
 # KPI
@@ -70,14 +73,12 @@ def compute_kpi(df):
     total = ok + nok
 
     score = (ok / total * 100) if total > 0 else 0
-
     return ok, nok, score
-
 
 # -----------------------------
 # UI
 # -----------------------------
-st.title("📊 Audit Renault - Analyse locale (sans IA externe)")
+st.title("📊 Audit Renault - Analyse locale (offline)")
 
 file = st.file_uploader("Upload ton PDF", type=["pdf"])
 
@@ -110,11 +111,11 @@ if file:
         st.subheader("📈 Répartition")
         st.bar_chart(df["Statut"].value_counts())
 
-        # Export Excel
+        # Export CSV
         st.subheader("⬇️ Export")
         st.download_button(
-            label="Télécharger Excel",
+            label="Télécharger le résultat (CSV)",
             data=df.to_csv(index=False).encode("utf-8"),
-            file_name="audit_result.csv",
+            file_name="audit_kpi.csv",
             mime="text/csv"
         )
