@@ -676,4 +676,3 @@ elif page == "Carte des sites":
 
     st.map(df_sites.rename(columns={"lat": "latitude", "lon": "longitude"}))
     st.dataframe(df_sites, use_container_width=True)
-``
