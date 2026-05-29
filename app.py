@@ -19,12 +19,20 @@ def upload_pdf(file):
     }
 
     response = requests.post(url, headers=headers, files=files)
-    
-    return response.json()
+
+    # ✅ ne plus jamais planter ici
+    try:
+        return response.json()
+    except:
+        return {
+            "error": True,
+            "status_code": response.status_code,
+            "text": response.text
+        }
 
 
 # -----------------------------
-# Question au PDF
+# Question IA
 # -----------------------------
 def ask_pdf(doc_id):
     url = "https://api.pdf.ai/v1/ask"
@@ -34,17 +42,21 @@ def ask_pdf(doc_id):
         "Content-Type": "application/json"
     }
 
-    json_data = {
+    payload = {
         "doc_id": doc_id,
-        "query": "Donne moi le nombre de OK, NOK et le score qualité en JSON"
+        "query": "Retourne un JSON avec nombre_ok, nombre_nok et score"
     }
 
-    response = requests.post(url, headers=headers, json=json_data)
+    response = requests.post(url, headers=headers, json=payload)
 
     try:
         return response.json()
     except:
-        return {"error": response.text}
+        return {
+            "error": True,
+            "status_code": response.status_code,
+            "text": response.text
+        }
 
 
 # -----------------------------
@@ -55,39 +67,44 @@ st.title("🤖 Audit Renault IA")
 file = st.file_uploader("Upload PDF", type=["pdf"])
 
 if file:
-    st.success("PDF chargé")
 
     if st.button("Analyser"):
-        
-        # Step 1: Upload
+
+        st.info("Upload du PDF...")
+
         upload_result = upload_pdf(file)
 
-        if "doc_id" not in upload_result:
-            st.error("❌ Upload échoué")
+        if upload_result.get("error"):
+            st.error("❌ Erreur upload")
+            st.write(upload_result)
+        elif "doc_id" not in upload_result:
+            st.error("❌ doc_id non reçu")
             st.write(upload_result)
         else:
             doc_id = upload_result["doc_id"]
 
-            st.info("PDF uploadé ✅")
+            st.success("✅ PDF uploadé")
 
-            # Step 2: Ask
+            st.info("Analyse IA...")
+
             result = ask_pdf(doc_id)
 
-            st.subheader("📦 Réponse IA")
-            st.json(result)
+            if result.get("error"):
+                st.error("❌ Erreur analyse")
+                st.write(result)
+            else:
+                st.success("✅ Réponse IA")
 
-            # Essai extraction KPI
-            try:
+                st.subheader("📦 Résultat brut")
+                st.json(result)
+
+                # ⚠️ ici réponse souvent texte
                 answer = result.get("answer", "")
 
-                # petit parsing simple
                 df = pd.DataFrame({
-                    "KPI": ["Résultat brut"],
+                    "KPI": ["Résultat IA"],
                     "Valeur": [answer]
                 })
 
                 st.subheader("📊 KPI")
                 st.dataframe(df)
-
-            except:
-                st.warning("⚠️ Impossible de parser")
