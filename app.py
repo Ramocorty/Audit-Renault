@@ -77,4 +77,3 @@ if file:
 
         except:
             st.warning("⚠️ Impossible de parser proprement la réponse IA")
-``
