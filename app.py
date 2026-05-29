@@ -56,4 +56,3 @@ if file:
 
             st.dataframe(df)
             st.bar_chart(df.set_index("KPI"))
-``
