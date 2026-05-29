@@ -1,283 +1,82 @@
 import streamlit as st
-onner le code `app.py` en étant encore plus explicite sur ce qui est le code et ce qui ne l'est pas.
+import PyPDF2
+import pandas as pd
 
----
+# -----------------------------
+# Fonction lecture PDF
+# -----------------------------
+def extract_text_from_pdf(file):
+    reader = PyPDF2.PdfReader(file)
+    text = ""
+    for page in reader.pages:
+        text += page.extract_text()
+    return text
 
-**Voici le contenu exact que vous devriez copier-coller dans votre fichier `app.py` :**
+# -----------------------------
+# Fonction analyse audit
+# -----------------------------
+def analyse_audit(text):
+    text = text.lower()
 
-```python
-import streamlit as st
-onner le code `app.py` en étant encore plus explicite sur ce qui est le code et ce qui ne l'est pas.
+    # KPI simples
+    sections = [
+        "plan de prévention",
+        "balisages",
+        "protection collective",
+        "protection individuelles",
+        "outillage",
+        "produits chimiques",
+        "environnement"
+    ]
 
----
+    results = []
 
-**Voici le contenu exact que vous devriez copier-coller dans votre fichier `app.py` :**
+    for section in sections:
+        if section in text:
+            score = text.count("oui") - text.count("non")
+            results.append({
+                "Section": section,
+                "Score": score
+            })
 
-```python
-import streamlit as st
-onner le code `app.py` en étant encore plus explicite sur ce qui est le code et ce qui ne l'est pas.
+    # Score global
+    total_oui = text.count("oui")
+    total_non = text.count("non")
 
----
+    kpi = {
+        "Total OUI": total_oui,
+        "Total NON": total_non,
+        "Score global": total_oui - total_non
+    }
 
-**Voici le contenu exact que vous devriez copier-coller dans votre fichier `app.py` :**
+    return pd.DataFrame(results), kpi
 
-```python
-import streamlit as st
-onner le code `app.py` en étant encore plus explicite sur ce qui est le code et ce qui ne l'est pas.
 
----
+# -----------------------------
+# UI Streamlit
+# -----------------------------
+st.title("📊 Audit Renault - Analyse PDF")
 
-**Voici le contenu exact que vous devriez copier-coller dans votre fichier `app.py` :**
-
-```python
-import streamlit as st
-import pandas as pd # On peut l'utiliser si le formulaire est un CSV/Excel
-
-st.set_page_config(page_title="Audit Chantier Renault", layout="centered")
-
-st.title("Application d'Audit sur Site Renault")
-st.subheader("Uploader un formulaire d'audit")import pandas as pd # On peut l'utiliser si le formulaire est un CSV/Excel
-
-st.set_page_config(page_title="Audit Chantier Renault", layout="centered")
-
-st.title("Application d'Audit sur Site Renault")
-st.subheader("Uploader un formulaire d'audit")import pandas as pd # On peut l'utiliser si le formulaire est un CSV/Excel
-
-st.set_page_config(page_title="Audit Chantier Renault", layout="centered")
-
-st.title("Application d'Audit sur Site Renault")
-st.subheader("Uploader un formulaire d'audit")import pandas as pd # On peut l'utiliser si le formulaire est un CSV/Excel
-
-st.set_page_config(page_title="Audit Chantier Renault", layout="centered")
-
-st.title("Application d'Audit sur Site Renault")
-st.subheader("Uploader un formulaire d'audit")
-
-st.write("""
-Bienvenue dans l'outil d'audit des chantiers Renault.
-Veuillez uploader votre formulaire d'audit (par exemple, un PDF, une image ou un fichier Excel).
-""")
-
-uploaded_file = st.file_uploader("Choisissez un fichier de formulaire", type
-
-st.write("""
-Bienvenue dans l'outil d'audit des chantiers Renault.
-Veuillez uploader votre formulaire d'audit (par exemple, un PDF, une image ou un fichier Excel).
-""")
-
-uploaded_file = st.file_uploader("Choisissez un fichier de formulaire", type
-
-st.write("""
-Bienvenue dans l'outil d'audit des chantiers Renault.
-Veuillez uploader votre formulaire d'audit (par exemple, un PDF, une image ou un fichier Excel).
-""")
-
-uploaded_file = st.file_uploader("Choisissez un fichier de formulaire", type
-
-st.write("""
-Bienvenue dans l'outil d'audit des chantiers Renault.
-Veuillez uploader votre formulaire d'audit (par exemple, un PDF, une image ou un fichier Excel).
-""")
-
-uploaded_file = st.file_uploader("Choisissez un fichier de formulaire", type
-
-st.write("""
-Bienvenue dans l'outil d'audit des chantiers Renault.
-Veuillez uploader votre formulaire d'audit (par exemple, un PDF, une image ou un fichier Excel).
-""")
-
-uploaded_file = st.file_uploader("Choisissez un fichier de formulaire", type=["pdf", "png", "jpg", "jpeg", "csv", "xlsx"])
+uploaded_file = st.file_uploader("Upload ton audit PDF", type=["pdf"])
 
 if uploaded_file is not None:
-    st.success(f"Fichier '{uploaded_file.name}' a été téléchargé avec succès !")
+    st.success("✅ PDF chargé")
 
-    # Optionnel : Afficher des informations sur le fichier ou son=["pdf", "png", "jpg", "jpeg", "csv", "xlsx"])
+    text = extract_text_from_pdf(uploaded_file)
 
-if uploaded_file is not None:
-    st.success(f"Fichier '{uploaded_file.name}' a été téléchargé avec succès !")
+    st.subheader("📄 Aperçu texte")
+    st.text(text[:1000])  # preview
 
-    # Optionnel : Afficher des informations sur le fichier ou son=["pdf", "png", "jpg", "jpeg", "csv", "xlsx"])
+    df, kpi = analyse_audit(text)
 
-if uploaded_file is not None:
-    st.success(f"Fichier '{uploaded_file.name}' a été téléchargé avec succès !")
+    st.subheader("📊 KPI Global")
+    st.metric("Total OUI", kpi["Total OUI"])
+    st.metric("Total NON", kpi["Total NON"])
+    st.metric("Score Global", kpi["Score global"])
 
-    # Optionnel : Afficher des informations sur le fichier ou son=["pdf", "png", "jpg", "jpeg", "csv", "xlsx"])
+    st.subheader("📋 Résultat par section")
+    st.dataframe(df)
 
-if uploaded_file is not None:
-    st.success(f"Fichier '{uploaded_file.name}' a été téléchargé avec succès !")
-
-    # Optionnel : Afficher des informations sur le fichier ou son contenu
-    # Si c'est une image
-    if uploaded_file.type.startswith('image'):
-        st.image(uploaded_file, caption="Formulaire téléchargé", use_column_width=True)
-    # Si c'est un PDF (Streamlit ne l'affiche pas directement contenu
-    # Si c'est une image
-    if uploaded_file.type.startswith('image'):
-        st.image(uploaded_file, caption="Formulaire téléchargé", use_column_width=True)
-    # Si c'est un PDF (Streamlit ne l'affiche pas directement contenu
-    # Si c'est une image
-    if uploaded_file.type.startswith('image'):
-        st.image(uploaded_file, caption="Formulaire téléchargé", use_column_width=True)
-    # Si c'est un PDF (Streamlit ne l'affiche pas directement contenu
-    # Si c'est une image
-    if uploaded_file.type.startswith('image'):
-        st.image(uploaded_file, caption="Formulaire téléchargé", use_column_width=True)
-    # Si c'est un PDF (Streamlit ne l'affiche pas directement contenu
-    # Si c'est une image
-    if uploaded_file.type.startswith('image'):
-        st.image(uploaded_file, caption="Formulaire téléchargé", use_column_width=True)
-    # Si c'est un PDF (Streamlit ne l'affiche pas directement, mais on peut le mentionner)
-    elif uploaded_file.type == 'application/pdf':
-        st.write("Le fichier PDF a été téléchargé. Vous pouvez maintenant le traiter.")
-    # Si c'est un CSV ou Excel (exemple de lecture)
-    elif uploaded_file.type, mais on peut le mentionner)
-    elif uploaded_file.type == 'application/pdf':
-        st.write("Le fichier PDF a été téléchargé. Vous pouvez maintenant le traiter.")
-    # Si c'est un CSV ou Excel (exemple de lecture)
-    elif uploaded_file.type, mais on peut le mentionner)
-    elif uploaded_file.type == 'application/pdf':
-        st.write("Le fichier PDF a été téléchargé. Vous pouvez maintenant le traiter.")
-    # Si c'est un CSV ou Excel (exemple de lecture)
-    elif uploaded_file.type, mais on peut le mentionner)
-    elif uploaded_file.type == 'application/pdf':
-        st.write("Le fichier PDF a été téléchargé. Vous pouvez maintenant le traiter.")
-    # Si c'est un CSV ou Excel (exemple de lecture)
-    elif uploaded_file.type, mais on peut le mentionner)
-    elif uploaded_file.type == 'application/pdf':
-        st.write("Le fichier PDF a été téléchargé. Vous pouvez maintenant le traiter.")
-    # Si c'est un CSV ou Excel (exemple de lecture)
-    elif uploaded_file.type == 'text/csv':
-        try:
-            df = pd.read_csv(uploaded_file)
-            st.write("Aperçu du fichier CSV :")
-            st.dataframe(df.head())
-        except Exception as e:
-            st.error(f"Erreur lors == 'text/csv':
-        try:
-            df = pd.read_csv(uploaded_file)
-            st.write("Aperçu du fichier CSV :")
-            st.dataframe(df.head())
-        except Exception as e:
-            st.error(f"Erreur lors == 'text/csv':
-        try:
-            df = pd.read_csv(uploaded_file)
-            st.write("Aperçu du fichier CSV :")
-            st.dataframe(df.head())
-        except Exception as e:
-            st.error(f"Erreur lors == 'text/csv':
-        try:
-            df = pd.read_csv(uploaded_file)
-            st.write("Aperçu du fichier CSV :")
-            st.dataframe(df.head())
-        except Exception as e:
-            st.error(f"Erreur lors == 'text/csv':
-        try:
-            df = pd.read_csv(uploaded_file)
-            st.write("Aperçu du fichier CSV :")
-            st.dataframe(df.head())
-        except Exception as e:
-            st.error(f"Erreur lors == 'text/csv':
-        try:
-            df = pd.read_csv(uploaded_file)
-            st.write("Aperçu du fichier CSV :")
-            st.dataframe(df.head())
-        except Exception as e:
-            st.error(f"Erreur lors == 'text/csv':
-        try:
-            df = pd.read_csv(uploaded_file)
-            st.write("Aperçu du fichier CSV :")
-            st.dataframe(df.head())
-        except Exception as e:
-            st.error(f"Erreur lors de la lecture du fichier CSV : {e}")
-    elif uploaded_file.type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
-        try:
-            df = pd.read_excel(uploaded_file)
-            st.write("Aperçu du fichier de la lecture du fichier CSV : {e}")
-    elif uploaded_file.type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
-        try:
-            df = pd.read_excel(uploaded_file)
-            st.write("Aperçu du fichier de la lecture du fichier CSV : {e}")
-    elif uploaded_file.type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
-        try:
-            df = pd.read_excel(uploaded_file)
-            st.write("Aperçu du fichier de la lecture du fichier CSV : {e}")
-    elif uploaded_file.type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
-        try:
-            df = pd.read_excel(uploaded_file)
-            st.write("Aperçu du fichier de la lecture du fichier CSV : {e}")
-    elif uploaded_file.type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
-        try:
-            df = pd.read_excel(uploaded_file)
-            st.write("Aperçu du fichier Excel :")
-            st.dataframe(df.head())
-        except Exception as e:
-            st.error(f"Erreur lors de la lecture du fichier Excel : {e}")
-    else:
-        st.write(f"Fichier de type '{uploaded_file.type}' téléchargé Excel :")
-            st.dataframe(df.head())
-        except Exception as e:
-            st.error(f"Erreur lors de la lecture du fichier Excel : {e}")
-    else:
-        st.write(f"Fichier de type '{uploaded_file.type}' téléchargé Excel :")
-            st.dataframe(df.head())
-        except Exception as e:
-            st.error(f"Erreur lors de la lecture du fichier Excel : {e}")
-    else:
-        st.write(f"Fichier de type '{uploaded_file.type}' téléchargé Excel :")
-            st.dataframe(df.head())
-        except Exception as e:
-            st.error(f"Erreur lors de la lecture du fichier Excel : {e}")
-    else:
-        st.write(f"Fichier de type '{uploaded_file.type}' téléchargé Excel :")
-            st.dataframe(df.head())
-        except Exception as e:
-            st.error(f"Erreur lors de la lecture du fichier Excel : {e}")
-    else:
-        st.write(f"Fichier de type '{uploaded_file.type}' téléchargé Excel :")
-            st.dataframe(df.head())
-        except Exception as e:
-            st.error(f"Erreur lors de la lecture du fichier Excel : {e}")
-    else:
-        st.write(f"Fichier de type '{uploaded_file.type}' téléchargé.")
-
-    # Ici, vous pourriez ajouter la logique pour traiter le formulaire
-    # Par exemple, l'envoyer à un service d'OCR si c'est une image,
-    # ou l'analyser si c'est un fichier structuré.
-
-st.markdown("---")
-st.info.")
-
-    # Ici, vous pourriez ajouter la logique pour traiter le formulaire
-    # Par exemple, l'envoyer à un service d'OCR si c'est une image,
-    # ou l'analyser si c'est un fichier structuré.
-
-st.markdown("---")
-st.info.")
-
-    # Ici, vous pourriez ajouter la logique pour traiter le formulaire
-    # Par exemple, l'envoyer à un service d'OCR si c'est une image,
-    # ou l'analyser si c'est un fichier structuré.
-
-st.markdown("---")
-st.info.")
-
-    # Ici, vous pourriez ajouter la logique pour traiter le formulaire
-    # Par exemple, l'envoyer à un service d'OCR si c'est une image,
-    # ou l'analyser si c'est un fichier structuré.
-
-st.markdown("---")
-st.info.")
-
-    # Ici, vous pourriez ajouter la logique pour traiter le formulaire
-    # Par exemple, l'envoyer à un service d'OCR si c'est une image,
-    # ou l'analyser si c'est un fichier structuré.
-
-st.markdown("---")
-st.info.")
-
-    # Ici, vous pourriez ajouter la logique pour traiter le formulaire
-    # Par exemple, l'envoyer à un service d'OCR si c'est une image,
-    # ou l'analyser si c'est un fichier structuré.
-
-st.markdown("---")
-st.info("Cette application est un prototype. Des fonctionnalités supplémentaires seront ajoutées.")
+    # Graph simple
+    st.subheader("📈 Visualisation")
+    st.bar_chart(df.set_index("Section"))
