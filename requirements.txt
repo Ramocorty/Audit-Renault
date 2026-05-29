@@ -5,3 +5,4 @@ pypdf
 openpyxl
 streamlit-option-menu
 PyPDF2
+pdfplumber
