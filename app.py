@@ -1,82 +1,72 @@
 import streamlit as st
-import PyPDF2
+import pdfplumber
 import pandas as pd
 
 # -----------------------------
-# Fonction lecture PDF
+# Lecture PDF
 # -----------------------------
 def extract_text_from_pdf(file):
-    reader = PyPDF2.PdfReader(file)
     text = ""
-    for page in reader.pages:
-        text += page.extract_text()
+    with pdfplumber.open(file) as pdf:
+        for page in pdf.pages:
+            if page.extract_text():
+                text += page.extract_text() + "\n"
     return text
 
 # -----------------------------
-# Fonction analyse audit
+# Transformation en table
 # -----------------------------
-def analyse_audit(text):
-    text = text.lower()
+def transform_to_table(text):
+    lines = text.split("\n")
 
-    # KPI simples
-    sections = [
-        "plan de prévention",
-        "balisages",
-        "protection collective",
-        "protection individuelles",
-        "outillage",
-        "produits chimiques",
-        "environnement"
-    ]
+    data = []
 
-    results = []
+    for line in lines:
+        line = line.strip().lower()
 
-    for section in sections:
-        if section in text:
-            score = text.count("oui") - text.count("non")
-            results.append({
-                "Section": section,
-                "Score": score
+        if "oui" in line or "non" in line:
+            statut = "OUI" if "oui" in line else "NON"
+
+            data.append({
+                "Question": line,
+                "Statut": statut
             })
 
-    # Score global
-    total_oui = text.count("oui")
-    total_non = text.count("non")
-
-    kpi = {
-        "Total OUI": total_oui,
-        "Total NON": total_non,
-        "Score global": total_oui - total_non
-    }
-
-    return pd.DataFrame(results), kpi
-
+    df = pd.DataFrame(data)
+    return df
 
 # -----------------------------
-# UI Streamlit
+# KPI
 # -----------------------------
-st.title("📊 Audit Renault - Analyse PDF")
+def compute_kpi(df):
+    total_oui = (df["Statut"] == "OUI").sum()
+    total_non = (df["Statut"] == "NON").sum()
 
-uploaded_file = st.file_uploader("Upload ton audit PDF", type=["pdf"])
+    score = total_oui / (total_oui + total_non) if (total_oui + total_non) > 0 else 0
 
-if uploaded_file is not None:
-    st.success("✅ PDF chargé")
+    return total_oui, total_non, score
 
-    text = extract_text_from_pdf(uploaded_file)
+# -----------------------------
+# UI
+# -----------------------------
+st.title("📊 Audit Renault - PDF → KPI")
 
-    st.subheader("📄 Aperçu texte")
-    st.text(text[:1000])  # preview
+file = st.file_uploader("Upload PDF", type=["pdf"])
 
-    df, kpi = analyse_audit(text)
+if file:
+    text = extract_text_from_pdf(file)
 
-    st.subheader("📊 KPI Global")
-    st.metric("Total OUI", kpi["Total OUI"])
-    st.metric("Total NON", kpi["Total NON"])
-    st.metric("Score Global", kpi["Score global"])
+    df = transform_to_table(text)
 
-    st.subheader("📋 Résultat par section")
+    st.subheader("📋 Table d'audit")
     st.dataframe(df)
 
-    # Graph simple
-    st.subheader("📈 Visualisation")
-    st.bar_chart(df.set_index("Section"))
+    if not df.empty:
+        oui, non, score = compute_kpi(df)
+
+        st.subheader("📊 KPI")
+        st.metric("✅ OUI", oui)
+        st.metric("❌ NON", non)
+        st.metric("🎯 Score qualité", f"{round(score*100,1)} %")
+
+        st.bar_chart(df["Statut"].value_counts())
