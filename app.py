@@ -7,15 +7,16 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 from pypdf import PdfReader
+from streamlit_option_menu import option_menu
 
 # =========================================================
-# CONFIGURATION GENERALE
+# CONFIG
 # =========================================================
-
 st.set_page_config(
     page_title="Audit Conformité Renault - MVP",
     page_icon="📋",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="collapsed"
 )
 
 DATA_FILE = "audits.csv"
@@ -23,7 +24,7 @@ UPLOAD_DIR = "uploads"
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-# Coordonnées indicatives pour la carte
+# Coordonnées indicatives / à ajuster si besoin
 SITES = {
     "Aubevoye": {"lat": 49.1720, "lon": 1.3380},
     "Lardy": {"lat": 48.5200, "lon": 2.2600},
@@ -60,65 +61,135 @@ AUDIT_COLUMNS = [
 # =========================================================
 # STYLE
 # =========================================================
-
 st.markdown("""
 <style>
-    .main-title {
-        font-size: 2.3rem;
-        font-weight: 800;
-        color: #1f2937;
-        margin-bottom: 0.2rem;
-    }
-    .sub-title {
-        font-size: 1.05rem;
-        color: #6b7280;
-        margin-bottom: 1.2rem;
-    }
-    .section-card {
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 16px;
-        padding: 1rem 1.2rem;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.04);
-        margin-bottom: 1rem;
-    }
-    .metric-box {
-        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-        border: 1px solid #e5e7eb;
-        padding: 0.9rem 1rem;
-        border-radius: 14px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        text-align: center;
-    }
-    .small-note {
-        color: #6b7280;
-        font-size: 0.9rem;
-    }
+/* Fond global */
+.stApp {
+    background: linear-gradient(180deg, #f7f9fc 0%, #eef3f9 100%);
+}
+
+/* Titre */
+.main-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #18212f;
+    margin-bottom: 0.15rem;
+}
+.sub-title {
+    font-size: 1rem;
+    color: #5b6472;
+    margin-bottom: 1.2rem;
+}
+
+/* Cartes */
+.card {
+    background: white;
+    border-radius: 18px;
+    padding: 1rem 1.1rem;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    border: 1px solid #e8edf3;
+    margin-bottom: 1rem;
+}
+.metric-card {
+    background: white;
+    border-radius: 18px;
+    padding: 0.9rem 1rem;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+    border: 1px solid #e8edf3;
+    text-align: center;
+}
+.metric-title {
+    font-size: 0.9rem;
+    color: #5b6472;
+    margin-bottom: 0.2rem;
+}
+.metric-value {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: #111827;
+}
+
+/* Chips */
+.chip-green {
+    background: #dcfce7;
+    color: #166534;
+    padding: 0.30rem 0.60rem;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.82rem;
+    display: inline-block;
+}
+.chip-red {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 0.30rem 0.60rem;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.82rem;
+    display: inline-block;
+}
+.chip-orange {
+    background: #ffedd5;
+    color: #9a3412;
+    padding: 0.30rem 0.60rem;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.82rem;
+    display: inline-block;
+}
+
+/* Menu horizontal */
+div[data-testid="stHorizontalBlock"] .nav-item {
+    border-radius: 14px !important;
+}
+
+/* Boutons */
+.stButton > button {
+    border-radius: 14px !important;
+    font-weight: 700 !important;
+}
+
+/* Inputs */
+.stTextInput input, .stTextArea textarea, .stSelectbox div[data-baseweb="select"] > div {
+    border-radius: 12px !important;
+}
+
+/* Bloc de navigation basse */
+.bottom-nav {
+    background: white;
+    border: 1px solid #e8edf3;
+    border-radius: 18px;
+    padding: 0.6rem 0.8rem;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    margin-top: 1rem;
+}
+.small-note {
+    color: #6b7280;
+    font-size: 0.88rem;
+}
 </style>
 """, unsafe_allow_html=True)
 
 # =========================================================
-# INITIALISATION STOCKAGE
+# STOCKAGE
 # =========================================================
-
 def init_storage():
     if not os.path.exists(DATA_FILE):
-        df_init = pd.DataFrame(columns=AUDIT_COLUMNS)
-        df_init.to_csv(DATA_FILE, index=False)
+        pd.DataFrame(columns=AUDIT_COLUMNS).to_csv(DATA_FILE, index=False)
 
 def load_audits():
     init_storage()
     df = pd.read_csv(DATA_FILE)
-    if not df.empty and "date_audit" in df.columns:
+    if not df.empty:
         df["date_audit"] = pd.to_datetime(df["date_audit"], errors="coerce")
     return df
 
 def save_audits(df):
-    df_to_save = df.copy()
-    if "date_audit" in df_to_save.columns:
-        df_to_save["date_audit"] = pd.to_datetime(df_to_save["date_audit"], errors="coerce")
-        df_to_save["date_audit"] = df_to_save["date_audit"].dt.strftime("%Y-%m-%d %H:%M:%S")
-    df_to_save.to_csv(DATA_FILE, index=False)
+    df2 = df.copy()
+    if "date_audit" in df2.columns:
+        df2["date_audit"] = pd.to_datetime(df2["date_audit"], errors="coerce")
+        df2["date_audit"] = df2["date_audit"].dt.strftime("%Y-%m-%d %H:%M:%S")
+    df2.to_csv(DATA_FILE, index=False)
 
 def append_audit(row_dict):
     df = load_audits()
@@ -129,17 +200,13 @@ def append_audit(row_dict):
 # =========================================================
 # OUTILS
 # =========================================================
-
 def save_uploaded_file(uploaded_file):
     if uploaded_file is None:
         return ""
-
     filename = f"{uuid.uuid4().hex}_{uploaded_file.name}"
     filepath = os.path.join(UPLOAD_DIR, filename)
-
     with open(filepath, "wb") as f:
         f.write(uploaded_file.getbuffer())
-
     return filename
 
 def parse_pdf_text(uploaded_pdf):
@@ -155,10 +222,6 @@ def parse_pdf_text(uploaded_pdf):
         return f"Erreur de lecture PDF : {e}"
 
 def extract_pdf_fields(text):
-    """
-    Détection simple de champs dans un PDF textuel.
-    Si le PDF est peu structuré, l'utilisateur corrigera à la main.
-    """
     def find_value(pattern, default=""):
         match = re.search(pattern, text, flags=re.IGNORECASE)
         return match.group(1).strip() if match else default
@@ -291,388 +354,191 @@ def compute_kpis(df):
         "mois": int(audits_month)
     }
 
-# =========================================================
-# SIDEBAR
-# =========================================================
+def render_header(title, subtitle):
+    st.markdown(f'<div class="main-title">{title}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="sub-title">{subtitle}</div>', unsafe_allow_html=True)
 
-st.sidebar.title("📋 Audit Conformité")
-page = st.sidebar.radio(
-    "Navigation",
-    ["Accueil", "Audit terrain", "Import formulaire", "Dashboard", "Carte des sites"]
+def render_right_panel():
+    with st.container():
+        st.markdown('<div class="card">', unsafe_allow_html=True)
+        st.markdown("### ⚡ Actions rapides")
+        st.write("Accès rapide aux grandes zones du MVP.")
+        if st.button("📷 Nouvel audit terrain", use_container_width=True):
+            st.session_state["page"] = "Audit terrain"
+            st.rerun()
+        if st.button("📄 Importer un formulaire", use_container_width=True):
+            st.session_state["page"] = "Import formulaire"
+            st.rerun()
+        if st.button("📊 Voir les KPI", use_container_width=True):
+            st.session_state["page"] = "Dashboard"
+            st.rerun()
+        if st.button("🗺️ Voir la carte", use_container_width=True):
+            st.session_state["page"] = "Carte des sites"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+        st.markdown('<div class="card">', unsafe_allow_html=True)
+        st.markdown("### 🏷️ Légende")
+        st.markdown('<span class="chip-green">Conforme</span>', unsafe_allow_html=True)
+        st.write("")
+        st.markdown('<span class="chip-red">Non conforme</span>', unsafe_allow_html=True)
+        st.write("")
+        st.markdown('<span class="chip-orange">Critique</span>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+
+def render_bottom_nav():
+    st.markdown('<div class="bottom-nav">', unsafe_allow_html=True)
+    c1, c2, c3, c4, c5 = st.columns(5)
+    with c1:
+        if st.button("🏠\nAccueil", use_container_width=True):
+            st.session_state["page"] = "Accueil"
+            st.rerun()
+    with c2:
+        if st.button("📷\nAudit", use_container_width=True):
+            st.session_state["page"] = "Audit terrain"
+            st.rerun()
+    with c3:
+        if st.button("📄\nImport", use_container_width=True):
+            st.session_state["page"] = "Import formulaire"
+            st.rerun()
+    with c4:
+        if st.button("📊\nKPI", use_container_width=True):
+            st.session_state["page"] = "Dashboard"
+            st.rerun()
+    with c5:
+        if st.button("🗺️\nCarte", use_container_width=True):
+            st.session_state["page"] = "Carte des sites"
+            st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# =========================================================
+# NAVIGATION PRINCIPALE
+# =========================================================
+if "page" not in st.session_state:
+    st.session_state["page"] = "Accueil"
+
+selected = option_menu(
+    menu_title=None,
+    options=["Accueil", "Audit terrain", "Import formulaire", "Dashboard", "Carte des sites"],
+    icons=["house", "camera", "file-earmark-arrow-up", "bar-chart", "geo-alt"],
+    orientation="horizontal",
+    default_index=["Accueil", "Audit terrain", "Import formulaire", "Dashboard", "Carte des sites"].index(st.session_state["page"]),
+    styles={
+        "container": {"padding": "0!important", "background-color": "transparent"},
+        "icon": {"color": "#0f766e", "font-size": "18px"},
+        "nav-link": {
+            "font-size": "14px",
+            "text-align": "center",
+            "margin": "0px 6px",
+            "padding": "10px 16px",
+            "border-radius": "14px",
+            "background-color": "#ffffff",
+            "color": "#111827",
+            "font-weight": "700",
+            "box-shadow": "0 4px 14px rgba(0,0,0,0.05)"
+        },
+        "nav-link-selected": {
+            "background-color": "#0f766e",
+            "color": "white"
+        }
+    }
 )
 
-st.sidebar.markdown("---")
-st.sidebar.info(
-    "MVP de démonstration : stockage local CSV + fichiers uploadés. "
-    "Pour un usage réel entreprise, prévoir une base et un stockage sécurisé."
-)
+st.session_state["page"] = selected
+page = st.session_state["page"]
 
 # =========================================================
-# CHARGEMENT DONNEES
+# DONNEES
 # =========================================================
-
 df_audits = load_audits()
 
 # =========================================================
-# PAGE ACCUEIL
+# PAGES
 # =========================================================
 
 if page == "Accueil":
-    st.markdown('<div class="main-title">📋 Audit de conformité multi-sites</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-title">MVP pour audit terrain par photo, import de formulaires et pilotage des conformités.</div>', unsafe_allow_html=True)
+    left, right = st.columns([4, 1.25])
 
-    col1, col2 = st.columns(2)
+    with left:
+        render_header("📋 Audit de conformité multi-sites", "Une version plus visuelle, plus mobile et plus produit.")
 
-    with col1:
-        st.markdown('<div class="section-card">', unsafe_allow_html=True)
-        st.subheader("📷 Audit terrain")
-        st.write(
-            "Prendre une photo d’un parking, d’un site, d’une salle de réunion ou d’un chantier, "
-            "puis qualifier la conformité et enregistrer l’audit."
-        )
+        kpis = compute_kpis(df_audits)
+        m1, m2, m3, m4 = st.columns(4)
+        with m1:
+            st.markdown(f'<div class="metric-card"><div class="metric-title">Audits</div><div class="metric-value">{kpis["total_audits"]}</div></div>', unsafe_allow_html=True)
+        with m2:
+            st.markdown(f'<div class="metric-card"><div class="metric-title">% conformité</div><div class="metric-value">{kpis["pourcentage_conformite"]}%</div></div>', unsafe_allow_html=True)
+        with m3:
+            st.markdown(f'<div class="metric-card"><div class="metric-title">Non conformes</div><div class="metric-value">{kpis["non_conformes"]}</div></div>', unsafe_allow_html=True)
+        with m4:
+            st.markdown(f'<div class="metric-card"><div class="metric-title">Critiques</div><div class="metric-value">{kpis["critiques"]}</div></div>', unsafe_allow_html=True)
+
+        st.write("")
+
+        c1, c2 = st.columns(2)
+        with c1:
+            st.markdown('<div class="card">', unsafe_allow_html=True)
+            st.subheader("📷 Audit terrain")
+            st.write("Photo depuis téléphone ou image uploadée, avec qualification immédiate.")
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        with c2:
+            st.markdown('<div class="card">', unsafe_allow_html=True)
+            st.subheader("📄 Import formulaire")
+            st.write("Import PDF / Excel / CSV pour intégrer des audits déjà réalisés.")
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        st.markdown('<div class="card">', unsafe_allow_html=True)
+        st.subheader("🗺️ Vue rapide des sites")
+        df_sites = pd.DataFrame([
+            {"site": site, "latitude": coords["lat"], "longitude": coords["lon"]}
+            for site, coords in SITES.items()
+        ])
+        st.map(df_sites)
         st.markdown('</div>', unsafe_allow_html=True)
 
-    with col2:
-        st.markdown('<div class="section-card">', unsafe_allow_html=True)
-        st.subheader("📄 Import de formulaire")
-        st.write(
-            "Uploader un formulaire d’audit PDF, Excel ou CSV, puis intégrer les résultats dans le pilotage KPI."
-        )
-        st.markdown('</div>', unsafe_allow_html=True)
+        render_bottom_nav()
 
-    st.markdown("### KPI pilotés")
-    c1, c2, c3, c4 = st.columns(4)
-    with c1:
-        st.markdown('<div class="metric-box">✅ % conformité</div>', unsafe_allow_html=True)
-    with c2:
-        st.markdown('<div class="metric-box">📆 Audits par semaine / mois</div>', unsafe_allow_html=True)
-    with c3:
-        st.markdown('<div class="metric-box">🚨 Non-conformités critiques</div>', unsafe_allow_html=True)
-    with c4:
-        st.markdown('<div class="metric-box">📍 Répartition par site</div>', unsafe_allow_html=True)
-
-# =========================================================
-# PAGE AUDIT TERRAIN
-# =========================================================
+    with right:
+        render_right_panel()
 
 elif page == "Audit terrain":
-    st.markdown('<div class="main-title">📷 Audit terrain</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-title">Photo chantier / salle / parking / site + qualification de conformité.</div>', unsafe_allow_html=True)
+    left, right = st.columns([4, 1.25])
 
-    with st.form("audit_terrain_form"):
-        col1, col2 = st.columns(2)
+    with left:
+        render_header("📷 Audit terrain", "Prendre une photo et qualifier un audit sur parking, site, salle ou chantier.")
 
-        with col1:
-            site = st.selectbox("Site", list(SITES.keys()))
-            type_espace = st.selectbox("Type d’espace", TYPES_ESPACE)
-            zone = st.text_input("Zone / secteur")
-            reference_local = st.text_input("Référence locale (bâtiment, salle, repère...)")
+        st.markdown('<div class="card">', unsafe_allow_html=True)
 
-        with col2:
-            conformite = st.radio("Conformité", CONFORMITES, horizontal=True)
-            gravite = st.selectbox("Gravité", GRAVITES)
-            categorie = st.selectbox("Catégorie", CATEGORIES)
-            statut = st.selectbox("Statut", STATUTS, index=0)
+        with st.form("audit_terrain_form"):
+            col1, col2 = st.columns(2)
 
-        st.markdown("### Média")
-        media_mode = st.radio(
-            "Choix du média",
-            ["Prendre une photo", "Uploader une image", "Aucun média"],
-            horizontal=True
-        )
+            with col1:
+                site = st.selectbox("Site", list(SITES.keys()))
+                type_espace = st.selectbox("Type d’espace", TYPES_ESPACE)
+                zone = st.text_input("Zone / secteur")
+                reference_local = st.text_input("Référence locale")
 
-        media_file = None
-        if media_mode == "Prendre une photo":
-            media_file = st.camera_input("Prendre une photo")
-        elif media_mode == "Uploader une image":
-            media_file = st.file_uploader("Uploader une image", type=["jpg", "jpeg", "png"])
+            with col2:
+                conformite = st.radio("Conformité", CONFORMITES, horizontal=True)
+                gravite = st.selectbox("Gravité", GRAVITES)
+                categorie = st.selectbox("Catégorie", CATEGORIES)
+                statut = st.selectbox("Statut", STATUTS, index=0)
 
-        commentaire = st.text_area("Commentaire / observation")
-        auditeur = st.text_input("Auditeur")
-        action_immediate = st.text_area("Action immédiate / mesure conservatoire")
+            st.markdown("### Média")
+            media_mode = st.radio(
+                "Choix du média",
+                ["Prendre une photo", "Uploader une image", "Aucun média"],
+                horizontal=True
+            )
 
-        submit_audit = st.form_submit_button("Enregistrer l’audit")
+            media_file = None
+            if media_mode == "Prendre une photo":
+                media_file = st.camera_input("Prendre une photo du chantier / site / anomalie")
+            elif media_mode == "Uploader une image":
+                media_file = st.file_uploader("Uploader une image", type=["jpg", "jpeg", "png"])
 
-    if submit_audit:
-        media_name = ""
-        if media_file is not None:
-            media_name = save_uploaded_file(media_file)
+            commentaire = st.text_area("Commentaire / observation")
+            auditeur = st.text_input("Auditeur")
+            action_immediate = st.text_area("Action immédiate / mesure conservatoire")
 
-        row = {
-            "id_audit": uuid.uuid4().hex[:8],
-            "date_audit": datetime.now(),
-            "site": site,
-            "type_espace": type_espace,
-            "zone": zone,
-            "reference_local": reference_local,
-            "mode_saisie": "terrain_photo" if media_name else "terrain_sans_photo",
-            "media_nom": media_name,
-            "source_document": "",
-            "conformite": conformite,
-            "gravite": gravite,
-            "categorie": categorie,
-            "commentaire": commentaire,
-            "auditeur": auditeur,
-            "action_immediate": action_immediate,
-            "statut": statut
-        }
-
-        append_audit(row)
-        st.success("Audit enregistré avec succès ✅")
-        st.rerun()
-
-# =========================================================
-# PAGE IMPORT FORMULAIRE
-# =========================================================
-
-elif page == "Import formulaire":
-    st.markdown('<div class="main-title">📄 Import de formulaire d’audit</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-title">Uploader un PDF, un Excel ou un CSV puis l’intégrer dans le pilotage.</div>', unsafe_allow_html=True)
-
-    uploaded_doc = st.file_uploader(
-        "Uploader un document",
-        type=["pdf", "csv", "xlsx", "xls"]
-    )
-
-    if uploaded_doc is not None:
-        file_name = uploaded_doc.name.lower()
-
-        # ----------------------------
-        # PDF
-        # ----------------------------
-        if file_name.endswith(".pdf"):
-            pdf_saved_name = save_uploaded_file(uploaded_doc)
-
-            uploaded_doc.seek(0)
-            pdf_text = parse_pdf_text(uploaded_doc)
-
-            st.markdown("### Texte extrait du PDF")
-            st.text_area("Aperçu", pdf_text[:5000], height=250)
-
-            parsed = extract_pdf_fields(pdf_text)
-
-            st.markdown("### Vérifier / corriger les champs")
-            with st.form("pdf_form"):
-                col1, col2 = st.columns(2)
-
-                with col1:
-                    site = st.selectbox(
-                        "Site",
-                        list(SITES.keys()),
-                        index=list(SITES.keys()).index(parsed["site"]) if parsed["site"] in SITES else 0
-                    )
-                    type_espace = st.selectbox(
-                        "Type d’espace",
-                        TYPES_ESPACE,
-                        index=TYPES_ESPACE.index(parsed["type_espace"]) if parsed["type_espace"] in TYPES_ESPACE else 0
-                    )
-                    zone = st.text_input("Zone / secteur", value=parsed["zone"])
-                    reference_local = st.text_input("Référence locale", value=parsed["reference_local"])
-
-                with col2:
-                    conformite = st.selectbox(
-                        "Conformité",
-                        CONFORMITES,
-                        index=CONFORMITES.index(parsed["conformite"]) if parsed["conformite"] in CONFORMITES else 0
-                    )
-                    gravite = st.selectbox(
-                        "Gravité",
-                        GRAVITES,
-                        index=GRAVITES.index(parsed["gravite"]) if parsed["gravite"] in GRAVITES else 0
-                    )
-                    categorie = st.selectbox(
-                        "Catégorie",
-                        CATEGORIES,
-                        index=CATEGORIES.index(parsed["categorie"]) if parsed["categorie"] in CATEGORIES else 0
-                    )
-                    statut = st.selectbox(
-                        "Statut",
-                        STATUTS,
-                        index=STATUTS.index(parsed["statut"]) if parsed["statut"] in STATUTS else 0
-                    )
-
-                commentaire = st.text_area("Commentaire / observation", value=parsed["commentaire"])
-                auditeur = st.text_input("Auditeur", value=parsed["auditeur"])
-                action_immediate = st.text_area("Action immédiate / mesure conservatoire")
-
-                submit_pdf = st.form_submit_button("Importer ce PDF")
-
-            if submit_pdf:
-                row = {
-                    "id_audit": uuid.uuid4().hex[:8],
-                    "date_audit": datetime.now(),
-                    "site": site,
-                    "type_espace": type_espace,
-                    "zone": zone,
-                    "reference_local": reference_local,
-                    "mode_saisie": "import_pdf",
-                    "media_nom": "",
-                    "source_document": pdf_saved_name,
-                    "conformite": conformite,
-                    "gravite": gravite,
-                    "categorie": categorie,
-                    "commentaire": commentaire,
-                    "auditeur": auditeur,
-                    "action_immediate": action_immediate,
-                    "statut": statut
-                }
-
-                append_audit(row)
-                st.success("PDF importé avec succès ✅")
-                st.rerun()
-
-        # ----------------------------
-        # CSV / EXCEL
-        # ----------------------------
-        elif file_name.endswith(".csv") or file_name.endswith(".xlsx") or file_name.endswith(".xls"):
-            try:
-                if file_name.endswith(".csv"):
-                    df_import = pd.read_csv(uploaded_doc)
-                else:
-                    df_import = pd.read_excel(uploaded_doc)
-
-                st.markdown("### Aperçu du fichier")
-                st.dataframe(df_import.head(20), use_container_width=True)
-
-                if st.button("Importer ce fichier dans les audits"):
-                    df_std = standardize_import_columns(df_import)
-                    df_current = load_audits()
-                    df_final = pd.concat([df_current, df_std], ignore_index=True)
-                    save_audits(df_final)
-                    st.success(f"{len(df_std)} ligne(s) importée(s) avec succès ✅")
-                    st.rerun()
-
-            except Exception as e:
-                st.error(f"Erreur lors de la lecture du fichier : {e}")
-
-# =========================================================
-# PAGE DASHBOARD
-# =========================================================
-
-elif page == "Dashboard":
-    st.markdown('<div class="main-title">📊 Dashboard conformité</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-title">Pilotage des audits, conformités et non-conformités.</div>', unsafe_allow_html=True)
-
-    df = load_audits()
-
-    if df.empty:
-        st.info("Aucun audit enregistré pour le moment.")
-    else:
-        df["date_audit"] = pd.to_datetime(df["date_audit"], errors="coerce")
-
-        # Filtres
-        colf1, colf2, colf3 = st.columns(3)
-
-        with colf1:
-            options_site = sorted([x for x in df["site"].dropna().unique() if str(x).strip() != ""])
-            f_site = st.multiselect("Filtrer par site", options=options_site, default=options_site)
-
-        with colf2:
-            options_type = sorted([x for x in df["type_espace"].dropna().unique() if str(x).strip() != ""])
-            f_type = st.multiselect("Filtrer par type d’espace", options=options_type, default=options_type)
-
-        with colf3:
-            options_conf = sorted([x for x in df["conformite"].dropna().unique() if str(x).strip() != ""])
-            f_conf = st.multiselect("Filtrer par conformité", options=options_conf, default=options_conf)
-
-        df_f = df.copy()
-
-        if len(f_site) > 0:
-            df_f = df_f[df_f["site"].isin(f_site)]
-        if len(f_type) > 0:
-            df_f = df_f[df_f["type_espace"].isin(f_type)]
-        if len(f_conf) > 0:
-            df_f = df_f[df_f["conformite"].isin(f_conf)]
-
-        kpis = compute_kpis(df_f)
-
-        c1, c2, c3, c4, c5, c6 = st.columns(6)
-        c1.metric("Audits", kpis["total_audits"])
-        c2.metric("% conformité", f"{kpis['pourcentage_conformite']}%")
-        c3.metric("Conformes", kpis["conformes"])
-        c4.metric("Non conformes", kpis["non_conformes"])
-        c5.metric("Critiques", kpis["critiques"])
-        c6.metric("Ce mois", kpis["mois"])
-
-        st.markdown("---")
-
-        col1, col2 = st.columns(2)
-
-        with col1:
-            st.markdown("### Audits par site")
-            if not df_f.empty:
-                fig_site = px.histogram(
-                    df_f,
-                    x="site",
-                    color="conformite",
-                    barmode="group",
-                    title="Répartition des audits par site"
-                )
-                st.plotly_chart(fig_site, use_container_width=True)
-
-        with col2:
-            st.markdown("### Audits par type d’espace")
-            if not df_f.empty:
-                fig_type = px.histogram(
-                    df_f,
-                    x="type_espace",
-                    color="conformite",
-                    barmode="group",
-                    title="Répartition des audits par type d’espace"
-                )
-                st.plotly_chart(fig_type, use_container_width=True)
-
-        col3, col4 = st.columns(2)
-
-        with col3:
-            st.markdown("### Gravité des écarts")
-            df_nc = df_f[df_f["conformite"] == "Non conforme"].copy()
-            if not df_nc.empty:
-                fig_gravite = px.pie(
-                    df_nc,
-                    names="gravite",
-                    title="Non-conformités par gravité"
-                )
-                st.plotly_chart(fig_gravite, use_container_width=True)
-            else:
-                st.info("Aucune non-conformité dans le filtre actuel.")
-
-        with col4:
-            st.markdown("### Catégories d’écarts")
-            df_nc = df_f[df_f["conformite"] == "Non conforme"].copy()
-            if not df_nc.empty:
-                fig_cat = px.histogram(
-                    df_nc,
-                    x="categorie",
-                    title="Non-conformités par catégorie"
-                )
-                st.plotly_chart(fig_cat, use_container_width=True)
-            else:
-                st.info("Aucune non-conformité dans le filtre actuel.")
-
-        st.markdown("### Evolution des audits dans le temps")
-        if not df_f.empty:
-            df_time = df_f.copy()
-            df_time["jour"] = pd.to_datetime(df_time["date_audit"]).dt.date
-            df_time = df_time.groupby("jour").size().reset_index(name="nb_audits")
-            fig_time = px.line(df_time, x="jour", y="nb_audits", markers=True, title="Nombre d’audits par jour")
-            st.plotly_chart(fig_time, use_container_width=True)
-
-        st.markdown("### Tableau des audits")
-        st.dataframe(df_f.sort_values("date_audit", ascending=False), use_container_width=True)
-
-# =========================================================
-# PAGE CARTE
-# =========================================================
-
-elif page == "Carte des sites":
-    st.markdown('<div class="main-title">🗺️ Carte des sites Renault</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-title">Vue cartographique des implantations incluses dans le MVP.</div>', unsafe_allow_html=True)
-
-    df_sites = pd.DataFrame([
-        {"site": site, "lat": coords["lat"], "lon": coords["lon"]}
-        for site, coords in SITES.items()
-    ])
-
-    st.map(df_sites.rename(columns={"lat": "latitude", "lon": "longitude"}))
-    st.dataframe(df_sites, use_container_width=True)
