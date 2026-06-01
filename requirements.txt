@@ -7,4 +7,9 @@ streamlit-option-menu
 PyPDF2
 pdfplumber
 pillow
-pytesseract
+pytesseractstreamlit
+pdf2image
+easyocr
+opencv-python-headless
+PyMuPDF
+openpyxl
