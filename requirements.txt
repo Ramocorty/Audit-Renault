@@ -1,15 +1,7 @@
 streamlit
 pandas
-plotly
-pypdf
-openpyxl
-streamlit-option-menu
-PyPDF2
-pdfplumber
-pillow
-pytesseractstreamlit
 pdf2image
+Pillow
 easyocr
 opencv-python-headless
-PyMuPDF
-openpyxl
+numpy
