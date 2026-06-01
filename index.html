@@ -64,7 +64,7 @@
     .info { margin: 9px 0; font-size: 15px; }
     .info strong { color: #002C5F; }
 
-    button {
+    button, input[type="file"] {
       background: var(--blue);
       color: white;
       border: none;
@@ -76,7 +76,6 @@
       width: 100%;
     }
 
-    #camera { display: none; width: 100%; border-radius: 10px; margin: 10px 0; }
     #photoPreview { max-width: 100%; border-radius: 10px; margin: 10px 0; display: none; }
   </style>
 </head>
@@ -91,24 +90,21 @@
   <!-- Upload PDF -->
   <div class="upload-area">
     <p><strong>📄 Glisse ton PDF d'audit ici</strong><br>ou clique pour sélectionner</p>
-    <input type="file" id="pdfInput" accept="application/pdf" style="margin-top:10px;">
+    <input type="file" id="pdfInput" accept="application/pdf">
   </div>
 
-  <!-- Photo Section -->
+  <!-- Upload Photo -->
   <div class="photo-area">
-    <p><strong>📸 Photo du Chantier</strong></p>
-    <button onclick="takePhoto()">📷 Prendre une Photo</button>
-    <video id="camera" autoplay playsinline></video>
-    <img id="photoPreview">
-    <button id="captureBtn" onclick="capturePhoto()" style="display:none; background:#28a745;">✅ Capturer la Photo</button>
-    <button id="retakeBtn" onclick="retakePhoto()" style="display:none;">🔄 Reprendre la Photo</button>
+    <p><strong>📸 Photo du Chantier / Site</strong></p>
+    <input type="file" id="photoInput" accept="image/*" capture="environment">
+    <img id="photoPreview" alt="Photo du site">
   </div>
 
   <div class="content" id="result" style="display:none;">
     <div class="card">
       <h2 style="color:#002C5F; margin-bottom:12px;">✅ Rapport Audit</h2>
      
-      <div class="info"><strong id="audit-title">TERRAIN VISION</strong></div>
+      <div class="info"><strong id="audit-title">TERRAIN VISION Report</strong></div>
       <div class="info"><strong>Lieu :</strong> <span id="lieu">—</span></div>
       <div class="info"><strong>Entreprise :</strong> <span id="entreprise">—</span></div>
       <div class="info"><strong>Opération :</strong> <span id="operation">—</span></div>
@@ -131,68 +127,34 @@
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-let stream = null;
+// ====================== PHOTO UPLOAD ======================
+document.getElementById('photoInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
 
-// Fonction Photo
-async function takePhoto() {
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({ 
-      video: { facingMode: "environment" } 
-    });
-    const video = document.getElementById('camera');
-    video.srcObject = stream;
-    video.style.display = 'block';
-    document.getElementById('captureBtn').style.display = 'block';
-  } catch (err) {
-    alert("❌ Erreur Caméra\n\n" + 
-          "Pour que la caméra fonctionne, vous devez :\n" +
-          "1. Ouvrir ce fichier avec un serveur local (Live Server VS Code)\n" +
-          "2. OU mettre le fichier sur un serveur HTTPS\n\n" +
-          "Impossible en ouvrant directement le fichier (file://)");
-    console.error(err);
-  }
-}
-
-function capturePhoto() {
-  const video = document.getElementById('camera');
-  const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  canvas.getContext('2d').drawImage(video, 0, 0);
-
-  const photoData = canvas.toDataURL('image/jpeg', 0.85);
-  document.getElementById('photoPreview').src = photoData;
-  document.getElementById('photoPreview').style.display = 'block';
-
-  video.style.display = 'none';
-  document.getElementById('captureBtn').style.display = 'none';
-  document.getElementById('retakeBtn').style.display = 'block';
-
-  if (stream) stream.getTracks().forEach(track => track.stop());
-
-  analyzePhoto();
-}
-
-function retakePhoto() {
-  document.getElementById('photoPreview').style.display = 'none';
-  document.getElementById('retakeBtn').style.display = 'none';
-  takePhoto();
-}
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    document.getElementById('photoPreview').src = ev.target.result;
+    document.getElementById('photoPreview').style.display = 'block';
+    analyzePhoto();
+  };
+  reader.readAsDataURL(file);
+});
 
 function analyzePhoto() {
   document.getElementById('photoAnalysis').style.display = 'block';
   document.getElementById('objectsDetected').innerHTML = `
     <strong>Objets détectés :</strong><br>
-    • Zone de chantier<br>
+    • Zone de chantier / Travaux<br>
     • Postes de travail & Ordinateurs<br>
     • Tables, chaises, bureaux<br>
     • Équipements de protection<br>
     • Véhicules / Parking<br><br>
-    <strong>⚠️ Observation :</strong> Vérifiez que la zone est bien dégagée.
+    <strong>⚠️ Observation IA :</strong> Vérifiez que la zone est bien dégagée pour la PRL.
   `;
 }
 
-// ====================== PDF ======================
+// ====================== PDF EXTRACTION ======================
 document.getElementById('pdfInput').addEventListener('change', handlePDF);
 
 async function handlePDF(e) {
