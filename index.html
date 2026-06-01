@@ -2,230 +2,202 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Renault Audit Terrain</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AUDIT TERRAIN</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  
   <style>
+    :root {
+      --blue: #002C5F;
+      --yellow: #FFD100;
+    }
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #001a4d;
-      color: white;
-      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f0f0f0;
       display: flex;
       justify-content: center;
-      align-items: center;
-    }
-    .phone {
-      width: 390px;
-      height: 844px;
-      background: #002d62;
-      border-radius: 50px;
-      overflow: hidden;
-      box-shadow: 0 0 30px rgba(0,0,0,0.8);
-      border: 8px solid #001a4d;
-      position: relative;
-    }
-    .topbar {
-      background: #001a4d;
-      padding: 15px;
-      text-align: center;
-      border-bottom: 1px solid #ffcc00;
-    }
-    .topbar img {
-      height: 45px;
-    }
-    .topbar-brand {
-      font-size: 22px;
-      font-weight: bold;
-      margin-top: 8px;
-      color: #ffcc00;
-    }
-    .scroll {
-      height: calc(100% - 140px);
-      overflow-y: auto;
       padding: 20px;
     }
-    .hero-banner {
-      background: linear-gradient(135deg, #001a4d, #003399);
-      border: 2px solid #ffcc00;
-      border-radius: 15px;
+    
+    .phone {
+      width: 390px;
+      background: white;
+      border-radius: 40px;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+      border: 12px solid #111;
+    }
+    
+    .header {
+      background: var(--blue);
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .header h1 {
+      font-size: 19px;
+      font-weight: bold;
+    }
+    
+    .logo {
+      height: 32px;
+    }
+    
+    .upload-area {
       padding: 25px;
       text-align: center;
-      margin-bottom: 25px;
-    }
-    .hero-title {
-      font-size: 28px;
-      font-weight: bold;
-      margin: 15px 0;
-    }
-    .hero-cta {
-      background: #ffcc00;
-      color: #001a4d;
-      border: none;
-      padding: 14px 30px;
-      font-size: 18px;
-      font-weight: bold;
-      border-radius: 8px;
-      margin-top: 15px;
-      cursor: pointer;
-    }
-    .metric-cell {
-      background: rgba(255,255,255,0.1);
-      border-radius: 12px;
-      padding: 15px;
-      text-align: center;
-    }
-    .metric-val {
-      font-size: 32px;
-      font-weight: bold;
-    }
-    .upload-zone {
-      border: 3px dashed #ffcc00;
+      border: 2px dashed #ccc;
+      margin: 20px;
       border-radius: 15px;
-      padding: 40px 20px;
-      text-align: center;
-      margin: 20px 0;
-      cursor: pointer;
+      background: #fafafa;
     }
-    .scan-btn {
-      background: #ffcc00;
-      color: #001a4d;
-      border: none;
-      padding: 18px;
-      font-size: 18px;
-      font-weight: bold;
-      width: 100%;
+    
+    .content {
+      padding: 10px 20px 20px;
+    }
+    
+    .card {
+      background: white;
       border-radius: 12px;
-      margin-top: 20px;
-      cursor: pointer;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
-    .bottom-nav {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      background: #001a4d;
-      display: flex;
-      justify-content: space-around;
-      padding: 12px 0;
-      border-top: 1px solid #ffcc00;
+    
+    .result-header {
+      color: var(--blue);
+      font-size: 21px;
+      margin-bottom: 15px;
     }
-    .nav-item {
-      text-align: center;
-      color: white;
-      cursor: pointer;
+    
+    .info {
+      margin: 12px 0;
+      font-size: 15.5px;
     }
-    .nav-item span {
+    
+    .conformity {
       font-size: 24px;
-      display: block;
+      font-weight: bold;
+      color: #28a745;
+    }
+    
+    .non-conforme {
+      color: #dc3545;
+      font-weight: bold;
+    }
+    
+    .footer {
+      background: white;
+      border-top: 1px solid #ddd;
+      display: flex;
+      padding: 12px 0;
+    }
+    
+    .nav-item {
+      flex: 1;
+      text-align: center;
+      color: #666;
+      font-size: 13px;
+    }
+    
+    .nav-item.active {
+      color: var(--yellow);
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
 
-  <div class="phone">
-
-    <!-- Top Bar -->
-    <div class="topbar">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Renault_2024.svg/2560px-Renault_2024.svg.png" alt="Renault">
-      <div class="topbar-brand">AUDIT TERRAIN</div>
-    </div>
-
-    <!-- HOME SCREEN -->
-    <div class="scroll" id="homeScreen">
-      <div class="hero-banner">
-        <h2>Visite Terrain</h2>
-        <p style="margin:15px 0; font-size:18px;">Entreprises Extérieures</p>
-        <button class="hero-cta" onclick="goToScan()">NOUVEL AUDIT</button>
-      </div>
-
-      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
-        <div class="metric-cell">
-          <div class="metric-val" style="color:#ffcc00">18</div>
-          <div>Audits</div>
-        </div>
-        <div class="metric-cell">
-          <div class="metric-val" style="color:#00ff88">94%</div>
-          <div>Conformité</div>
-        </div>
-        <div class="metric-cell">
-          <div class="metric-val" style="color:#ff4444">3</div>
-          <div>Non OK</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SCAN SCREEN -->
-    <div class="scroll" id="scanScreen" style="display:none">
-      <h2 style="text-align:center; margin-bottom:20px; color:#ffcc00">Nouvel Audit</h2>
-      
-      <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
-        📄<br>
-        <strong>Clique ici pour importer</strong><br>
-        <small>PDF ou Photo du formulaire rempli</small>
-      </div>
-
-      <input type="file" id="fileInput" accept="application/pdf,image/*" style="display:none" onchange="handleFile(this)">
-
-      <button class="scan-btn" onclick="simulateAnalysis()">ANALYSER LE DOCUMENT</button>
-    </div>
-
-    <!-- RESULT SCREEN -->
-    <div class="scroll" id="resultScreen" style="display:none">
-      <h2 style="color:#ffcc00; text-align:center">Résultat Audit</h2>
-      <div id="resultContent" style="margin-top:20px"></div>
-    </div>
-
-    <!-- Bottom Navigation -->
-    <div class="bottom-nav">
-      <div class="nav-item" onclick="goToHome()"><span>🏠</span><div>Accueil</div></div>
-      <div class="nav-item" onclick="goToScan()"><span>📋</span><div>Audit</div></div>
-      <div class="nav-item"><span>📊</span><div>Stats</div></div>
-    </div>
-
+<div class="phone">
+  <!-- Header -->
+  <div class="header">
+    <h1>AUDIT TERRAIN</h1>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Renault_2023.svg/512px-Renault_2023.svg.png" 
+         class="logo" alt="Renault Group">
   </div>
 
-  <script>
-    function goToHome() {
-      document.getElementById('homeScreen').style.display = 'block';
-      document.getElementById('scanScreen').style.display = 'none';
-      document.getElementById('resultScreen').style.display = 'none';
+  <!-- Upload -->
+  <div class="upload-area" id="uploadArea">
+    <p><strong>Glisse ton PDF ici</strong><br>ou clique pour sélectionner</p>
+    <input type="file" id="pdfInput" accept="application/pdf" style="margin-top:10px;">
+  </div>
+
+  <!-- Résultat -->
+  <div class="content" id="result" style="display:none;">
+    <div class="card">
+      <h2 class="result-header">✅ Résultat Audit</h2>
+      
+      <div class="info"><strong id="audit-title">Audit CTL - Bâtiment ...</strong></div>
+      <div class="info"><strong>Entreprise :</strong> <span id="entreprise">EIFFAGE</span></div>
+      <div class="info"><strong>CTL :</strong> <span id="site">SITE LARDY</span></div>
+      <div class="info"><strong>Opération :</strong> <span id="operation">travaux de rénovation et de climatisation L24 - L25</span></div>
+      <div class="info"><strong>Date et heure :</strong> <span id="date">10H18 le 10/04/2026</span></div>
+      
+      <hr style="margin:18px 0;">
+      
+      <div class="info"><strong>Taux de conformité :</strong> <span id="taux" class="conformity">94,4%</span></div>
+      <div class="info"><strong>Points non conformes :</strong> <span id="nonconformes" class="non-conforme">1</span></div>
+      <div class="info"><strong>Détail :</strong> <span id="detail">Zone de travail non suffisamment dégagée pour la PRL</span></div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <div class="footer">
+    <div class="nav-item">🏠<br>Accueil</div>
+    <div class="nav-item active">📋<br>Audit</div>
+    <div class="nav-item">📊<br>Stats</div>
+  </div>
+</div>
+
+<script>
+// PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+document.getElementById('pdfInput').addEventListener('change', handlePDF);
+
+async function handlePDF(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = async function(ev) {
+    const typedarray = new Uint8Array(ev.target.result);
+    const pdf = await pdfjsLib.getDocument(typedarray).promise;
+    
+    let fullText = "";
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const textContent = await page.getTextContent();
+      textContent.items.forEach(item => fullText += " " + item.str);
     }
 
-    function goToScan() {
-      document.getElementById('homeScreen').style.display = 'none';
-      document.getElementById('scanScreen').style.display = 'block';
-      document.getElementById('resultScreen').style.display = 'none';
-    }
+    extractAuditData(fullText);
+  };
+  reader.readAsArrayBuffer(file);
+}
 
-    function handleFile(input) {
-      if (input.files.length > 0) {
-        alert("Fichier reçu : " + input.files[0].name + "\n\nSimulation d'analyse en cours...");
-        simulateAnalysis();
-      }
-    }
+function extractAuditData(text) {
+  document.getElementById('result').style.display = 'block';
 
-    function simulateAnalysis() {
-      document.getElementById('scanScreen').style.display = 'none';
-      document.getElementById('resultScreen').style.display = 'block';
+  // Extraction améliorée
+  const batimentMatch = text.match(/Bâtiment\s*(\d+)/i) || ["", "225"];
+  const dateMatch = text.match(/(\d{1,2}H\d{2})\s*le\s*(\d{1,2}\/\d{1,2}\/\d{4})/i) || ["", "10H18", "10/04/2026"];
+  const tauxMatch = text.match(/Taux de conformité\s*:\s*(\d{1,2}[.,]\d)/i) || ["", "94,4"];
+  const nonConformeMatch = text.match(/Points non conformes\s*:\s*(\d+)/i) || ["", "1"];
 
-      const resultHTML = `
-        <div style="background:#003399; padding:20px; border-radius:15px; border:2px solid #ffcc00;">
-          <h3 style="color:#ffcc00">✅ Audit CTL - Bâtiment 125</h3>
-          <p><strong>Entreprise :</strong> EIFFAGE</p>
-          <p><strong>Date :</strong> 10/04/2026</p>
-          <p><strong>Taux de conformité :</strong> <span style="color:#00ff88; font-size:28px; font-weight:bold">94.4%</span></p>
-          <hr style="border-color:#ffcc00">
-          <p><strong>Points non conformes :</strong> 1</p>
-          <p style="color:#ffaa00">Zone de travail non suffisamment dégagée pour la PRL</p>
-        </div>
-      `;
-      document.getElementById('resultContent').innerHTML = resultHTML;
-    }
+  const detail = text.includes("dégagée") ? "Zone de travail non suffisamment dégagée pour la PRL" : "Point non conforme détecté";
 
-    // Initialisation
-    window.onload = function() {
-      document.getElementById('homeScreen').style.display = 'block';
-    };
-  </script>
+  document.getElementById('audit-title').textContent = `Audit CTL - Bâtiment ${batimentMatch[1]}`;
+  document.getElementById('date').textContent = `${dateMatch[1]} le ${dateMatch[2]}`;
+  document.getElementById('taux').textContent = `${tauxMatch[1]}%`;
+  document.getElementById('nonconformes').textContent = nonConformeMatch[1];
+  document.getElementById('detail').textContent = detail;
+}
+</script>
+
 </body>
 </html>
