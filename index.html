@@ -7,10 +7,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   
   <style>
-    :root {
-      --blue: #002C5F;
-      --yellow: #FFD100;
-    }
+    :root { --blue: #002C5F; --yellow: #FFD100; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
     body {
@@ -35,6 +32,125 @@
       color: white;
       padding: 15px 20px;
       display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .header h1 { font-size: 19px; font-weight: bold; }
+    .logo { height: 32px; }
+    
+    .upload-area {
+      padding: 25px;
+      text-align: center;
+      border: 2px dashed #ccc;
+      margin: 20px;
+      border-radius: 15px;
+      background: #fafafa;
+    }
+    
+    .content { padding: 10px 20px 20px; }
+    
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="header">
+    <h1>AUDIT TERRAIN</h1>
+    <img src="logo" class="logo" alt="Renault Group">
+  </div>
+
+  <div class="upload-area">
+    <p><strong>Glisse ton PDF ici</strong><br>ou clique pour sélectionner</p>
+    <input type="file" id="pdfInput" accept="application/pdf" style="margin-top:10px;">
+  </div>
+
+  <div class="content" id="result" style="display:none;">
+    <div class="card">
+      <h2 style="color:#002C5F; margin-bottom:15px;">✅ Résultat Audit</h2>
+      
+      <div class="info"><strong id="audit-title">Audit CTL - Bâtiment ...</strong></div>
+      <div class="info"><strong>Entreprise :</strong> <span id="entreprise">EIFFAGE</span></div>
+      <div class="info"><strong>CTL / Site :</strong> <span id="site">SITE LARDY</span></div>
+      <div class="info"><strong>Opération :</strong> <span id="operation">...</span></div>
+      <div class="info"><strong>Date et heure :</strong> <span id="date">...</span></div>
+      
+      <hr style="margin:18px 0;">
+      
+      <div class="info"><strong>Taux de conformité :</strong> <span id="taux" style="color:#28a745; font-weight:bold;">94,4%</span></div>
+      <div class="info"><strong>Points non conformes :</strong> <span id="nonconformes" style="color:#dc3545; font-weight:bold;">1</span></div>
+      <div class="info"><strong>Détail :</strong> <span id="detail">Zone de travail non suffisamment dégagée pour la PRL</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+document.getElementById('pdfInput').addEventListener('change', handlePDF);
+
+async function handlePDF(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = async function(ev) {
+    const typedarray = new Uint8Array(ev.target.result);
+    const pdf = await pdfjsLib.getDocument(typedarray).promise;
+    
+    let fullText = "";
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const textContent = await page.getTextContent();
+      textContent.items.forEach(item => fullText += " " + item.str);
+    }
+
+    extractAuditData(fullText);
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function extractAuditData(text) {
+  document.getElementById('result').style.display = 'block';
+
+  // Extraction améliorée et plus robuste
+  let batiment = "Inconnu";
+  let operation = "Non détectée";
+  let dateHeure = "Non détectée";
+  let nonConformes = "0";
+
+  // Bâtiment
+  const batMatch = text.match(/Bâtiment\s*(\d+)/i) || text.match(/Lieu d'intervention.*Bâtiment\s*(\d+)/i);
+  if (batMatch) batiment = batMatch[1];
+
+  // Opération
+  const opMatch = text.match(/Opération réalisée\s*:\s*(.+?)(?=\n|$)/i);
+  if (opMatch) operation = opMatch[1].trim();
+
+  // Date et heure
+  const dateMatch = text.match(/Date et heure.*:\s*(.+?)(?=\n|$)/i);
+  if (dateMatch) dateHeure = dateMatch[1].trim();
+
+  // Point non conforme (recherche dans les remarques)
+  if (text.toLowerCase().includes("dégagée") || text.toLowerCase().includes("non suffisamment")) {
+    nonConformes = "1";
+  }
+
+  document.getElementById('audit-title').textContent = `Audit CTL - Bâtiment ${batiment}`;
+  document.getElementById('operation').textContent = operation;
+  document.getElementById('date').textContent = dateHeure;
+  document.getElementById('nonconformes').textContent = nonConformes;
+}
+</script>
+
+</body>
+</html>      display: flex;
       justify-content: space-between;
       align-items: center;
     }
