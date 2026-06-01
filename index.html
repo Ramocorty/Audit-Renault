@@ -68,22 +68,24 @@
       background: var(--blue);
       color: white;
       border: none;
-      padding: 12px 20px;
+      padding: 12px 24px;
       border-radius: 8px;
       font-size: 16px;
       margin: 8px 5px;
       cursor: pointer;
+      width: 100%;
     }
 
-    #camera { display: none; width: 100%; border-radius: 10px; }
-    #photoPreview { max-width: 100%; border-radius: 10px; margin-top: 10px; }
+    #camera { display: none; width: 100%; border-radius: 10px; margin-top: 10px; }
+    #photoPreview { max-width: 100%; border-radius: 10px; margin-top: 10px; display: none; }
   </style>
 </head>
 <body>
 <div class="phone">
   <div class="header">
     <h1>🌟 TERRAIN VISION</h1>
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Renault_2021.svg/320px-Renault_2021.svg.png" class="logo" alt="Renault" style="height:28px;">
+    <img src="https://www.renaultgroup.com/wp-content/uploads/2023/06/renault-logo-2021.png" 
+         class="logo" alt="Renault" style="height:32px;">
   </div>
 
   <!-- Upload PDF -->
@@ -92,13 +94,14 @@
     <input type="file" id="pdfInput" accept="application/pdf" style="margin-top:10px;">
   </div>
 
-  <!-- Photo Capture -->
+  <!-- Photo Section (simplifiée) -->
   <div class="photo-area">
-    <p><strong>📸 Prendre une photo du chantier</strong></p>
-    <button onclick="startCamera()">📷 Ouvrir Caméra</button>
-    <button onclick="capturePhoto()">📸 Capturer Photo</button>
+    <p><strong>📸 Photo du Chantier / Site</strong></p>
+    <button onclick="takePhoto()">📷 Prendre une Photo</button>
     <video id="camera" autoplay playsinline></video>
-    <img id="photoPreview" style="display:none;">
+    <img id="photoPreview">
+    <button id="captureBtn" onclick="capturePhoto()" style="display:none; background:#28a745;">✅ Capturer</button>
+    <button id="retakeBtn" onclick="retakePhoto()" style="display:none;">🔄 Reprendre</button>
   </div>
 
   <div class="content" id="result" style="display:none;">
@@ -109,7 +112,7 @@
       <div class="info"><strong>Lieu :</strong> <span id="lieu">—</span></div>
       <div class="info"><strong>Entreprise :</strong> <span id="entreprise">—</span></div>
       <div class="info"><strong>Opération :</strong> <span id="operation">—</span></div>
-      <div class="info"><strong>Date & Heure :</strong> <span id="date">—</span></div>
+      <div class="info"><strong>Date & Heure de visite :</strong> <span id="date">—</span></div>
      
       <hr style="margin:15px 0;">
      
@@ -118,7 +121,6 @@
       <div class="info"><strong>Détail NC :</strong> <span id="detail" style="color:#dc3545;">—</span></div>
     </div>
 
-    <!-- Résultat Analyse Photo -->
     <div class="card" id="photoAnalysis" style="display:none;">
       <h3 style="color:#002C5F;">🔍 Analyse IA de la Photo</h3>
       <div id="objectsDetected"></div>
@@ -131,55 +133,64 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs
 
 let stream = null;
 let video = document.getElementById('camera');
+let captureBtn = document.getElementById('captureBtn');
+let retakeBtn = document.getElementById('retakeBtn');
 
-// Démarrer caméra
-async function startCamera() {
+// Fonction unique pour prendre photo
+async function takePhoto() {
   try {
-    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+    stream = await navigator.mediaDevices.getUserMedia({ 
+      video: { facingMode: "environment", width: { ideal: 1280 } } 
+    });
     video.srcObject = stream;
     video.style.display = 'block';
+    captureBtn.style.display = 'block';
+    retakeBtn.style.display = 'none';
   } catch (err) {
-    alert("Impossible d'accéder à la caméra : " + err.message);
+    alert("❌ Impossible d'accéder à la caméra.\n\nAssurez-vous que :\n• Vous êtes en HTTPS (pas en fichier local)\n• Vous avez autorisé la caméra");
+    console.error(err);
   }
 }
 
-// Capturer photo
 function capturePhoto() {
   const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
+  canvas.width = video.videoWidth || 1280;
+  canvas.height = video.videoHeight || 720;
   canvas.getContext('2d').drawImage(video, 0, 0);
 
-  const photoData = canvas.toDataURL('image/jpeg');
+  const photoData = canvas.toDataURL('image/jpeg', 0.9);
   document.getElementById('photoPreview').src = photoData;
   document.getElementById('photoPreview').style.display = 'block';
+
   video.style.display = 'none';
+  captureBtn.style.display = 'none';
+  retakeBtn.style.display = 'block';
 
   if (stream) stream.getTracks().forEach(track => track.stop());
 
   analyzePhoto();
 }
 
-// Simulation d'analyse IA des objets
+function retakePhoto() {
+  document.getElementById('photoPreview').style.display = 'none';
+  takePhoto();
+}
+
+// Simulation Analyse IA Photo
 function analyzePhoto() {
-  const analysisDiv = document.getElementById('photoAnalysis');
-  const objectsDiv = document.getElementById('objectsDetected');
-  
-  analysisDiv.style.display = 'block';
-  
-  objectsDiv.innerHTML = `
+  document.getElementById('photoAnalysis').style.display = 'block';
+  document.getElementById('objectsDetected').innerHTML = `
     <strong>Objets détectés :</strong><br>
-    • Chantier / Zone de travail<br>
-    • Équipements de protection<br>
-    • Ordinateurs / Postes de travail<br>
-    • Tables & Chaises<br>
-    • Véhicules / Parking<br>
-    • Zone de stockage<br><br>
-    <strong>⚠️ Remarque IA :</strong> Zone encombrée détectée – Recommandation : dégager l'espace pour meilleure circulation.
+    • Chantier / Zone de travaux<br>
+    • Postes de travail & Ordinateurs<br>
+    • Tables, chaises, bureaux<br>
+    • Équipements de sécurité<br>
+    • Véhicules / Parking<br><br>
+    <strong>⚠️ Observation IA :</strong> Zone potentiellement encombrée. Recommandation : optimiser l'espace de travail.
   `;
 }
 
-// Extraction PDF (améliorée)
+// ====================== PDF Extraction ======================
 document.getElementById('pdfInput').addEventListener('change', handlePDF);
 
 async function handlePDF(e) {
@@ -211,8 +222,8 @@ function extractAuditData(text) {
   const opMatch = text.match(/Opération réalisée\s*:\s*(.+?)(?=\s*Numéro|$)/i);
   const entrepriseMatch = text.match(/EIFFAGE|COOPER|BOVIT|KES CHEMISY/i);
 
-  let detailNC = "Aucune non-conformité majeure";
-  if (text.toLowerCase().includes("dégagée") || text.toLowerCase().includes("espace") || text.toLowerCase().includes("bureau")) {
+  let detailNC = "Aucune non-conformité majeure détectée";
+  if (/dégagée|espace|bureau|encombrée/i.test(text)) {
     detailNC = "Zone de travail non suffisamment dégagée pour la PRL";
   }
 
@@ -224,7 +235,7 @@ function extractAuditData(text) {
   document.getElementById('operation').textContent = opMatch ? opMatch[1].trim() : 'Non détectée';
   document.getElementById('entreprise').textContent = entrepriseMatch ? entrepriseMatch[0] : 'EIFFAGE';
 
-  document.getElementById('taux').textContent = ncCount > 1 ? '88%' : '96%';
+  document.getElementById('taux').textContent = ncCount > 1 ? '88%' : '95%';
   document.getElementById('nonconformes').textContent = ncCount || '0';
   document.getElementById('detail').textContent = detailNC;
 }
