@@ -7,7 +7,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
   <style>
-    :root { --blue: #002C5F; --yellow: #FFD100; --green: #28a745; }
+    :root { --blue: #002C5F; --green: #28a745; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
    
     body {
@@ -68,7 +68,7 @@
       background: var(--blue);
       color: white;
       border: none;
-      padding: 12px 24px;
+      padding: 14px 20px;
       border-radius: 8px;
       font-size: 16px;
       margin: 8px 5px;
@@ -76,16 +76,16 @@
       width: 100%;
     }
 
-    #camera { display: none; width: 100%; border-radius: 10px; margin-top: 10px; }
-    #photoPreview { max-width: 100%; border-radius: 10px; margin-top: 10px; display: none; }
+    #camera { display: none; width: 100%; border-radius: 10px; margin: 10px 0; }
+    #photoPreview { max-width: 100%; border-radius: 10px; margin: 10px 0; display: none; }
   </style>
 </head>
 <body>
 <div class="phone">
   <div class="header">
     <h1>🌟 TERRAIN VISION</h1>
-    <img src="https://www.renaultgroup.com/wp-content/uploads/2023/06/renault-logo-2021.png" 
-         class="logo" alt="Renault" style="height:32px;">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Renault_2021.svg/320px-Renault_2021.svg.png" 
+         style="height:32px;" alt="Renault">
   </div>
 
   <!-- Upload PDF -->
@@ -94,14 +94,14 @@
     <input type="file" id="pdfInput" accept="application/pdf" style="margin-top:10px;">
   </div>
 
-  <!-- Photo Section (simplifiée) -->
+  <!-- Photo Section -->
   <div class="photo-area">
-    <p><strong>📸 Photo du Chantier / Site</strong></p>
+    <p><strong>📸 Photo du Chantier</strong></p>
     <button onclick="takePhoto()">📷 Prendre une Photo</button>
     <video id="camera" autoplay playsinline></video>
     <img id="photoPreview">
-    <button id="captureBtn" onclick="capturePhoto()" style="display:none; background:#28a745;">✅ Capturer</button>
-    <button id="retakeBtn" onclick="retakePhoto()" style="display:none;">🔄 Reprendre</button>
+    <button id="captureBtn" onclick="capturePhoto()" style="display:none; background:#28a745;">✅ Capturer la Photo</button>
+    <button id="retakeBtn" onclick="retakePhoto()" style="display:none;">🔄 Reprendre la Photo</button>
   </div>
 
   <div class="content" id="result" style="display:none;">
@@ -116,7 +116,7 @@
      
       <hr style="margin:15px 0;">
      
-      <div class="info"><strong>Taux de conformité :</strong> <span id="taux" style="color:var(--green); font-weight:bold;">—</span></div>
+      <div class="info"><strong>Taux de conformité :</strong> <span id="taux" style="color:#28a745; font-weight:bold;">—</span></div>
       <div class="info"><strong>Points non conformes :</strong> <span id="nonconformes" style="color:#dc3545; font-weight:bold;">0</span></div>
       <div class="info"><strong>Détail NC :</strong> <span id="detail" style="color:#dc3545;">—</span></div>
     </div>
@@ -132,39 +132,41 @@
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 let stream = null;
-let video = document.getElementById('camera');
-let captureBtn = document.getElementById('captureBtn');
-let retakeBtn = document.getElementById('retakeBtn');
 
-// Fonction unique pour prendre photo
+// Fonction Photo
 async function takePhoto() {
   try {
     stream = await navigator.mediaDevices.getUserMedia({ 
-      video: { facingMode: "environment", width: { ideal: 1280 } } 
+      video: { facingMode: "environment" } 
     });
+    const video = document.getElementById('camera');
     video.srcObject = stream;
     video.style.display = 'block';
-    captureBtn.style.display = 'block';
-    retakeBtn.style.display = 'none';
+    document.getElementById('captureBtn').style.display = 'block';
   } catch (err) {
-    alert("❌ Impossible d'accéder à la caméra.\n\nAssurez-vous que :\n• Vous êtes en HTTPS (pas en fichier local)\n• Vous avez autorisé la caméra");
+    alert("❌ Erreur Caméra\n\n" + 
+          "Pour que la caméra fonctionne, vous devez :\n" +
+          "1. Ouvrir ce fichier avec un serveur local (Live Server VS Code)\n" +
+          "2. OU mettre le fichier sur un serveur HTTPS\n\n" +
+          "Impossible en ouvrant directement le fichier (file://)");
     console.error(err);
   }
 }
 
 function capturePhoto() {
+  const video = document.getElementById('camera');
   const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth || 1280;
-  canvas.height = video.videoHeight || 720;
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
   canvas.getContext('2d').drawImage(video, 0, 0);
 
-  const photoData = canvas.toDataURL('image/jpeg', 0.9);
+  const photoData = canvas.toDataURL('image/jpeg', 0.85);
   document.getElementById('photoPreview').src = photoData;
   document.getElementById('photoPreview').style.display = 'block';
 
   video.style.display = 'none';
-  captureBtn.style.display = 'none';
-  retakeBtn.style.display = 'block';
+  document.getElementById('captureBtn').style.display = 'none';
+  document.getElementById('retakeBtn').style.display = 'block';
 
   if (stream) stream.getTracks().forEach(track => track.stop());
 
@@ -173,24 +175,24 @@ function capturePhoto() {
 
 function retakePhoto() {
   document.getElementById('photoPreview').style.display = 'none';
+  document.getElementById('retakeBtn').style.display = 'none';
   takePhoto();
 }
 
-// Simulation Analyse IA Photo
 function analyzePhoto() {
   document.getElementById('photoAnalysis').style.display = 'block';
   document.getElementById('objectsDetected').innerHTML = `
     <strong>Objets détectés :</strong><br>
-    • Chantier / Zone de travaux<br>
+    • Zone de chantier<br>
     • Postes de travail & Ordinateurs<br>
     • Tables, chaises, bureaux<br>
-    • Équipements de sécurité<br>
+    • Équipements de protection<br>
     • Véhicules / Parking<br><br>
-    <strong>⚠️ Observation IA :</strong> Zone potentiellement encombrée. Recommandation : optimiser l'espace de travail.
+    <strong>⚠️ Observation :</strong> Vérifiez que la zone est bien dégagée.
   `;
 }
 
-// ====================== PDF Extraction ======================
+// ====================== PDF ======================
 document.getElementById('pdfInput').addEventListener('change', handlePDF);
 
 async function handlePDF(e) {
@@ -229,7 +231,6 @@ function extractAuditData(text) {
 
   const ncCount = (text.match(/NC/g) || []).length;
 
-  document.getElementById('audit-title').textContent = 'TERRAIN VISION Report';
   document.getElementById('lieu').textContent = lieuMatch ? lieuMatch[1].trim() : 'Non détecté';
   document.getElementById('date').textContent = dateMatch ? dateMatch[1].trim() : 'Non détecté';
   document.getElementById('operation').textContent = opMatch ? opMatch[1].trim() : 'Non détectée';
