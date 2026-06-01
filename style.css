@@ -1,0 +1,134 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #001a4d;
+  color: white;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.phone {
+  width: 390px;
+  height: 844px;
+  background: #002d62;
+  border-radius: 50px;
+  overflow: hidden;
+  box-shadow: 0 15px 50px rgba(0,0,0,0.8);
+  border: 12px solid #001233;
+  position: relative;
+}
+
+.topbar {
+  background: #001a4d;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 3px solid #ffcc00;
+}
+
+.topbar img {
+  height: 42px;
+}
+
+.topbar-brand {
+  font-size: 21px;
+  font-weight: bold;
+  color: #ffcc00;
+}
+
+.scroll {
+  height: calc(100% - 175px);
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.hero {
+  background: linear-gradient(135deg, #003399, #001a4d);
+  border: 2px solid #ffcc00;
+  border-radius: 18px;
+  padding: 30px 20px;
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.hero h1 {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.upload-zone {
+  border: 3px dashed #ffcc00;
+  border-radius: 18px;
+  padding: 50px 20px;
+  text-align: center;
+  margin: 20px 0;
+  cursor: pointer;
+  background: rgba(255,204,0,0.05);
+}
+
+.upload-zone:hover {
+  background: rgba(255,204,0,0.15);
+}
+
+.scan-btn {
+  background: #ffcc00;
+  color: #001a4d;
+  border: none;
+  padding: 18px;
+  font-size: 18px;
+  font-weight: bold;
+  width: 100%;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+.result-box {
+  background: #003399;
+  padding: 25px;
+  border-radius: 18px;
+  border: 2px solid #ffcc00;
+}
+
+.bottom-nav {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: #001a4d;
+  display: flex;
+  padding: 15px 0;
+  border-top: 2px solid #ffcc00;
+  text-align: center;
+}
+
+.bottom-nav div {
+  flex: 1;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.metric {
+  background: rgba(255,255,255,0.1);
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.number {
+  font-size: 32px;
+  font-weight: bold;
+  display: block;
+}
+
+.label {
+  font-size: 14px;
+  color: #ccc;
+}
