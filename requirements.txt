@@ -1,5 +1,5 @@
 streamlit
 pandas
 Pillow
-pymupdf==1.24.10
+
 numpy
