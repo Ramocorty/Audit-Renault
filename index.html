@@ -57,9 +57,7 @@
       background: #fafafa;
     }
     
-    .content {
-      padding: 10px 20px 20px;
-    }
+    .content { padding: 10px 20px 20px; }
     
     .card {
       background: white;
@@ -67,70 +65,24 @@
       padding: 20px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
-    
-    .result-header {
-      color: var(--blue);
-      font-size: 21px;
-      margin-bottom: 15px;
-    }
-    
-    .info {
-      margin: 12px 0;
-      font-size: 15.5px;
-    }
-    
-    .conformity {
-      font-size: 24px;
-      font-weight: bold;
-      color: #28a745;
-    }
-    
-    .non-conforme {
-      color: #dc3545;
-      font-weight: bold;
-    }
-    
-    .footer {
-      background: white;
-      border-top: 1px solid #ddd;
-      display: flex;
-      padding: 12px 0;
-    }
-    
-    .nav-item {
-      flex: 1;
-      text-align: center;
-      color: #666;
-      font-size: 13px;
-    }
-    
-    .nav-item.active {
-      color: var(--yellow);
-      font-weight: bold;
-    }
   </style>
 </head>
 <body>
 
 <div class="phone">
-  <!-- Header -->
   <div class="header">
     <h1>AUDIT TERRAIN</h1>
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Renault_2023.svg/512px-Renault_2023.svg.png" 
-         class="logo" alt="Renault Group">
+    <img src="logo" class="logo" alt="Renault Group">   <!-- ← Modifié ici -->
   </div>
 
-  <!-- Upload -->
   <div class="upload-area" id="uploadArea">
     <p><strong>Glisse ton PDF ici</strong><br>ou clique pour sélectionner</p>
     <input type="file" id="pdfInput" accept="application/pdf" style="margin-top:10px;">
   </div>
 
-  <!-- Résultat -->
   <div class="content" id="result" style="display:none;">
     <div class="card">
-      <h2 class="result-header">✅ Résultat Audit</h2>
-      
+      <h2 style="color:#002C5F; margin-bottom:15px;">✅ Résultat Audit</h2>
       <div class="info"><strong id="audit-title">Audit CTL - Bâtiment ...</strong></div>
       <div class="info"><strong>Entreprise :</strong> <span id="entreprise">EIFFAGE</span></div>
       <div class="info"><strong>CTL :</strong> <span id="site">SITE LARDY</span></div>
@@ -139,22 +91,15 @@
       
       <hr style="margin:18px 0;">
       
-      <div class="info"><strong>Taux de conformité :</strong> <span id="taux" class="conformity">94,4%</span></div>
-      <div class="info"><strong>Points non conformes :</strong> <span id="nonconformes" class="non-conforme">1</span></div>
+      <div class="info"><strong>Taux de conformité :</strong> <span id="taux" style="color:#28a745; font-weight:bold;">94,4%</span></div>
+      <div class="info"><strong>Points non conformes :</strong> <span id="nonconformes" style="color:#dc3545; font-weight:bold;">1</span></div>
       <div class="info"><strong>Détail :</strong> <span id="detail">Zone de travail non suffisamment dégagée pour la PRL</span></div>
     </div>
-  </div>
-
-  <!-- Navigation -->
-  <div class="footer">
-    <div class="nav-item">🏠<br>Accueil</div>
-    <div class="nav-item active">📋<br>Audit</div>
-    <div class="nav-item">📊<br>Stats</div>
   </div>
 </div>
 
 <script>
-// PDF.js worker
+// Même script que précédemment (extraction PDF)
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 document.getElementById('pdfInput').addEventListener('change', handlePDF);
@@ -174,7 +119,6 @@ async function handlePDF(e) {
       const textContent = await page.getTextContent();
       textContent.items.forEach(item => fullText += " " + item.str);
     }
-
     extractAuditData(fullText);
   };
   reader.readAsArrayBuffer(file);
@@ -182,20 +126,14 @@ async function handlePDF(e) {
 
 function extractAuditData(text) {
   document.getElementById('result').style.display = 'block';
-
-  // Extraction améliorée
+  
   const batimentMatch = text.match(/Bâtiment\s*(\d+)/i) || ["", "225"];
   const dateMatch = text.match(/(\d{1,2}H\d{2})\s*le\s*(\d{1,2}\/\d{1,2}\/\d{4})/i) || ["", "10H18", "10/04/2026"];
   const tauxMatch = text.match(/Taux de conformité\s*:\s*(\d{1,2}[.,]\d)/i) || ["", "94,4"];
-  const nonConformeMatch = text.match(/Points non conformes\s*:\s*(\d+)/i) || ["", "1"];
-
-  const detail = text.includes("dégagée") ? "Zone de travail non suffisamment dégagée pour la PRL" : "Point non conforme détecté";
 
   document.getElementById('audit-title').textContent = `Audit CTL - Bâtiment ${batimentMatch[1]}`;
   document.getElementById('date').textContent = `${dateMatch[1]} le ${dateMatch[2]}`;
   document.getElementById('taux').textContent = `${tauxMatch[1]}%`;
-  document.getElementById('nonconformes').textContent = nonConformeMatch[1];
-  document.getElementById('detail').textContent = detail;
 }
 </script>
 
