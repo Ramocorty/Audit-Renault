@@ -5,492 +5,66 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TERRAIN VISION - Renault</title>
   
-  <!-- === PWA Configuration === -->
+  <!-- PWA -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#efdf00">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="icon-192.png">
 
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- PDF.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  
-  <style>
-    :root {
-      --renault-black: #000000;
-      --renault-yellow: #efdf00;
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-  
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      background: linear-gradient(135deg, #1a1a1a, #333);
-      display: flex;
-      justify-content: center;
-      padding: 20px;
-      min-height: 100vh;
-      color: white;
-    }
-  
-    .phone {
-      width: 390px;
-      background: white;
-      border-radius: 40px;
-      overflow: hidden;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-      border: 12px solid var(--renault-black);
-      min-height: 680px;
-    }
-  
-    .header {
-      background: var(--renault-black);
-      color: var(--renault-yellow);
-      padding: 15px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-  
-    .header h1 {
-      font-size: 21px;
-      font-weight: bold;
-      letter-spacing: 1px;
-    }
-    .section {
-      padding: 20px;
-      text-align: center;
-      border: 2px dashed #ccc;
-      margin: 15px;
-      border-radius: 15px;
-      background: #f8f8f8;
-      color: #000;
-    }
-    .content { padding: 10px 20px 20px; }
-  
-    .card {
-      background: #f8f8f8;
-      border-radius: 12px;
-      padding: 18px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-      margin-bottom: 15px;
-      color: #000;
-    }
-    .info { margin: 9px 0; font-size: 15px; }
-    .info strong { color: var(--renault-black); }
-    button, input[type="file"] {
-      background: var(--renault-black);
-      color: var(--renault-yellow);
-      border: none;
-      padding: 14px 20px;
-      border-radius: 8px;
-      font-size: 16px;
-      margin: 8px 5px;
-      cursor: pointer;
-      width: 100%;
-      font-weight: bold;
-    }
-    #camera {
-      display: none;
-      width: 100%;
-      background: #000;
-      border-radius: 10px;
-      margin: 10px 0;
-    }
-    #photoPreview {
-      max-width: 100%;
-      border-radius: 10px;
-      margin: 10px 0;
-      display: none;
-    }
-  </style>
 </head>
 <body>
-<div class="phone">
-  <div class="header">
-    <h1>🌟 TERRAIN VISION</h1>
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Renault_2021.svg/320px-Renault_2021.svg.png"
-         style="height:34px; filter: brightness(1.1);" alt="Renault">
-  </div>
-  
-  <!-- PDF -->
-  <div class="section">
-    <p><strong>📄 PDF Audit</strong></p>
-    <input type="file" id="pdfInput" accept="application/pdf">
-  </div>
-  
-  <!-- Caméra -->
-  <div class="section">
-    <p><strong>📸 Photo du Chantier</strong></p>
-    <button onclick="takePhoto()">📷 Ouvrir Caméra</button>
-    <video id="camera" autoplay playsinline></video>
-    <img id="photoPreview">
-    <button id="captureBtn" onclick="capturePhoto()" style="display:none; background:#efdf00; color:black;">✅ Capturer</button>
-    <button id="retakeBtn" onclick="retakePhoto()" style="display:none;">🔄 Reprendre</button>
-  </div>
-  
-  <div class="content" id="result" style="display:none;">
-    <div class="card">
-      <h2 style="color:#000; margin-bottom:12px;">✅ Rapport Audit</h2>
+  <div class="phone">
+    <div class="header">
+      <h1>🌟 TERRAIN VISION</h1>
+      <img src="logo-renault.png" style="height:34px; filter: brightness(1.1);" alt="Renault">
+    </div>
     
-      <div class="info"><strong id="audit-title">TERRAIN VISION Report</strong></div>
-      <div class="info"><strong>Lieu :</strong> <span id="lieu">—</span></div>
-      <div class="info"><strong>Entreprise :</strong> <span id="entreprise">—</span></div>
-      <div class="info"><strong>Opération :</strong> <span id="operation">—</span></div>
-      <div class="info"><strong>Date & Heure :</strong> <span id="date">—</span></div>
+    <!-- PDF -->
+    <div class="section">
+      <p><strong>📄 PDF Audit</strong></p>
+      <input type="file" id="pdfInput" accept="application/pdf">
+    </div>
     
-      <hr style="margin:15px 0;">
+    <!-- Caméra -->
+    <div class="section">
+      <p><strong>📸 Photo du Chantier</strong></p>
+      <button onclick="takePhoto()">📷 Ouvrir Caméra</button>
+      <video id="camera" autoplay playsinline></video>
+      <img id="photoPreview">
+      <button id="captureBtn" onclick="capturePhoto()" style="display:none; background:#efdf00; color:black;">✅ Capturer</button>
+      <button id="retakeBtn" onclick="retakePhoto()" style="display:none;">🔄 Reprendre</button>
+    </div>
     
-      <div class="info"><strong>Taux de conformité :</strong> <span id="taux" style="color:#efdf00; font-weight:bold;">—</span></div>
-      <div class="info"><strong>Points NC :</strong> <span id="nonconformes" style="color:#dc3545; font-weight:bold;">0</span></div>
-      <div class="info"><strong>Détail NC :</strong> <span id="detail" style="color:#dc3545;">—</span></div>
-    </div>
-    <div class="card" id="photoAnalysis" style="display:none;">
-      <h3 style="color:#000;">🔍 Analyse IA Photo</h3>
-      <div id="objectsDetected"></div>
-    </div>
-  </div>
-</div>
-
-<script>
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
-let stream = null;
-
-// === Caméra ===
-async function takePhoto() {
-  const video = document.getElementById('camera');
-  const captureBtn = document.getElementById('captureBtn');
- 
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "environment", width: { ideal: 1280 } }
-    });
-    video.srcObject = stream;
-    video.style.display = 'block';
-    captureBtn.style.display = 'block';
-  } catch (err) {
-    alert("❌ Impossible d'accéder à la caméra\n\n" +
-          "→ Déployez l'application sur HTTPS (Cloudflare Pages ou GitHub Pages)");
-    console.error(err);
-  }
-}
-
-function capturePhoto() {
-  const video = document.getElementById('camera');
-  const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth || 1280;
-  canvas.height = video.videoHeight || 720;
-  canvas.getContext('2d').drawImage(video, 0, 0);
-  const photoData = canvas.toDataURL('image/jpeg', 0.9);
-  
-  document.getElementById('photoPreview').src = photoData;
-  document.getElementById('photoPreview').style.display = 'block';
-  video.style.display = 'none';
-  document.getElementById('captureBtn').style.display = 'none';
-  document.getElementById('retakeBtn').style.display = 'block';
-  
-  if (stream) stream.getTracks().forEach(track => track.stop());
-  analyzePhoto();
-}
-
-function retakePhoto() {
-  document.getElementById('photoPreview').style.display = 'none';
-  document.getElementById('retakeBtn').style.display = 'none';
-  takePhoto();
-}
-
-function analyzePhoto() {
-  document.getElementById('photoAnalysis').style.display = 'block';
-  document.getElementById('objectsDetected').innerHTML = `
-    <strong>Objets détectés :</strong><br>
-    • Chantier / Zone de travail<br>
-    • Postes de travail & Ordinateurs<br>
-    • Tables, chaises, bureaux<br>
-    • Équipements de sécurité<br>
-    • Véhicules / Parking<br><br>
-    <strong>⚠️ Observation :</strong> Zone potentiellement encombrée.
-  `;
-}
-
-// === PDF ===
-document.getElementById('pdfInput').addEventListener('change', handlePDF);
-
-async function handlePDF(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = async function(ev) {
-    const typedarray = new Uint8Array(ev.target.result);
-    const pdf = await pdfjsLib.getDocument(typedarray).promise;
-  
-    let fullText = "";
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const textContent = await page.getTextContent();
-      textContent.items.forEach(item => fullText += " " + item.str + " ");
-    }
-    extractAuditData(fullText);
-  };
-  reader.readAsArrayBuffer(file);
-}
-
-function extractAuditData(text) {
-  document.getElementById('result').style.display = 'block';
-  const lieuMatch = text.match(/Lieu d'intervention\s*:\s*(.+?)(?=\s*Date|$)/i);
-  const dateMatch = text.match(/Date et heure.*:\s*(.+?)(?=\s*Opération|Numéro|$)/i);
-  const opMatch = text.match(/Opération réalisée\s*:\s*(.+?)(?=\s*Numéro|$)/i);
-  const entrepriseMatch = text.match(/EIFFAGE|COOPER|BOVIT|KES CHEMISY/i);
-  
-  let detailNC = "Aucune non-conformité majeure détectée";
-  if (/dégagée|espace|bureau|encombrée/i.test(text)) {
-    detailNC = "Zone de travail non suffisamment dégagée pour la PRL";
-  }
-  
-  const ncCount = (text.match(/NC/g) || []).length;
-  
-  document.getElementById('lieu').textContent = lieuMatch ? lieuMatch[1].trim() : 'Non détecté';
-  document.getElementById('date').textContent = dateMatch ? dateMatch[1].trim() : 'Non détecté';
-  document.getElementById('operation').textContent = opMatch ? opMatch[1].trim() : 'Non détectée';
-  document.getElementById('entreprise').textContent = entrepriseMatch ? entrepriseMatch[0] : 'EIFFAGE';
-  document.getElementById('taux').textContent = ncCount > 1 ? '88%' : '95%';
-  document.getElementById('nonconformes').textContent = ncCount || '0';
-  document.getElementById('detail').textContent = detailNC;
-}
-
-// === Service Worker (PWA) ===
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js')
-      .then(reg => console.log('✅ Service Worker enregistré avec succès'))
-      .catch(err => console.log('❌ Service Worker erreur :', err));
-  });
-}
-</script>
-</body>
-</html>      background: var(--renault-black);
-      color: var(--renault-yellow);
-      padding: 15px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-   
-    .header h1 { 
-      font-size: 21px; 
-      font-weight: bold;
-      letter-spacing: 1px;
-    }
-
-    .section {
-      padding: 20px;
-      text-align: center;
-      border: 2px dashed #ccc;
-      margin: 15px;
-      border-radius: 15px;
-      background: #f8f8f8;
-      color: #000;
-    }
-
-    .content { padding: 10px 20px 20px; }
-   
-    .card {
-      background: #f8f8f8;
-      border-radius: 12px;
-      padding: 18px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-      margin-bottom: 15px;
-      color: #000;
-    }
-
-    .info { margin: 9px 0; font-size: 15px; }
-    .info strong { color: var(--renault-black); }
-
-    button, input[type="file"] {
-      background: var(--renault-black);
-      color: var(--renault-yellow);
-      border: none;
-      padding: 14px 20px;
-      border-radius: 8px;
-      font-size: 16px;
-      margin: 8px 5px;
-      cursor: pointer;
-      width: 100%;
-      font-weight: bold;
-    }
-
-    #camera { 
-      display: none; 
-      width: 100%; 
-      background: #000; 
-      border-radius: 10px; 
-      margin: 10px 0; 
-    }
-    #photoPreview { 
-      max-width: 100%; 
-      border-radius: 10px; 
-      margin: 10px 0; 
-      display: none; 
-    }
-  </style>
-</head>
-<body>
-<div class="phone">
-  <div class="header">
-    <h1>🌟 TERRAIN VISION</h1>
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Renault_2021.svg/320px-Renault_2021.svg.png" 
-         style="height:34px; filter: brightness(1.1);" alt="Renault">
-  </div>
-
-  <!-- PDF -->
-  <div class="section">
-    <p><strong>📄 PDF Audit</strong></p>
-    <input type="file" id="pdfInput" accept="application/pdf">
-  </div>
-
-  <!-- Caméra -->
-  <div class="section">
-    <p><strong>📸 Photo du Chantier</strong></p>
-    <button onclick="takePhoto()">📷 Ouvrir Caméra</button>
-    <video id="camera" autoplay playsinline></video>
-    <img id="photoPreview">
-    <button id="captureBtn" onclick="capturePhoto()" style="display:none; background:#efdf00; color:black;">✅ Capturer</button>
-    <button id="retakeBtn" onclick="retakePhoto()" style="display:none;">🔄 Reprendre</button>
-  </div>
-
-  <div class="content" id="result" style="display:none;">
-    <div class="card">
-      <h2 style="color:#000; margin-bottom:12px;">✅ Rapport Audit</h2>
-     
-      <div class="info"><strong id="audit-title">TERRAIN VISION Report</strong></div>
-      <div class="info"><strong>Lieu :</strong> <span id="lieu">—</span></div>
-      <div class="info"><strong>Entreprise :</strong> <span id="entreprise">—</span></div>
-      <div class="info"><strong>Opération :</strong> <span id="operation">—</span></div>
-      <div class="info"><strong>Date & Heure :</strong> <span id="date">—</span></div>
-     
-      <hr style="margin:15px 0;">
-     
-      <div class="info"><strong>Taux de conformité :</strong> <span id="taux" style="color:#efdf00; font-weight:bold;">—</span></div>
-      <div class="info"><strong>Points NC :</strong> <span id="nonconformes" style="color:#dc3545; font-weight:bold;">0</span></div>
-      <div class="info"><strong>Détail NC :</strong> <span id="detail" style="color:#dc3545;">—</span></div>
-    </div>
-
-    <div class="card" id="photoAnalysis" style="display:none;">
-      <h3 style="color:#000;">🔍 Analyse IA Photo</h3>
-      <div id="objectsDetected"></div>
+    <div class="content" id="result" style="display:none;">
+      <div class="card">
+        <h2 style="color:#000; margin-bottom:12px;">✅ Rapport Audit</h2>
+      
+        <div class="info"><strong id="audit-title">TERRAIN VISION Report</strong></div>
+        <div class="info"><strong>Lieu :</strong> <span id="lieu">—</span></div>
+        <div class="info"><strong>Entreprise :</strong> <span id="entreprise">—</span></div>
+        <div class="info"><strong>Opération :</strong> <span id="operation">—</span></div>
+        <div class="info"><strong>Date & Heure :</strong> <span id="date">—</span></div>
+      
+        <hr style="margin:15px 0;">
+      
+        <div class="info"><strong>Taux de conformité :</strong> <span id="taux" style="color:#efdf00; font-weight:bold;">—</span></div>
+        <div class="info"><strong>Points NC :</strong> <span id="nonconformes" style="color:#dc3545; font-weight:bold;">0</span></div>
+        <div class="info"><strong>Détail NC :</strong> <span id="detail" style="color:#dc3545;">—</span></div>
+      </div>
+      
+      <div class="card" id="photoAnalysis" style="display:none;">
+        <h3 style="color:#000;">🔍 Analyse IA Photo</h3>
+        <div id="objectsDetected"></div>
+      </div>
     </div>
   </div>
-</div>
 
-<script>
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
-let stream = null;
-
-// === Caméra ===
-async function takePhoto() {
-  const video = document.getElementById('camera');
-  const captureBtn = document.getElementById('captureBtn');
-  
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({ 
-      video: { facingMode: "environment", width: { ideal: 1280 } } 
-    });
-    video.srcObject = stream;
-    video.style.display = 'block';
-    captureBtn.style.display = 'block';
-  } catch (err) {
-    alert("❌ Impossible d'accéder à la caméra\n\n" +
-          "→ Ouvrez ce fichier via Live Server (VS Code)\n" +
-          "→ Ou déployez sur un site HTTPS");
-    console.error(err);
-  }
-}
-
-function capturePhoto() {
-  const video = document.getElementById('camera');
-  const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth || 1280;
-  canvas.height = video.videoHeight || 720;
-  canvas.getContext('2d').drawImage(video, 0, 0);
-
-  const photoData = canvas.toDataURL('image/jpeg', 0.9);
-  document.getElementById('photoPreview').src = photoData;
-  document.getElementById('photoPreview').style.display = 'block';
-
-  video.style.display = 'none';
-  document.getElementById('captureBtn').style.display = 'none';
-  document.getElementById('retakeBtn').style.display = 'block';
-
-  if (stream) stream.getTracks().forEach(track => track.stop());
-
-  analyzePhoto();
-}
-
-function retakePhoto() {
-  document.getElementById('photoPreview').style.display = 'none';
-  document.getElementById('retakeBtn').style.display = 'none';
-  takePhoto();
-}
-
-function analyzePhoto() {
-  document.getElementById('photoAnalysis').style.display = 'block';
-  document.getElementById('objectsDetected').innerHTML = `
-    <strong>Objets détectés :</strong><br>
-    • Chantier / Zone de travail<br>
-    • Postes de travail & Ordinateurs<br>
-    • Tables, chaises, bureaux<br>
-    • Équipements de sécurité<br>
-    • Véhicules / Parking<br><br>
-    <strong>⚠️ Observation :</strong> Zone potentiellement encombrée.
-  `;
-}
-
-// === PDF ===
-document.getElementById('pdfInput').addEventListener('change', handlePDF);
-
-async function handlePDF(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = async function(ev) {
-    const typedarray = new Uint8Array(ev.target.result);
-    const pdf = await pdfjsLib.getDocument(typedarray).promise;
-   
-    let fullText = "";
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const textContent = await page.getTextContent();
-      textContent.items.forEach(item => fullText += " " + item.str + " ");
-    }
-    extractAuditData(fullText);
-  };
-  reader.readAsArrayBuffer(file);
-}
-
-function extractAuditData(text) {
-  document.getElementById('result').style.display = 'block';
-
-  const lieuMatch = text.match(/Lieu d'intervention\s*:\s*(.+?)(?=\s*Date|$)/i);
-  const dateMatch = text.match(/Date et heure.*:\s*(.+?)(?=\s*Opération|Numéro|$)/i);
-  const opMatch = text.match(/Opération réalisée\s*:\s*(.+?)(?=\s*Numéro|$)/i);
-  const entrepriseMatch = text.match(/EIFFAGE|COOPER|BOVIT|KES CHEMISY/i);
-
-  let detailNC = "Aucune non-conformité majeure détectée";
-  if (/dégagée|espace|bureau|encombrée/i.test(text)) {
-    detailNC = "Zone de travail non suffisamment dégagée pour la PRL";
-  }
-
-  const ncCount = (text.match(/NC/g) || []).length;
-
-  document.getElementById('lieu').textContent = lieuMatch ? lieuMatch[1].trim() : 'Non détecté';
-  document.getElementById('date').textContent = dateMatch ? dateMatch[1].trim() : 'Non détecté';
-  document.getElementById('operation').textContent = opMatch ? opMatch[1].trim() : 'Non détectée';
-  document.getElementById('entreprise').textContent = entrepriseMatch ? entrepriseMatch[0] : 'EIFFAGE';
-
-  document.getElementById('taux').textContent = ncCount > 1 ? '88%' : '95%';
-  document.getElementById('nonconformes').textContent = ncCount || '0';
-  document.getElementById('detail').textContent = detailNC;
-}
-</script>
+  <script src="script.js"></script>
 </body>
 </html>
