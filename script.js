@@ -1,6 +1,14 @@
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 let stream = null;
+let auditHistory = JSON.parse(localStorage.getItem('auditHistory')) || [];
+
+// === Mapping des sites ===
+const siteMapping = {
+  "CTL": "LARDY",
+  "HARDY": "LARDY",
+  "LARDY": "LARDY"
+};
 
 // === Caméra ===
 async function takePhoto() {
@@ -15,12 +23,12 @@ async function takePhoto() {
     video.style.display = 'block';
     captureBtn.style.display = 'block';
   } catch (err) {
-    alert("❌ Impossible d'accéder à la caméra\n\n→ Déployez sur Cloudflare Pages ou GitHub Pages (HTTPS obligatoire)");
+    alert("❌ Impossible d'accéder à la caméra\n\nAssurez-vous d'être sur HTTPS (Cloudflare Pages)");
     console.error(err);
   }
 }
 
-function capturePhoto() {
+function capturePhoto() { /* même code qu'avant */ 
   const video = document.getElementById('camera');
   const canvas = document.createElement('canvas');
   canvas.width = video.videoWidth || 1280;
@@ -38,13 +46,13 @@ function capturePhoto() {
   analyzePhoto();
 }
 
-function retakePhoto() {
+function retakePhoto() { /* même code */ 
   document.getElementById('photoPreview').style.display = 'none';
   document.getElementById('retakeBtn').style.display = 'none';
   takePhoto();
 }
 
-function analyzePhoto() {
+function analyzePhoto() { /* même code */ 
   document.getElementById('photoAnalysis').style.display = 'block';
   document.getElementById('objectsDetected').innerHTML = `
     <strong>Objets détectés :</strong><br>
@@ -57,13 +65,13 @@ function analyzePhoto() {
   `;
 }
 
-// === PDF ===
+// === PDF Amélioré ===
 document.getElementById('pdfInput').addEventListener('change', handlePDF);
 
 async function handlePDF(e) {
   const file = e.target.files[0];
   if (!file) return;
-  
+
   const reader = new FileReader();
   reader.onload = async function(ev) {
     const typedarray = new Uint8Array(ev.target.result);
@@ -75,40 +83,68 @@ async function handlePDF(e) {
       const textContent = await page.getTextContent();
       textContent.items.forEach(item => fullText += " " + item.str + " ");
     }
-    extractAuditData(fullText);
+    
+    extractAuditData(fullText, file.name);
   };
   reader.readAsArrayBuffer(file);
 }
 
-function extractAuditData(text) {
+function extractAuditData(text, filename) {
   document.getElementById('result').style.display = 'block';
+
+  // Extraction améliorée
+  let lieu = text.match(/Lieu d'intervention\s*:\s*(.+?)(?=\s*Date|$)/i);
+  let date = text.match(/Date et heure.*?:\s*(.+?)(?=\s*Opération|$)/i);
+  let operation = text.match(/Opération réalisée\s*:\s*(.+?)(?=\s*Numéro|$)/i);
+  let entreprise = text.match(/EIFFAGE|COOPER|BOVIT|KES CHEMISY|ITG/i);
+
+  let lieuText = lieu ? lieu[1].trim() : 'Non détecté';
   
-  const lieuMatch = text.match(/Lieu d'intervention\s*:\s*(.+?)(?=\s*Date|$)/i);
-  const dateMatch = text.match(/Date et heure.*:\s*(.+?)(?=\s*Opération|Numéro|$)/i);
-  const opMatch = text.match(/Opération réalisée\s*:\s*(.+?)(?=\s*Numéro|$)/i);
-  const entrepriseMatch = text.match(/EIFFAGE|COOPER|BOVIT|KES CHEMISY/i);
-  
+  // Application du mapping CTL → LARDY
+  Object.keys(siteMapping).forEach(key => {
+    if (lieuText.toUpperCase().includes(key)) {
+      lieuText = siteMapping[key];
+    }
+  });
+
   let detailNC = "Aucune non-conformité majeure détectée";
-  if (/dégagée|espace|bureau|encombrée/i.test(text)) {
+  let ncCount = (text.match(/NC|non conforme|non-conformité/i) || []).length;
+
+  if (/espace|dégagée|encombrée|bureaux|passage|positionnement/i.test(text)) {
     detailNC = "Zone de travail non suffisamment dégagée pour la PRL";
+    ncCount = Math.max(ncCount, 1);
   }
-  
-  const ncCount = (text.match(/NC/g) || []).length;
-  
-  document.getElementById('lieu').textContent = lieuMatch ? lieuMatch[1].trim() : 'Non détecté';
-  document.getElementById('date').textContent = dateMatch ? dateMatch[1].trim() : 'Non détecté';
-  document.getElementById('operation').textContent = opMatch ? opMatch[1].trim() : 'Non détectée';
-  document.getElementById('entreprise').textContent = entrepriseMatch ? entrepriseMatch[0] : 'EIFFAGE';
-  document.getElementById('taux').textContent = ncCount > 1 ? '88%' : '95%';
-  document.getElementById('nonconformes').textContent = ncCount || '0';
+
+  // Sauvegarde dans l'historique
+  const audit = {
+    date: new Date().toLocaleString('fr-FR'),
+    filename: filename,
+    lieu: lieuText,
+    entreprise: entreprise ? entreprise[0] : 'Non détecté',
+    operation: operation ? operation[1].trim() : 'Non détectée',
+    taux: ncCount > 1 ? '88%' : '95%',
+    ncCount: ncCount,
+    detail: detailNC
+  };
+
+  auditHistory.unshift(audit); // Ajoute au début
+  localStorage.setItem('auditHistory', JSON.stringify(auditHistory));
+
+  // Affichage
+  document.getElementById('lieu').textContent = lieuText;
+  document.getElementById('date').textContent = date ? date[1].trim() : 'Non détecté';
+  document.getElementById('operation').textContent = audit.operation;
+  document.getElementById('entreprise').textContent = audit.entreprise;
+  document.getElementById('taux').textContent = audit.taux;
+  document.getElementById('nonconformes').textContent = audit.ncCount;
   document.getElementById('detail').textContent = detailNC;
 }
 
-// === Service Worker PWA ===
+// === Service Worker ===
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js')
-      .then(reg => console.log('✅ Service Worker enregistré'))
-      .catch(err => console.log('❌ Erreur SW:', err));
+      .then(() => console.log('✅ Service Worker OK'))
+      .catch(err => console.log('❌ SW:', err));
   });
 }
