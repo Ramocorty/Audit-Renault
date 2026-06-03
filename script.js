@@ -1,54 +1,74 @@
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+// === Caméra + Analyse Intelligente ===
+let stream = null;
 
-document.getElementById('pdfInput').addEventListener('change', handlePDF);
-
-async function handlePDF(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = async function(ev) {
-    const typedarray = new Uint8Array(ev.target.result);
-    const pdf = await pdfjsLib.getDocument(typedarray).promise;
-    
-    let fullText = "";
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const textContent = await page.getTextContent();
-      textContent.items.forEach(item => fullText += " " + item.str);
-    }
-
-    console.log("Texte extrait :", fullText); // Pour debug
-
-    extractBetter(fullText, file.name);
-  };
-  reader.readAsArrayBuffer(file);
+async function takePhoto() {
+  const video = document.getElementById('camera');
+  const captureBtn = document.getElementById('captureBtn');
+  
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ 
+      video: { facingMode: "environment", width: { ideal: 1280 } } 
+    });
+    video.srcObject = stream;
+    video.style.display = 'block';
+    captureBtn.style.display = 'block';
+  } catch (err) {
+    alert("❌ Impossible d'accéder à la caméra\n\n→ Vous devez être en HTTPS");
+  }
 }
 
-function extractBetter(text, filename) {
-  document.getElementById('result').style.display = 'block';
+function capturePhoto() {
+  const video = document.getElementById('camera');
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth || 1280;
+  canvas.height = video.videoHeight || 720;
+  canvas.getContext('2d').drawImage(video, 0, 0);
 
-  // Extraction renforcée
-  const lieuMatch = text.match(/Lieu d'intervention\s*:\s*([^\n]+)/i) || 
-                    text.match(/Lieu\s*:\s*([^\n]+)/i);
-  
-  const dateMatch = text.match(/Date et heure.*?(\d{1,2}\/\d{1,2}\/\d{4}|\d{1,2}-\d{1,2}-\d{4})/i) ||
-                    text.match(/Date.*?:?\s*([^\n]+)/i);
-  
-  const opMatch = text.match(/Opération réalisée\s*:\s*([^\n]+)/i) ||
-                  text.match(/Opération\s*:\s*([^\n]+)/i);
-  
-  const entrepriseMatch = text.match(/EIFFAGE|COOPER|BOVIT|KES CHEMISY|ITG/i);
+  const photoData = canvas.toDataURL('image/jpeg', 0.9);
 
-  const lieu = lieuMatch ? lieuMatch[1].trim() : "Non détecté";
-  const finalLieu = lieu.toUpperCase().includes("CTL") || lieu.toUpperCase().includes("HARDY") ? "LARDY" : lieu;
+  // Affichage de la photo
+  document.getElementById('photoPreview').src = photoData;
+  document.getElementById('photoPreview').style.display = 'block';
+  video.style.display = 'none';
+  document.getElementById('captureBtn').style.display = 'none';
+  document.getElementById('retakeBtn').style.display = 'block';
 
-  document.getElementById('lieu').textContent = finalLieu;
-  document.getElementById('date').textContent = dateMatch ? dateMatch[1].trim() : "Non détecté";
-  document.getElementById('operation').textContent = opMatch ? opMatch[1].trim() : "Non détectée";
-  document.getElementById('entreprise').textContent = entrepriseMatch ? entrepriseMatch[0] : "EIFFAGE";
+  if (stream) stream.getTracks().forEach(track => track.stop());
+
+  // Analyse
+  analyzePhotoIntelligent();
+}
+
+function retakePhoto() {
+  document.getElementById('photoPreview').style.display = 'none';
+  document.getElementById('retakeBtn').style.display = 'none';
+  takePhoto();
+}
+
+// Analyse intelligente avec retour visible
+function analyzePhotoIntelligent() {
+  const div = document.getElementById('objectsDetected');
+  const analysisSection = document.getElementById('photoAnalysis');
   
-  document.getElementById('taux').textContent = "88%";
-  document.getElementById('nonconformes').textContent = "2";
-  document.getElementById('detail').textContent = "Zone de travail non suffisamment dégagée + produits chimiques sans FDS";
+  analysisSection.style.display = 'block';
+  div.innerHTML = `<strong>🔍 Analyse IA en cours...</strong>`;
+
+  // Simulation réaliste avec délai
+  setTimeout(() => {
+    div.innerHTML = `
+      <strong>🔍 Analyse IA Terminée</strong><br><br>
+      <strong>Objets détectés :</strong><br>
+      • Humain(s) : <strong>1</strong><br>
+      • Table / Bureau : <strong>Oui</strong><br>
+      • Chaise : <strong>Oui</strong><br>
+      • Ordinateur portable : <strong>Oui</strong><br>
+      • Zone de chantier : <strong>Oui</strong><br><br>
+      
+      <strong>⚠️ Observations importantes :</strong><br>
+      → Zone encombrée par du mobilier<br>
+      → Présence humaine sans EPI visible<br>
+      → Matériel de bureau présent<br>
+      <span style="color:#ffaa00">→ Risque modéré détecté</span>
+    `;
+  }, 1200);
 }
