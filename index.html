@@ -5,61 +5,48 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TERRAIN VISION - Renault</title>
   
-  <!-- PWA -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#efdf00">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="apple-touch-icon" href="icon-192.png">
-
-  <!-- Styles -->
   <link rel="stylesheet" href="style.css">
-
-  <!-- PDF.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
   <div class="phone">
     <div class="header">
       <h1>🌟 TERRAIN VISION</h1>
-      <img src="logo-renault.png" style="height:34px; filter: brightness(1.1);" alt="Renault">
+      <img src="logo-renault.png" style="height:34px;" alt="Renault">
     </div>
-    
+
     <!-- PDF -->
     <div class="section">
-      <p><strong>📄 PDF Audit</strong></p>
+      <p><strong>📄 Charger PDF Audit</strong></p>
       <input type="file" id="pdfInput" accept="application/pdf">
     </div>
-    
+
     <!-- Caméra -->
     <div class="section">
       <p><strong>📸 Photo du Chantier</strong></p>
       <button onclick="takePhoto()">📷 Ouvrir Caméra</button>
       <video id="camera" autoplay playsinline></video>
-      <img id="photoPreview">
+      <img id="photoPreview" style="max-width:100%; margin:10px 0;">
       <button id="captureBtn" onclick="capturePhoto()" style="display:none; background:#efdf00; color:black;">✅ Capturer</button>
       <button id="retakeBtn" onclick="retakePhoto()" style="display:none;">🔄 Reprendre</button>
     </div>
-    
+
     <div class="content" id="result" style="display:none;">
       <div class="card">
-        <h2 style="color:#000; margin-bottom:12px;">✅ Rapport Audit</h2>
-      
-        <div class="info"><strong id="audit-title">TERRAIN VISION Report</strong></div>
+        <h2>✅ Rapport Audit</h2>
         <div class="info"><strong>Lieu :</strong> <span id="lieu">—</span></div>
         <div class="info"><strong>Entreprise :</strong> <span id="entreprise">—</span></div>
         <div class="info"><strong>Opération :</strong> <span id="operation">—</span></div>
-        <div class="info"><strong>Date & Heure :</strong> <span id="date">—</span></div>
-      
-        <hr style="margin:15px 0;">
-      
-        <div class="info"><strong>Taux de conformité :</strong> <span id="taux" style="color:#efdf00; font-weight:bold;">—</span></div>
-        <div class="info"><strong>Points NC :</strong> <span id="nonconformes" style="color:#dc3545; font-weight:bold;">0</span></div>
-        <div class="info"><strong>Détail NC :</strong> <span id="detail" style="color:#dc3545;">—</span></div>
+        <div class="info"><strong>Date :</strong> <span id="date">—</span></div>
+        <div class="info"><strong>Taux :</strong> <span id="taux">—</span></div>
+        <div class="info"><strong>Points NC :</strong> <span id="nonconformes">—</span></div>
+        <div class="info"><strong>Détail :</strong> <span id="detail">—</span></div>
       </div>
-      
+
       <div class="card" id="photoAnalysis" style="display:none;">
-        <h3 style="color:#000;">🔍 Analyse IA Photo</h3>
+        <h3>🔍 Analyse Photo</h3>
         <div id="objectsDetected"></div>
       </div>
     </div>
