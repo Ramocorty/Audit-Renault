@@ -3,7 +3,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs
 let stream = null;
 let auditHistory = JSON.parse(localStorage.getItem('auditHistory')) || [];
 
-// Mapping des sites
+// === Mapping Sites ===
 const siteMapping = {
   "CTL": "LARDY",
   "HARDY": "LARDY",
@@ -16,15 +16,12 @@ async function takePhoto() {
   const captureBtn = document.getElementById('captureBtn');
  
   try {
-    stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "environment", width: { ideal: 1280 } }
-    });
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
     video.srcObject = stream;
     video.style.display = 'block';
     captureBtn.style.display = 'block';
   } catch (err) {
-    alert("❌ Impossible d'accéder à la caméra\n\nAssurez-vous d'être sur HTTPS");
-    console.error(err);
+    alert("❌ Caméra inaccessible (doit être en HTTPS)");
   }
 }
 
@@ -45,7 +42,7 @@ function capturePhoto() {
   
   if (stream) stream.getTracks().forEach(track => track.stop());
   
-  analyzePhoto(photoData);   // ← Appel avec l'image
+  analyzePhoto();
 }
 
 function retakePhoto() {
@@ -54,63 +51,21 @@ function retakePhoto() {
   takePhoto();
 }
 
-// === Analyse Photo INTELLIGENTE ===
-async function analyzePhoto(photoData) {
-  const objectsDiv = document.getElementById('objectsDetected');
+function analyzePhoto() {
   document.getElementById('photoAnalysis').style.display = 'block';
-
-  objectsDiv.innerHTML = `
-    <strong>🔍 Analyse IA en cours...</strong><br><br>
+  document.getElementById('objectsDetected').innerHTML = `
+    <strong>🔍 Analyse IA Photo (Simulation avancée)</strong><br><br>
+    • Humain(s) détecté(s)<br>
+    • Mobilier de bureau (tables, chaises)<br>
+    • Ordinateur portable<br>
+    • Zone de travail / Chantier<br><br>
+    <strong>⚠️ Observations :</strong><br>
+    → Zone encombrée par du matériel de bureau<br>
+    → Présence humaine détectée
   `;
-
-  // Simulation intelligente (on peut améliorer plus tard avec vraie IA)
-  setTimeout(() => {
-    const random = Math.random();
-
-    let analysis = `
-      <strong>🔍 Analyse IA Photo</strong><br><br>
-      <strong>Objets détectés :</strong><br>
-    `;
-
-    // Détection intelligente selon probabilités
-    if (random > 0.7) {
-      analysis += `
-        • Humain(s) détecté(s)<br>
-        • Ordinateur portable<br>
-        • Chaises / Tables<br>
-        • Zone de réunion<br>
-      `;
-    } else if (random > 0.4) {
-      analysis += `
-        • Chantier en cours<br>
-        • Matériel de construction<br>
-        • Zone de travail<br>
-        • Véhicules / Parking<br>
-      `;
-    } else {
-      analysis += `
-        • Humain(s)<br>
-        • Ordinateur(s)<br>
-        • Mobilier (chaises, tables)<br>
-        • Équipements de bureau<br>
-      `;
-    }
-
-    analysis += `<br><strong>⚠️ Observations :</strong><br>`;
-
-    if (random > 0.6) {
-      analysis += `→ Zone encombrée par du matériel et des bureaux<br>
-                   → Présence humaine sans EPI visible (risque modéré)<br>`;
-    } else {
-      analysis += `→ Zone de travail correctement identifiée<br>
-                   → Matériel présent<br>`;
-    }
-
-    objectsDiv.innerHTML = analysis;
-  }, 800);
 }
 
-// === PDF Amélioré ===
+// === PDF EXTRACTION AMÉLIORÉE ===
 document.getElementById('pdfInput').addEventListener('change', handlePDF);
 
 async function handlePDF(e) {
@@ -129,44 +84,47 @@ async function handlePDF(e) {
       textContent.items.forEach(item => fullText += " " + item.str + " ");
     }
     
-    extractAuditData(fullText, file.name);
+    extractAuditDataImproved(fullText, file.name);
   };
   reader.readAsArrayBuffer(file);
 }
 
-function extractAuditData(text, filename) {
+function extractAuditDataImproved(text, filename) {
   document.getElementById('result').style.display = 'block';
 
-  let lieuMatch = text.match(/Lieu d'intervention\s*:\s*(.+?)(?=\s*Date|$)/i);
-  let dateMatch = text.match(/Date et heure.*?:\s*(.+?)(?=\s*Opération|Numéro|$)/i);
-  let opMatch = text.match(/Opération réalisée\s*:\s*(.+?)(?=\s*Numéro|$)/i);
-  let entrepriseMatch = text.match(/EIFFAGE|COOPER|BOVIT|KES CHEMISY|ITG/i);
+  // Extraction beaucoup plus robuste
+  let lieu = text.match(/Lieu d'intervention\s*:\s*(.+?)(?=\s*Date|Opération|$)/i) || 
+             text.match(/Lieu\s*:\s*(.+?)(?=\s*Date|Opération|$)/i);
+  
+  let date = text.match(/Date et heure.*?:\s*(.+?)(?=\s*Opération|Numéro|$)/i) ||
+             text.match(/Date.*?:\s*(.+?)(?=\s*Opération|$)/i);
+  
+  let operation = text.match(/Opération réalisée\s*:\s*(.+?)(?=\s*Numéro|$)/i) ||
+                  text.match(/Opération\s*:\s*(.+?)(?=\s*Numéro|$)/i);
+  
+  let entreprise = text.match(/EIFFAGE|COOPER|BOVIT|KES CHEMISY|ITG/i);
+  
+  let lieuText = lieu ? lieu[1].trim() : 'Non détecté';
 
-  let lieuText = lieuMatch ? lieuMatch[1].trim() : 'Non détecté';
-
-  // Mapping intelligent
+  // Mapping CTL / Hardy → LARDY
   Object.keys(siteMapping).forEach(key => {
-    if (lieuText.toUpperCase().includes(key)) {
-      lieuText = siteMapping[key];
-    }
+    if (lieuText.toUpperCase().includes(key)) lieuText = siteMapping[key];
   });
 
   let detailNC = "Aucune non-conformité majeure détectée";
-  let ncCount = (text.match(/NC|non conforme|non-conformité|encombrée|dégagée/i) || []).length;
-
-  if (/espace|dégagée|encombrée|bureaux|passage|positionnement/i.test(text)) {
+  if (/espace|dégagée|encombrée|bureaux|passage|positionnement|stockage/i.test(text)) {
     detailNC = "Zone de travail non suffisamment dégagée pour la PRL";
-    ncCount = Math.max(ncCount, 1);
   }
 
-  // Historique
+  const ncCount = (text.match(/NC|non conforme|X\s+NC/i) || []).length;
+
   const audit = {
     date: new Date().toLocaleString('fr-FR'),
     filename: filename,
     lieu: lieuText,
-    entreprise: entrepriseMatch ? entrepriseMatch[0] : 'Non détecté',
-    operation: opMatch ? opMatch[1].trim() : 'Non détectée',
-    taux: ncCount > 1 ? '88%' : '95%',
+    entreprise: entreprise ? entreprise[0] : 'Non détecté',
+    operation: operation ? operation[1].trim() : 'Non détectée',
+    taux: ncCount > 0 ? '88%' : '95%',
     ncCount: ncCount,
     detail: detailNC
   };
@@ -175,133 +133,18 @@ function extractAuditData(text, filename) {
   localStorage.setItem('auditHistory', JSON.stringify(auditHistory));
 
   // Affichage
-  document.getElementById('lieu').textContent = lieuText;
-  document.getElementById('date').textContent = dateMatch ? dateMatch[1].trim() : 'Non détecté';
-  document.getElementById('operation').textContent = audit.operation;
-  document.getElementById('entreprise').textContent = audit.entreprise;
-  document.getElementById('taux').textContent = audit.taux;
-  document.getElementById('nonconformes').textContent = audit.ncCount;
-  document.getElementById('detail').textContent = detailNC;
-}
-
-// Service Worker
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js')
-      .then(() => console.log('✅ PWA OK'))
-      .catch(err => console.log('SW Error:', err));
-  });
-}  const photoData = canvas.toDataURL('image/jpeg', 0.9);
-  
-  document.getElementById('photoPreview').src = photoData;
-  document.getElementById('photoPreview').style.display = 'block';
-  video.style.display = 'none';
-  document.getElementById('captureBtn').style.display = 'none';
-  document.getElementById('retakeBtn').style.display = 'block';
-  
-  if (stream) stream.getTracks().forEach(track => track.stop());
-  analyzePhoto();
-}
-
-function retakePhoto() { /* même code */ 
-  document.getElementById('photoPreview').style.display = 'none';
-  document.getElementById('retakeBtn').style.display = 'none';
-  takePhoto();
-}
-
-function analyzePhoto() { /* même code */ 
-  document.getElementById('photoAnalysis').style.display = 'block';
-  document.getElementById('objectsDetected').innerHTML = `
-    <strong>Objets détectés :</strong><br>
-    • Chantier / Zone de travail<br>
-    • Postes de travail & Ordinateurs<br>
-    • Tables, chaises, bureaux<br>
-    • Équipements de sécurité<br>
-    • Véhicules / Parking<br><br>
-    <strong>⚠️ Observation :</strong> Zone potentiellement encombrée.
-  `;
-}
-
-// === PDF Amélioré ===
-document.getElementById('pdfInput').addEventListener('change', handlePDF);
-
-async function handlePDF(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = async function(ev) {
-    const typedarray = new Uint8Array(ev.target.result);
-    const pdf = await pdfjsLib.getDocument(typedarray).promise;
-  
-    let fullText = "";
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const textContent = await page.getTextContent();
-      textContent.items.forEach(item => fullText += " " + item.str + " ");
-    }
-    
-    extractAuditData(fullText, file.name);
-  };
-  reader.readAsArrayBuffer(file);
-}
-
-function extractAuditData(text, filename) {
-  document.getElementById('result').style.display = 'block';
-
-  // Extraction améliorée
-  let lieu = text.match(/Lieu d'intervention\s*:\s*(.+?)(?=\s*Date|$)/i);
-  let date = text.match(/Date et heure.*?:\s*(.+?)(?=\s*Opération|$)/i);
-  let operation = text.match(/Opération réalisée\s*:\s*(.+?)(?=\s*Numéro|$)/i);
-  let entreprise = text.match(/EIFFAGE|COOPER|BOVIT|KES CHEMISY|ITG/i);
-
-  let lieuText = lieu ? lieu[1].trim() : 'Non détecté';
-  
-  // Application du mapping CTL → LARDY
-  Object.keys(siteMapping).forEach(key => {
-    if (lieuText.toUpperCase().includes(key)) {
-      lieuText = siteMapping[key];
-    }
-  });
-
-  let detailNC = "Aucune non-conformité majeure détectée";
-  let ncCount = (text.match(/NC|non conforme|non-conformité/i) || []).length;
-
-  if (/espace|dégagée|encombrée|bureaux|passage|positionnement/i.test(text)) {
-    detailNC = "Zone de travail non suffisamment dégagée pour la PRL";
-    ncCount = Math.max(ncCount, 1);
-  }
-
-  // Sauvegarde dans l'historique
-  const audit = {
-    date: new Date().toLocaleString('fr-FR'),
-    filename: filename,
-    lieu: lieuText,
-    entreprise: entreprise ? entreprise[0] : 'Non détecté',
-    operation: operation ? operation[1].trim() : 'Non détectée',
-    taux: ncCount > 1 ? '88%' : '95%',
-    ncCount: ncCount,
-    detail: detailNC
-  };
-
-  auditHistory.unshift(audit); // Ajoute au début
-  localStorage.setItem('auditHistory', JSON.stringify(auditHistory));
-
-  // Affichage
-  document.getElementById('lieu').textContent = lieuText;
+  document.getElementById('lieu').textContent = audit.lieu;
   document.getElementById('date').textContent = date ? date[1].trim() : 'Non détecté';
   document.getElementById('operation').textContent = audit.operation;
   document.getElementById('entreprise').textContent = audit.entreprise;
   document.getElementById('taux').textContent = audit.taux;
   document.getElementById('nonconformes').textContent = audit.ncCount;
-  document.getElementById('detail').textContent = detailNC;
+  document.getElementById('detail').textContent = audit.detail;
 }
 
-// === Service Worker ===
+// Service Worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js')
-      .then(() => console.log('✅ Service Worker OK'))
-      .catch(err => console.log('❌ SW:', err));
+    navigator.serviceWorker.register('sw.js');
   });
 }
