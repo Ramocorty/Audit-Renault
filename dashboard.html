@@ -120,7 +120,7 @@
 
       <h2>Derniers audits</h2>
       <table id="tableDerniers">
-        <thead><tr><th>Date</th><th>Type</th><th>Site / Opération</th></tr></thead>
+        <thead><tr><th>Date</th><th>Type</th><th>Site</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
@@ -134,10 +134,12 @@
 
         document.getElementById('totalAudits').textContent = audits.length;
 
-        // Audits par site
+        // Audits par site (propre)
         const parSite = {};
         audits.forEach(a => {
-          const site = a.lieu || "Non renseigné";
+          let site = a.lieu || "Non renseigné";
+          // Nettoyage si "Grille Détaillée" est mal passé
+          if (site.includes("Grille") || site === "") site = "Non renseigné";
           parSite[site] = (parSite[site] || 0) + 1;
         });
 
@@ -150,19 +152,19 @@
         // Derniers audits
         let htmlDerniers = '';
         audits.slice(0, 10).forEach(a => {
-          const date = new Date(a.dateCreation).toLocaleDateString('fr-FR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
+          const date = new Date(a.dateCreation).toLocaleDateString('fr-FR', {day:'2-digit', month:'2-digit'});
           const type = a.type_audit === 'grille_detaillee' ? 'Grille' : 'Audit';
           htmlDerniers += `<tr>
             <td>${date}</td>
             <td>${type}</td>
-            <td>${a.lieu || a.operation || '-'}</td>
+            <td>${a.lieu || '-'}</td>
           </tr>`;
         });
         document.getElementById('tableDerniers').querySelector('tbody').innerHTML = htmlDerniers || '<tr><td colspan="3">Aucun audit</td></tr>';
 
       } catch (e) {
         console.error(e);
-        alert("Erreur lors du chargement : " + e.message);
+        alert("Erreur de chargement : " + e.message);
       }
     }
 
