@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TERRAIN VISION - Renault</title>
+  <title>TERRAIN VISION - Audit</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -14,137 +14,151 @@
     }
     .phone {
       max-width: 420px;
-      margin: 20px auto;
+      margin: 15px auto;
       background: white;
       color: black;
       border-radius: 30px;
       overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
     .header {
       background: #000;
       color: #efdf00;
-      padding: 15px;
+      padding: 18px;
       text-align: center;
-      font-size: 20px;
+      font-size: 22px;
       font-weight: bold;
     }
-    .section {
+    .form-container {
       padding: 20px;
-      text-align: center;
-      border-bottom: 1px solid #ddd;
+    }
+    label {
+      display: block;
+      margin: 12px 0 5px;
+      font-weight: bold;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
     }
     button {
       background: #000;
       color: #efdf00;
-      border: none;
       padding: 15px;
-      font-size: 16px;
-      margin: 10px 0;
+      font-size: 17px;
+      font-weight: bold;
+      border: none;
       border-radius: 10px;
       width: 100%;
-      font-weight: bold;
+      margin: 20px 0 10px;
     }
-    #camera, #photoPreview {
-      width: 100%;
-      display: none;
-      margin: 10px 0;
-    }
-    #result {
-      padding: 20px;
+    .section {
       background: #f8f8f8;
-    }
-    .card {
-      background: #fff;
       padding: 15px;
       border-radius: 12px;
       margin: 15px 0;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .signature {
+      border: 2px dashed #ccc;
+      height: 120px;
+      margin: 10px 0;
+      border-radius: 8px;
+      text-align: center;
+      line-height: 120px;
+      color: #888;
     }
   </style>
 </head>
 <body>
   <div class="phone">
-    <div class="header">🌟 TERRAIN VISION - Renault</div>
+    <div class="header">🌟 TERRAIN VISION</div>
+    
+    <div class="form-container">
+      <h2 style="text-align:center; color:#000;">Nouvel Audit Terrain</h2>
 
-    <div class="section">
-      <p><strong>📸 Photo du Chantier</strong></p>
-      <button onclick="takePhoto()">📷 Ouvrir Caméra</button>
-      <video id="camera" autoplay playsinline></video>
-      <img id="photoPreview">
-      <button id="captureBtn" onclick="capturePhoto()" style="display:none; background:#efdf00; color:black;">✅ Capturer la Photo</button>
-      <button id="retakeBtn" onclick="retakePhoto()" style="display:none;">🔄 Reprendre</button>
-    </div>
+      <div class="section">
+        <label>Lieu d'intervention</label>
+        <select id="lieu">
+          <option value="">-- Sélectionnez le site --</option>
+          <option value="LARDY (CTL)">LARDY (CTL)</option>
+          <option value="VSF">VSF</option>
+          <option value="TCR">TCR</option>
+          <option value="CRI">CRI</option>
+          <option value="CTA">CTA</option>
+          <option value="KIN">KIN</option>
+        </select>
 
-    <div id="result" style="display:none;">
-      <div class="card">
-        <h3>🔍 Analyse IA Photo</h3>
-        <div id="objectsDetected"></div>
+        <label>Date et heure de la visite</label>
+        <input type="datetime-local" id="dateHeure">
+
+        <label>Opération réalisée</label>
+        <input type="text" id="operation" placeholder="Ex: Travaux de rénovation de climatisation">
+
+        <label>Numéro de plan de prévention</label>
+        <input type="text" id="plan" placeholder="Ex: 9290-2026-1">
       </div>
+
+      <div class="section">
+        <label>Nom du chargé d'affaires (Renault)</label>
+        <input type="text" id="charge" placeholder="Nom et prénom">
+
+        <label>Entreprise extérieure Rang 1</label>
+        <input type="text" id="entreprise1" placeholder="Ex: EIFFAGE">
+
+        <label>Entreprise extérieure Rang 2</label>
+        <input type="text" id="entreprise2" placeholder="Ex: ITGC Environnement">
+      </div>
+
+      <div class="section">
+        <label>Arrêt de chantier nécessaire ?</label>
+        <select id="arret">
+          <option value="Non">Non</option>
+          <option value="Oui">Oui</option>
+        </select>
+
+        <label>Nécessite courrier avec AR ?</label>
+        <select id="courrier">
+          <option value="Non">Non</option>
+          <option value="Oui">Oui</option>
+        </select>
+
+        <label>Contre-visite nécessaire ?</label>
+        <select id="contrevisite">
+          <option value="Non">Non</option>
+          <option value="Oui">Oui</option>
+        </select>
+      </div>
+
+      <div class="section">
+        <label>Nom et signature du représentant Renault</label>
+        <input type="text" id="signRenault" placeholder="Nom + Signature">
+        <div class="signature">Zone de signature Renault</div>
+
+        <label>Nom et signature du représentant Entreprise extérieure</label>
+        <input type="text" id="signExterne" placeholder="Nom + Signature">
+        <div class="signature">Zone de signature Entreprise</div>
+      </div>
+
+      <button onclick="genererRapport()">✅ Générer le Rapport Audit</button>
     </div>
   </div>
 
   <script>
-    let stream = null;
+    function genererRapport() {
+      const lieu = document.getElementById('lieu').value || "Non renseigné";
+      const date = document.getElementById('dateHeure').value;
+      const operation = document.getElementById('operation').value || "Non renseignée";
+      const plan = document.getElementById('plan').value || "Non renseigné";
+      const charge = document.getElementById('charge').value || "Non renseigné";
+      const ent1 = document.getElementById('entreprise1').value || "Non renseignée";
 
-    async function takePhoto() {
-      const video = document.getElementById('camera');
-      const captureBtn = document.getElementById('captureBtn');
-      
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { facingMode: "environment" } 
-        });
-        video.srcObject = stream;
-        video.style.display = 'block';
-        captureBtn.style.display = 'block';
-      } catch (err) {
-        alert("❌ Impossible d'ouvrir la caméra\n\nAssurez-vous d'être sur HTTPS (Cloudflare Pages)");
-      }
-    }
+      alert(`✅ Rapport généré avec succès !\n\nLieu : ${lieu}\nDate : ${date}\nOpération : ${operation}\nChargé d'affaire : ${charge}\nEntreprise : ${ent1}`);
 
-    function capturePhoto() {
-      const video = document.getElementById('camera');
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth || 1280;
-      canvas.height = video.videoHeight || 720;
-      canvas.getContext('2d').drawImage(video, 0, 0);
-
-      const photoData = canvas.toDataURL('image/jpeg', 0.9);
-
-      document.getElementById('photoPreview').src = photoData;
-      document.getElementById('photoPreview').style.display = 'block';
-      video.style.display = 'none';
-      document.getElementById('captureBtn').style.display = 'none';
-      document.getElementById('retakeBtn').style.display = 'block';
-
-      if (stream) stream.getTracks().forEach(track => track.stop());
-
-      analyzePhoto();
-    }
-
-    function retakePhoto() {
-      document.getElementById('photoPreview').style.display = 'none';
-      document.getElementById('retakeBtn').style.display = 'none';
-      takePhoto();
-    }
-
-    function analyzePhoto() {
-      document.getElementById('result').style.display = 'block';
-      document.getElementById('objectsDetected').innerHTML = `
-        <strong>🔍 Analyse IA Terminée</strong><br><br>
-        <strong>Objets détectés :</strong><br>
-        • Humain(s) : <strong>1 personne</strong><br>
-        • Table / Bureau : <strong>Oui</strong><br>
-        • Chaise : <strong>Oui</strong><br>
-        • Ordinateur : <strong>Oui</strong><br>
-        • Zone de travail : <strong>Oui</strong><br><br>
-        
-        <strong>⚠️ Observations :</strong><br>
-        → Zone encombrée par du mobilier<br>
-        → Présence humaine détectée<br>
-        → Attention : Vérifier EPI
-      `;
+      // Ici tu pourras plus tard sauvegarder dans l'historique
+      console.log("Audit sauvegardé :", {lieu, date, operation, plan, charge, ent1});
     }
   </script>
 </body>
