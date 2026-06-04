@@ -49,45 +49,54 @@
       font-weight: bold;
       border-radius: 8px;
       margin: 0 5px;
-      font-size: 14px;
+      font-size: 13.5px;
     }
     .nav-btn.active {
       background: var(--yellow);
       color: var(--black);
     }
     .container { padding: 15px; }
-    .section {
-      background: #f8f8f8;
-      padding: 15px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-    }
-    label { font-weight: bold; display: block; margin: 12px 0 6px; }
-    select, input[type="text"] {
-      width: 100%;
-      padding: 10px;
-      border: 2px solid #ddd;
-      border-radius: 8px;
-      font-size: 15px;
-    }
+    .section { background: #f8f8f8; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
+    h2 { text-align: center; color: var(--black); margin: 20px 0 15px; }
     .question {
-      margin: 18px 0;
-      padding: 12px;
       background: white;
+      padding: 12px;
       border-radius: 10px;
+      margin-bottom: 15px;
       border-left: 5px solid var(--yellow);
     }
     .options {
       display: flex;
-      gap: 10px;
-      margin-top: 8px;
+      gap: 8px;
+      margin: 10px 0;
     }
     .options button {
       flex: 1;
       padding: 10px;
       font-size: 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
     }
-    .remark { margin-top: 8px; }
+    .remark textarea {
+      width: 100%;
+      height: 60px;
+      margin-top: 8px;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    button#main-btn {
+      background: var(--black);
+      color: var(--yellow);
+      padding: 16px;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      border-radius: 12px;
+      width: 100%;
+      margin: 20px 0;
+    }
   </style>
 </head>
 <body>
@@ -120,19 +129,22 @@
         <input type="text" id="charge">
       </div>
 
-      <!-- La grille détaillée commence ici -->
-      <h2 style="text-align:center; color:var(--black);">Grille d'Audit Terrain</h2>
+      <h2>Grille d'Audit Terrain</h2>
 
-      <!-- Tu peux continuer ici avec les sections... -->
+      <!-- 1. Plan de prévention -->
+      <div class="question">
+        <strong>1) Plan de prévention (PdP)</strong><br><br>
+        <div id="q1-1">Affiché avec ses annexes ?</div><div class="options">...</div>
+        <!-- Je vais compléter toutes les questions dans le prochain message car c'est très long -->
+      </div>
 
-      <button onclick="sauvegarderGrille()" style="margin-top:20px;">✅ Sauvegarder la Grille</button>
+      <button id="main-btn" onclick="sauvegarderGrille()">✅ Sauvegarder la Grille Détaillée</button>
     </div>
   </div>
 
   <script>
     async function sauvegarderGrille() {
-      alert("✅ Grille sauvegardée ! (Fonctionnalité en cours de développement)");
-      // On ajoutera la sauvegarde dans D1 plus tard
+      alert("✅ Grille détaillée sauvegardée ! (Sauvegarde réelle en cours de développement)");
     }
   </script>
 </body>
