@@ -1,11 +1,10 @@
 {
-  "name": "Audit Renault",
-  "short_name": "Audit",
-  "description": "Application d'audit Renault",
-  "start_url": "/index.html",
+  "name": "Terrain Vision Renault",
+  "short_name": "Terrain Vision",
+  "start_url": "index.html",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#e60012",
+  "background_color": "#000000",
+  "theme_color": "#efdf00",
   "orientation": "portrait",
   "icons": [
     {
