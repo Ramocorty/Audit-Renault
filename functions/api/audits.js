@@ -1,26 +1,22 @@
-// ======================
-// API Audits + Login - Cloudflare Pages Functions
-// ======================
-
 export async function onRequestPost({ request, env }) {
   try {
     const data = await request.json();
 
-    // === CAS 1 : Connexion (Login) ===
-    if (data.email && data.type) {
-      const result = await env.DB.prepare(`
+    // === LOGIN ===
+    if (data.email && data.userType) {
+      await env.DB.prepare(`
         INSERT INTO logins (email, userType, dateConnexion)
         VALUES (?, ?, ?)
       `).bind(
         data.email,
-        data.type,
+        data.userType,
         data.dateConnexion || new Date().toISOString()
       ).run();
 
-      return Response.json({ success: true, message: "Connexion enregistrée" });
+      return Response.json({ success: true, message: "Login enregistré" });
     }
 
-    // === CAS 2 : Audit normal ou Grille détaillée ===
+    // === AUDIT ou GRILLE ===
     const isGrille = data.type === "grille_detaillee";
 
     const result = await env.DB.prepare(`
@@ -60,7 +56,7 @@ export async function onRequestPost({ request, env }) {
 
     return Response.json({ 
       success: true, 
-      message: isGrille ? "Grille détaillée enregistrée" : "Audit enregistré avec succès",
+      message: isGrille ? "Grille enregistrée" : "Audit enregistré",
       id: result.meta.last_row_id 
     });
 
@@ -70,17 +66,11 @@ export async function onRequestPost({ request, env }) {
   }
 }
 
-// Récupération des audits
 export async function onRequestGet({ env }) {
   try {
-    const { results } = await env.DB.prepare(`
-      SELECT * FROM audits 
-      ORDER BY dateCreation DESC
-    `).all();
-
+    const { results } = await env.DB.prepare("SELECT * FROM audits ORDER BY dateCreation DESC").all();
     return Response.json(results || []);
   } catch (err) {
-    console.error(err);
     return Response.json({ success: false, error: err.message }, { status: 500 });
   }
 }
