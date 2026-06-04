@@ -36,7 +36,7 @@
       text-align: center;
     }
     .container { padding: 30px 20px; }
-    h1 { color: var(--black); margin-bottom: 10px; }
+    h2 { color: var(--black); }
     .choice {
       background: #f8f8f8;
       padding: 20px;
@@ -45,12 +45,10 @@
       text-align: center;
       cursor: pointer;
       border: 2px solid transparent;
-      transition: all 0.2s;
     }
     .choice:hover, .choice.active {
       border-color: var(--yellow);
       background: #fff;
-      transform: scale(1.02);
     }
     input {
       width: 100%;
@@ -81,20 +79,20 @@
     </div>
 
     <div class="container">
-      <h2>Identification</h2>
-      <p style="text-align:center; color:#555; margin-bottom:25px;">Qui êtes-vous ?</p>
+      <h2>Connexion</h2>
+      <p style="text-align:center; color:#555;">Identifiez-vous pour accéder à l'application</p>
 
       <div class="choice" id="interne" onclick="selectType('interne')">
         <h3>👨‍💼 Interne Renault</h3>
-        <input type="email" id="emailInterne" placeholder="votre.nom@renault.com" style="display:none;">
+        <input type="email" id="emailInterne" placeholder="nom.prenom@renault.com" style="display:none;">
       </div>
 
       <div class="choice" id="externe" onclick="selectType('externe')">
-        <h3>🏗️ Extérieur / Entreprise</h3>
+        <h3>🏗️ Entreprise Extérieure</h3>
         <input type="email" id="emailExterne" placeholder="votre.email@entreprise.com" style="display:none;">
       </div>
 
-      <button onclick="validerLogin()" id="btnLogin" style="display:none;">Continuer →</button>
+      <button onclick="validerLogin()" id="btnLogin" style="display:none;">Se Connecter</button>
     </div>
   </div>
 
@@ -113,43 +111,33 @@
     }
 
     async function validerLogin() {
-      let email = '';
-
-      if (userType === 'interne') {
-        email = document.getElementById('emailInterne').value.trim();
-        if (!email.endsWith('@renault.com') && !email.endsWith('@renaultgroup.com')) {
-          alert("❌ Veuillez utiliser un email Renault (@renault.com)");
-          return;
-        }
-      } else if (userType === 'externe') {
-        email = document.getElementById('emailExterne').value.trim();
-        if (!email || !email.includes('@')) {
-          alert("❌ Veuillez entrer un email valide");
-          return;
-        }
-      }
+      let email = userType === 'interne' ? 
+        document.getElementById('emailInterne').value.trim() : 
+        document.getElementById('emailExterne').value.trim();
 
       if (!email) {
         alert("Veuillez entrer votre email");
         return;
       }
 
-      // Envoi des données de connexion à la base
+      if (userType === 'interne' && !email.endsWith('@renault.com') && !email.endsWith('@renaultgroup.com')) {
+        alert("❌ Utilisez un email Renault (@renault.com)");
+        return;
+      }
+
+      // Envoi à la base
       try {
         await fetch('/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             email: email,
-            type: userType,
+            userType: userType,
             dateConnexion: new Date().toISOString()
           })
         });
-      } catch (e) {
-        console.log("Erreur d'enregistrement login (non bloquante)");
-      }
+      } catch (e) {}
 
-      // Sauvegarde locale + redirection
       localStorage.setItem('userEmail', email);
       localStorage.setItem('userType', userType);
       window.location.href = "home.html";
