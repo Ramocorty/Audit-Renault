@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard KPI - Terrain Vision</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#efdf00">
+
+  <style>
+    :root {
+      --black: #000000;
+      --yellow: #efdf00;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: #1a1a1a;
+      margin: 0;
+      padding: 15px;
+      color: white;
+    }
+    .phone {
+      max-width: 420px;
+      margin: 20px auto;
+      background: white;
+      color: black;
+      border-radius: 35px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+      border: 12px solid var(--black);
+    }
+    .header {
+      background: var(--black);
+      color: var(--yellow);
+      padding: 20px;
+      text-align: center;
+    }
+    .container { padding: 20px; }
+    h2 { text-align: center; color: var(--black); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background: var(--black);
+      color: var(--yellow);
+    }
+    .stat {
+      background: #f8f8f8;
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="header">
+      <h1>📊 DASHBOARD KPI</h1>
+    </div>
+    <div class="container">
+      <button onclick="loadStats()">🔄 Actualiser les statistiques</button>
+
+      <div class="stat" id="totalAudits">Nombre total d'audits : <strong>0</strong></div>
+
+      <h2>Audits par site</h2>
+      <table id="tableSites">
+        <thead><tr><th>Site</th><th>Nombre</th></tr></thead>
+        <tbody></tbody>
+      </table>
+
+      <h2>Derniers audits</h2>
+      <table id="tableDerniers">
+        <thead><tr><th>Date</th><th>Site</th><th>Opération</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    async function loadStats() {
+      try {
+        const response = await fetch('/api/audits');
+        const audits = await response.json();
+
+        // Total audits
+        document.getElementById('totalAudits').innerHTML = `Nombre total d'audits : <strong>${audits.length}</strong>`;
+
+        // Audits par site
+        const parSite = {};
+        audits.forEach(a => {
+          parSite[a.lieu] = (parSite[a.lieu] || 0) + 1;
+        });
+
+        let htmlSites = '';
+        for (let site in parSite) {
+          htmlSites += `<tr><td>${site}</td><td><strong>${parSite[site]}</strong></td></tr>`;
+        }
+        document.getElementById('tableSites').querySelector('tbody').innerHTML = htmlSites;
+
+        // Derniers audits
+        let htmlDerniers = '';
+        audits.slice(0, 10).forEach(a => {
+          const date = new Date(a.dateCreation).toLocaleDateString('fr-FR');
+          htmlDerniers += `<tr><td>${date}</td><td>${a.lieu}</td><td>${a.operation || '-'}</td></tr>`;
+        });
+        document.getElementById('tableDerniers').querySelector('tbody').innerHTML = htmlDerniers;
+
+      } catch (e) {
+        alert("Erreur lors du chargement des stats : " + e.message);
+      }
+    }
+
+    // Charger les stats au chargement de la page
+    window.onload = loadStats;
+  </script>
+</body>
+</html>
