@@ -1,14 +1,11 @@
-const CACHE_NAME = 'audit-renault-v1';
+const CACHE_NAME = 'terrain-vision-v1';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll([
-        '/',
-        '/index.html',
-        '/style.css',
-        '/script.js'
-        // Ajoute ici tous tes fichiers importants
+        'index.html',
+        'manifest.json'
       ]);
     })
   );
