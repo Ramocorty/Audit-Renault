@@ -4,82 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TERRAIN VISION - Renault</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#efdf00">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #1a1a1a, #333);
-      margin: 0;
-      padding: 10px;
-      color: white;
-    }
-    .phone {
-      max-width: 420px;
-      margin: 20px auto;
-      background: white;
-      color: black;
-      border-radius: 30px;
-      overflow: hidden;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-    }
-    .header {
-      background: #000000;
-      color: #efdf00;
-      padding: 20px;
-      text-align: center;
-      font-size: 24px;
-      font-weight: bold;
-    }
-    .container {
-      padding: 20px;
-    }
-    h2 {
-      text-align: center;
-      color: #000;
-      margin-bottom: 20px;
-    }
-    label {
-      display: block;
-      margin: 15px 0 6px;
-      font-weight: bold;
-      color: #333;
-    }
-    input, select {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 16px;
-      box-sizing: border-box;
-    }
-    .section {
-      background: #f8f8f8;
-      padding: 18px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-    }
-    button {
-      background: #000;
-      color: #efdf00;
-      padding: 16px;
-      font-size: 18px;
-      font-weight: bold;
-      border: none;
-      border-radius: 12px;
-      width: 100%;
-      margin: 25px 0 10px;
-      cursor: pointer;
-    }
-    .signature {
-      border: 2px dashed #999;
-      height: 110px;
-      border-radius: 10px;
-      margin: 8px 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #777;
-      font-style: italic;
-    }
+    body { font-family: Arial, sans-serif; background: #1a1a1a; margin:0; padding:10px; color:white; }
+    .phone { max-width: 420px; margin:20px auto; background:white; color:black; border-radius:30px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.6); }
+    .header { background:#000; color:#efdf00; padding:20px; text-align:center; font-size:24px; font-weight:bold; }
+    .container { padding:20px; }
+    label { display:block; margin:15px 0 6px; font-weight:bold; }
+    input, select { width:100%; padding:12px; border:1px solid #ccc; border-radius:8px; font-size:16px; }
+    button { background:#000; color:#efdf00; padding:16px; font-size:18px; font-weight:bold; border:none; border-radius:12px; width:100%; margin:20px 0; }
+    .section { background:#f8f8f8; padding:18px; border-radius:12px; margin-bottom:20px; }
   </style>
 </head>
 <body>
@@ -87,7 +22,7 @@
     <div class="header">🌟 TERRAIN VISION</div>
     
     <div class="container">
-      <h2>Nouvel Audit Terrain</h2>
+      <h2 style="text-align:center;">Nouvel Audit Terrain</h2>
 
       <div class="section">
         <label>Lieu d'intervention</label>
@@ -101,79 +36,40 @@
           <option value="KIN">KIN</option>
         </select>
 
-        <label>Date et heure de la visite</label>
+        <label>Date et heure</label>
         <input type="datetime-local" id="dateHeure">
 
         <label>Opération réalisée</label>
-        <input type="text" id="operation" placeholder="Ex: Travaux de rénovation de climatisation">
+        <input type="text" id="operation" placeholder="Ex: Travaux de rénovation">
 
         <label>Numéro de plan de prévention</label>
         <input type="text" id="plan" placeholder="Ex: 9290-2026-1">
       </div>
 
       <div class="section">
-        <label>Nom du chargé d'affaires (Renault)</label>
-        <input type="text" id="charge" placeholder="Nom et prénom">
+        <label>Chargé d'affaires Renault</label>
+        <input type="text" id="charge" placeholder="Nom Prénom">
 
-        <label>Entreprise extérieure Rang 1</label>
+        <label>Entreprise Rang 1</label>
         <input type="text" id="ent1" placeholder="Ex: EIFFAGE">
 
-        <label>Entreprise extérieure Rang 2</label>
+        <label>Entreprise Rang 2</label>
         <input type="text" id="ent2" placeholder="Ex: ITGC">
       </div>
 
-      <div class="section">
-        <label>Arrêt de chantier nécessaire ?</label>
-        <select id="arret">
-          <option value="Non">Non</option>
-          <option value="Oui">Oui</option>
-        </select>
-
-        <label>Nécessite courrier avec AR ?</label>
-        <select id="courrier">
-          <option value="Non">Non</option>
-          <option value="Oui">Oui</option>
-        </select>
-
-        <label>Contre-visite nécessaire ?</label>
-        <select id="contrevisite">
-          <option value="Non">Non</option>
-          <option value="Oui">Oui</option>
-        </select>
-      </div>
-
-      <div class="section">
-        <label>Signature Représentant Renault</label>
-        <input type="text" id="signRenault" placeholder="Nom du représentant">
-        <div class="signature">Zone de signature Renault</div>
-
-        <label>Signature Représentant Entreprise</label>
-        <input type="text" id="signExterne" placeholder="Nom du représentant">
-        <div class="signature">Zone de signature Entreprise</div>
-      </div>
-
-      <button onclick="validerAudit()">✅ Valider & Sauvegarder l'Audit</button>
+      <button onclick="validerAudit()">✅ Valider l'Audit</button>
     </div>
   </div>
 
   <script>
     function validerAudit() {
       const lieu = document.getElementById('lieu').value;
-      const date = document.getElementById('dateHeure').value;
-      const operation = document.getElementById('operation').value;
-      const plan = document.getElementById('plan').value;
-      const charge = document.getElementById('charge').value;
-      const ent1 = document.getElementById('ent1').value;
-
-      if (!lieu || !date || !operation) {
-        alert("⚠️ Veuillez remplir au moins le Lieu, la Date et l'Opération");
+      if (!lieu) {
+        alert("Veuillez choisir un lieu d'intervention");
         return;
       }
-
-      alert(`✅ Audit sauvegardé avec succès !\n\nLieu : ${lieu}\nDate : ${date}\nOpération : ${operation}\nChargé d'affaires : ${charge || "Non renseigné"}\nEntreprise : ${ent1 || "Non renseigné"}`);
-
-      // On peut ajouter la sauvegarde dans localStorage plus tard
-      console.log("Audit enregistré :", {lieu, date, operation, plan, charge, ent1});
+      alert("✅ Audit sauvegardé avec succès !");
+      console.log("Audit enregistré");
     }
   </script>
 </body>
