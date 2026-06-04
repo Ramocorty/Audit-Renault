@@ -9,66 +9,14 @@
 
   <style>
     :root { --black: #000000; --yellow: #efdf00; }
-    body {
-      font-family: Arial, sans-serif;
-      background: #1a1a1a;
-      margin: 0;
-      padding: 0;
-      color: white;
-      display: flex;
-      justify-content: center;
-    }
-    .phone {
-      max-width: 420px;
-      width: 100%;
-      background: white;
-      color: black;
-      border-radius: 35px;
-      overflow: hidden;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.7);
-      border: 12px solid var(--black);
-      min-height: 680px;
-    }
-    .header {
-      background: var(--black);
-      color: var(--yellow);
-      padding: 20px;
-      text-align: center;
-    }
-    .container { padding: 30px 20px; }
-    h2 { color: var(--black); }
-    .choice {
-      background: #f8f8f8;
-      padding: 20px;
-      margin: 15px 0;
-      border-radius: 15px;
-      text-align: center;
-      cursor: pointer;
-      border: 2px solid transparent;
-    }
-    .choice:hover, .choice.active {
-      border-color: var(--yellow);
-      background: #fff;
-    }
-    input {
-      width: 100%;
-      padding: 14px;
-      margin-top: 10px;
-      border: 2px solid #ddd;
-      border-radius: 10px;
-      font-size: 16px;
-    }
-    button {
-      background: var(--black);
-      color: var(--yellow);
-      padding: 16px;
-      font-size: 18px;
-      font-weight: bold;
-      border: none;
-      border-radius: 12px;
-      width: 100%;
-      margin-top: 25px;
-    }
+    body { font-family: Arial, sans-serif; background: #1a1a1a; margin:0; padding:0; color:white; display:flex; justify-content:center; }
+    .phone { max-width:420px; width:100%; background:white; color:black; border-radius:35px; overflow:hidden; box-shadow:0 20px 40px rgba(0,0,0,0.7); border:12px solid var(--black); min-height:680px; }
+    .header { background:var(--black); color:var(--yellow); padding:20px; text-align:center; }
+    .container { padding:30px 20px; }
+    .choice { background:#f8f8f8; padding:20px; margin:15px 0; border-radius:15px; text-align:center; cursor:pointer; border:2px solid transparent; }
+    .choice.active { border-color:var(--yellow); background:#fff; }
+    input { width:100%; padding:14px; margin-top:10px; border:2px solid #ddd; border-radius:10px; font-size:16px; }
+    button { background:var(--black); color:var(--yellow); padding:16px; font-size:18px; font-weight:bold; border:none; border-radius:12px; width:100%; margin-top:25px; }
   </style>
 </head>
 <body>
@@ -80,7 +28,7 @@
 
     <div class="container">
       <h2>Connexion</h2>
-      <p style="text-align:center; color:#555;">Identifiez-vous pour accéder à l'application</p>
+      <p style="text-align:center; color:#555;">Identifiez-vous</p>
 
       <div class="choice" id="interne" onclick="selectType('interne')">
         <h3>👨‍💼 Interne Renault</h3>
@@ -88,7 +36,7 @@
       </div>
 
       <div class="choice" id="externe" onclick="selectType('externe')">
-        <h3>🏗️ Entreprise Extérieure</h3>
+        <h3>🏗️ Extérieur</h3>
         <input type="email" id="emailExterne" placeholder="votre.email@entreprise.com" style="display:none;">
       </div>
 
@@ -101,8 +49,7 @@
 
     function selectType(type) {
       userType = type;
-      document.getElementById('interne').classList.remove('active');
-      document.getElementById('externe').classList.remove('active');
+      document.querySelectorAll('.choice').forEach(c => c.classList.remove('active'));
       document.getElementById(type).classList.add('active');
 
       document.getElementById('emailInterne').style.display = type === 'interne' ? 'block' : 'none';
@@ -111,32 +58,22 @@
     }
 
     async function validerLogin() {
-      let email = userType === 'interne' ? 
-        document.getElementById('emailInterne').value.trim() : 
-        document.getElementById('emailExterne').value.trim();
+      const emailField = userType === 'interne' ? 'emailInterne' : 'emailExterne';
+      const email = document.getElementById(emailField).value.trim();
 
       if (!email) {
         alert("Veuillez entrer votre email");
         return;
       }
 
-      if (userType === 'interne' && !email.endsWith('@renault.com') && !email.endsWith('@renaultgroup.com')) {
-        alert("❌ Utilisez un email Renault (@renault.com)");
-        return;
-      }
-
-      // Envoi à la base
+      // Enregistrement du login
       try {
         await fetch('/api/login', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: email,
-            userType: userType,
-            dateConnexion: new Date().toISOString()
-          })
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ email, userType, dateConnexion: new Date().toISOString() })
         });
-      } catch (e) {}
+      } catch(e) {}
 
       localStorage.setItem('userEmail', email);
       localStorage.setItem('userType', userType);
