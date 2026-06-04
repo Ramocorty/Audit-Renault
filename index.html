@@ -3,25 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TERRAIN VISION - Renault</title>
+  <title>Renault Audit Terrain</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#efdf00">
 
   <style>
-    :root {
-      --black: #000000;
-      --yellow: #efdf00;
-    }
+    :root { --black: #000000; --yellow: #efdf00; }
     body {
       font-family: Arial, sans-serif;
       background: #1a1a1a;
       margin: 0;
       padding: 0;
       color: white;
+      display: flex;
+      justify-content: center;
     }
     .phone {
       max-width: 420px;
-      margin: 20px auto;
+      width: 100%;
       background: white;
       color: black;
       border-radius: 35px;
@@ -33,47 +32,31 @@
     .header {
       background: var(--black);
       color: var(--yellow);
-      padding: 15px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .nav-menu {
-      display: flex;
-      background: #222;
-      padding: 10px;
-    }
-    .nav-btn {
-      flex: 1;
-      padding: 12px;
+      padding: 20px;
       text-align: center;
-      color: white;
-      text-decoration: none;
-      font-weight: bold;
-      border-radius: 8px;
-      margin: 0 5px;
-      font-size: 13.5px;
     }
-    .nav-btn.active {
-      background: var(--yellow);
-      color: var(--black);
+    .container { padding: 30px 20px; }
+    h1 { color: var(--black); }
+    .choice {
+      background: #f8f8f8;
+      padding: 20px;
+      margin: 15px 0;
+      border-radius: 15px;
+      text-align: center;
+      cursor: pointer;
+      border: 2px solid transparent;
     }
-    .container { padding: 20px; }
-    h2 { text-align: center; color: var(--black); margin: 10px 0 25px; }
-    label { display: block; margin: 15px 0 6px; font-weight: bold; color: #222; }
-    input, select {
+    .choice:hover, .choice.active {
+      border-color: var(--yellow);
+      background: #fff;
+    }
+    input {
       width: 100%;
-      padding: 13px;
+      padding: 14px;
+      margin-top: 10px;
       border: 2px solid #ddd;
       border-radius: 10px;
       font-size: 16px;
-    }
-    .section {
-      background: #f8f8f8;
-      padding: 18px;
-      border-radius: 15px;
-      margin-bottom: 20px;
-      border-left: 6px solid var(--yellow);
     }
     button {
       background: var(--black);
@@ -84,192 +67,83 @@
       border: none;
       border-radius: 12px;
       width: 100%;
-      margin: 20px 0;
-    }
-    .signature-pad {
-      border: 2px dashed #999;
-      border-radius: 10px;
-      width: 100%;
-      height: 160px;
-      background: #fff;
-      touch-action: none;
-    }
-    .btn-signature {
-      background: #666;
-      color: white;
-      padding: 8px;
-      font-size: 14px;
-      margin-top: 5px;
+      margin-top: 25px;
     }
   </style>
 </head>
 <body>
   <div class="phone">
     <div class="header">
-      <h1>TERRAIN VISION</h1>
+      <h1>Renault Audit Terrain</h1>
       <img src="logo-renault.png" height="45" alt="Renault">
     </div>
 
-    <div class="nav-menu">
-      <a href="index.html" class="nav-btn active">📋 Nouvel Audit</a>
-      <a href="grille-detaillee.html" class="nav-btn">📋 Grille Détaillée</a>
-      <a href="dashboard.html" class="nav-btn">📊 KPI</a>
-    </div>
-   
     <div class="container">
-      <h2>Nouvel Audit Terrain</h2>
-      <div class="section">
-        <label>Lieu d'intervention</label>
-        <select id="lieu">
-          <option value="">-- Choisir le site --</option>
-          <option value="LARDY (CTL)">LARDY (CTL)</option>
-          <option value="VSF">VSF</option>
-          <option value="TCR">TCR</option>
-          <option value="CRI">CRI</option>
-          <option value="CTA">CTA</option>
-          <option value="KIN">KIN</option>
-        </select>
-        <label>Date et heure de la visite</label>
-        <input type="datetime-local" id="dateHeure">
-        <label>Opération réalisée</label>
-        <input type="text" id="operation" placeholder="Ex: Travaux de rénovation de climatisation">
-        <label>Numéro de plan de prévention</label>
-        <input type="text" id="plan" placeholder="Ex: 9290-2026-1">
+      <h2>Identification</h2>
+      <p style="text-align:center; color:#555;">Qui êtes-vous ?</p>
+
+      <div class="choice" id="interne" onclick="selectType('interne')">
+        <h3>👨‍💼 Interne Renault</h3>
+        <input type="email" id="emailInterne" placeholder="votre.nom@renault.com" style="display:none;">
       </div>
-      <div class="section">
-        <label>Chargé d'affaires Renault</label>
-        <input type="text" id="charge" placeholder="Nom et prénom">
-        <label>Entreprise Rang 1</label>
-        <input type="text" id="ent1" placeholder="Ex: EIFFAGE">
-        <label>Entreprise Rang 2</label>
-        <input type="text" id="ent2" placeholder="Ex: ITGC">
+
+      <div class="choice" id="externe" onclick="selectType('externe')">
+        <h3>🏗️ Extérieur / Entreprise</h3>
+        <input type="email" id="emailExterne" placeholder="votre.email@entreprise.com" style="display:none;">
       </div>
-      <div class="section">
-        <label>Arrêt de chantier nécessaire ?</label>
-        <select id="arret">
-          <option value="Non">Non</option>
-          <option value="Oui">Oui</option>
-        </select>
-        <label>Nécessite courrier avec AR ?</label>
-        <select id="courrier">
-          <option value="Non">Non</option>
-          <option value="Oui">Oui</option>
-        </select>
-        <label>Contre-visite nécessaire ?</label>
-        <select id="contrevisite">
-          <option value="Non">Non</option>
-          <option value="Oui">Oui</option>
-        </select>
-      </div>
-      <div class="section">
-        <label>Signature Représentant Renault</label>
-        <input type="text" id="nomRenault" placeholder="Nom du représentant">
-        <canvas id="sigRenault" class="signature-pad"></canvas>
-        <button class="btn-signature" onclick="clearSig('Renault')">Effacer</button>
-        <label>Signature Représentant Entreprise</label>
-        <input type="text" id="nomExterne" placeholder="Nom du représentant">
-        <canvas id="sigExterne" class="signature-pad"></canvas>
-        <button class="btn-signature" onclick="clearSig('Externe')">Effacer</button>
-      </div>
-      <button onclick="validerAudit()">✅ Valider & Sauvegarder l'Audit</button>
+
+      <button onclick="validerLogin()" id="btnLogin" style="display:none;">Continuer →</button>
     </div>
   </div>
 
   <script>
-    let canvasR = document.getElementById('sigRenault');
-    let canvasE = document.getElementById('sigExterne');
-    let ctxR = canvasR.getContext('2d');
-    let ctxE = canvasE.getContext('2d');
-    let drawing = false;
+    let userType = '';
 
-    function initSignature(canvas, ctx) {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = 160;
-      ctx.lineWidth = 3;
-      ctx.lineCap = "round";
-      ctx.strokeStyle = "#000";
-      canvas.addEventListener('mousedown', startDrawing);
-      canvas.addEventListener('mousemove', draw);
-      canvas.addEventListener('mouseup', stopDrawing);
-      canvas.addEventListener('touchstart', startDrawing);
-      canvas.addEventListener('touchmove', draw);
-      canvas.addEventListener('touchend', stopDrawing);
+    function selectType(type) {
+      userType = type;
+      
+      document.getElementById('interne').classList.remove('active');
+      document.getElementById('externe').classList.remove('active');
+      document.getElementById(type).classList.add('active');
+
+      // Afficher le champ email correspondant
+      document.getElementById('emailInterne').style.display = type === 'interne' ? 'block' : 'none';
+      document.getElementById('emailExterne').style.display = type === 'externe' ? 'block' : 'none';
+      
+      document.getElementById('btnLogin').style.display = 'block';
     }
 
-    function startDrawing(e) { drawing = true; draw(e); }
-    function stopDrawing() { drawing = false; }
-
-    function draw(e) {
-      if (!drawing) return;
-      const rect = e.target.getBoundingClientRect();
-      const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
-      const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
-     
-      if (e.target.id === 'sigRenault') {
-        ctxR.lineTo(x, y);
-        ctxR.stroke();
-        ctxR.beginPath();
-        ctxR.moveTo(x, y);
+    async function validerLogin() {
+      let email = '';
+      
+      if (userType === 'interne') {
+        email = document.getElementById('emailInterne').value.trim();
+        if (!email.endsWith('@renault.com')) {
+          alert("❌ Veuillez utiliser un email @renault.com");
+          return;
+        }
+      } else if (userType === 'externe') {
+        email = document.getElementById('emailExterne').value.trim();
+        if (!email.includes('@')) {
+          alert("❌ Veuillez entrer un email valide");
+          return;
+        }
       } else {
-        ctxE.lineTo(x, y);
-        ctxE.stroke();
-        ctxE.beginPath();
-        ctxE.moveTo(x, y);
-      }
-    }
-
-    function clearSig(type) {
-      if (type === 'Renault') ctxR.clearRect(0, 0, canvasR.width, canvasR.height);
-      else ctxE.clearRect(0, 0, canvasE.width, canvasE.height);
-    }
-
-    window.onload = () => {
-      initSignature(canvasR, ctxR);
-      initSignature(canvasE, ctxE);
-    };
-
-    async function validerAudit() {
-      const lieu = document.getElementById('lieu').value;
-      if (!lieu) {
-        alert("⚠️ Veuillez choisir un lieu d'intervention");
+        alert("Veuillez choisir Interne ou Extérieur");
         return;
       }
 
-      const sigRenault = canvasR.toDataURL('image/png');
-      const sigExterne = canvasE.toDataURL('image/png');
-
-      const auditData = {
-        lieu: lieu,
-        dateHeureVisite: document.getElementById('dateHeure').value,
-        operation: document.getElementById('operation').value,
-        planPrevention: document.getElementById('plan').value,
-        chargeAffaire: document.getElementById('charge').value,
-        entrepriseRang1: document.getElementById('ent1').value,
-        entrepriseRang2: document.getElementById('ent2').value,
-        arretChantier: document.getElementById('arret').value,
-        courrierAR: document.getElementById('courrier').value,
-        contreVisite: document.getElementById('contrevisite').value,
-        nomRenault: document.getElementById('nomRenault').value,
-        signatureRenault: sigRenault,
-        nomExterne: document.getElementById('nomExterne').value,
-        signatureExterne: sigExterne
-      };
-
-      try {
-        const response = await fetch('/api/audits', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(auditData)
-        });
-        const result = await response.json();
-        if (result.success) {
-          alert("✅ Audit enregistré avec succès !");
-        } else {
-          alert("❌ Erreur : " + result.error);
-        }
-      } catch (error) {
-        alert("❌ Impossible de sauvegarder. Vérifie ta connexion.");
+      if (!email) {
+        alert("Veuillez entrer votre email");
+        return;
       }
+
+      // Sauvegarde temporaire (localStorage)
+      localStorage.setItem('userEmail', email);
+      localStorage.setItem('userType', userType);
+
+      // Redirection vers la vraie page d'accueil
+      window.location.href = "home.html";
     }
   </script>
 </body>
