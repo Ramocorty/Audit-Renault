@@ -6,7 +6,7 @@
   <title>TERRAIN VISION - Renault</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#efdf00">
- 
+
   <style>
     :root {
       --black: #000000;
@@ -16,7 +16,7 @@
       font-family: Arial, sans-serif;
       background: #1a1a1a;
       margin: 0;
-      padding: 10px;
+      padding: 0;
       color: white;
     }
     .phone {
@@ -28,20 +28,37 @@
       overflow: hidden;
       box-shadow: 0 20px 40px rgba(0,0,0,0.7);
       border: 12px solid var(--black);
+      min-height: 680px;
     }
     .header {
       background: var(--black);
       color: var(--yellow);
-      padding: 20px;
+      padding: 15px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
-    .header h1 {
-      margin: 0;
-      font-size: 23px;
+    .nav-menu {
+      display: flex;
+      background: #222;
+      padding: 10px;
+    }
+    .nav-btn {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 8px;
+      margin: 0 5px;
+    }
+    .nav-btn.active {
+      background: var(--yellow);
+      color: var(--black);
     }
     .container { padding: 20px; }
+    /* Le reste de tes styles existants */
     h2 { text-align: center; color: var(--black); margin: 10px 0 25px; }
     label { display: block; margin: 15px 0 6px; font-weight: bold; color: #222; }
     input, select {
@@ -92,9 +109,16 @@
       <h1>TERRAIN VISION</h1>
       <img src="logo-renault.png" height="45" alt="Renault">
     </div>
+
+    <!-- Menu de navigation -->
+    <div class="nav-menu">
+      <a href="index.html" class="nav-btn active">📋 Nouvel Audit</a>
+      <a href="dashboard.html" class="nav-btn">📊 KPI</a>
+    </div>
    
     <div class="container">
       <h2>Nouvel Audit Terrain</h2>
+      <!-- Tout ton formulaire reste ici (inchangé) -->
       <div class="section">
         <label>Lieu d'intervention</label>
         <select id="lieu">
@@ -153,7 +177,7 @@
   </div>
 
   <script>
-    // Signature pads
+    // === Ton code signature + validerAudit reste ici ===
     let canvasR = document.getElementById('sigRenault');
     let canvasE = document.getElementById('sigExterne');
     let ctxR = canvasR.getContext('2d');
@@ -166,7 +190,6 @@
       ctx.lineWidth = 3;
       ctx.lineCap = "round";
       ctx.strokeStyle = "#000";
-
       canvas.addEventListener('mousedown', startDrawing);
       canvas.addEventListener('mousemove', draw);
       canvas.addEventListener('mouseup', stopDrawing);
@@ -198,20 +221,15 @@
     }
 
     function clearSig(type) {
-      if (type === 'Renault') {
-        ctxR.clearRect(0, 0, canvasR.width, canvasR.height);
-      } else {
-        ctxE.clearRect(0, 0, canvasE.width, canvasE.height);
-      }
+      if (type === 'Renault') ctxR.clearRect(0, 0, canvasR.width, canvasR.height);
+      else ctxE.clearRect(0, 0, canvasE.width, canvasE.height);
     }
 
-    // Initialisation
     window.onload = () => {
       initSignature(canvasR, ctxR);
       initSignature(canvasE, ctxE);
     };
 
-    // Nouvelle fonction pour sauvegarder dans Cloudflare D1
     async function validerAudit() {
       const lieu = document.getElementById('lieu').value;
       if (!lieu) {
@@ -245,18 +263,14 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(auditData)
         });
-
         const result = await response.json();
-
         if (result.success) {
-          alert("✅ Audit enregistré avec succès dans Cloudflare D1 !");
+          alert("✅ Audit enregistré avec succès !");
         } else {
-          alert("❌ Erreur : " + (result.error || "Erreur inconnue"));
+          alert("❌ Erreur : " + result.error);
         }
-
       } catch (error) {
-        console.error(error);
-        alert("❌ Impossible de contacter le serveur. Vérifie ta connexion ou le déploiement.");
+        alert("❌ Impossible de sauvegarder. Vérifie ta connexion.");
       }
     }
   </script>
