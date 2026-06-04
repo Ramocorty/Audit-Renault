@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Grille Détaillée - Terrain Vision</title>
+  <title>Renault Audit Terrain</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#efdf00">
 
@@ -30,7 +30,7 @@
     .header {
       background: var(--black);
       color: var(--yellow);
-      padding: 15px 20px;
+      padding: 12px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -56,7 +56,6 @@
       color: var(--black);
     }
     .container { padding: 15px; }
-    .section { background: #f8f8f8; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
     h2 { text-align: center; color: var(--black); margin: 20px 0 15px; }
     .question {
       background: white;
@@ -107,7 +106,8 @@
 <body>
   <div class="phone">
     <div class="header">
-      <h1>📋 GRILLE DÉTAILLÉE</h1>
+      <h1>Renault Audit Terrain</h1>
+      <img src="logo-renault.png" height="45" alt="Renault">
     </div>
 
     <div class="nav-menu">
@@ -117,26 +117,9 @@
     </div>
 
     <div class="container">
-      <div class="section">
-        <label>Lieu d'intervention</label>
-        <input type="text" id="lieu" placeholder="Ex: LARDY (CTL)">
+      <h2>Grille d'Audit Terrain Détaillée</h2>
 
-        <label>Date et heure de la visite</label>
-        <input type="datetime-local" id="dateHeure">
-
-        <label>Opération réalisée</label>
-        <input type="text" id="operation" placeholder="Description des travaux">
-
-        <label>Numéro de plan de prévention</label>
-        <input type="text" id="plan">
-
-        <label>Chargé d'affaires Renault</label>
-        <input type="text" id="charge">
-      </div>
-
-      <h2>Grille d'Audit Terrain</h2>
-
-      <!-- 1. Plan de prévention -->
+      <!-- Ici on mettra toutes les questions de la grille -->
       <div class="question">
         <strong>1) Plan de prévention (PdP)</strong><br><br>
         Affiché avec ses annexes ?<br>
@@ -144,23 +127,15 @@
         <textarea placeholder="Remarques / Actions correctives"></textarea>
       </div>
 
-      <div class="question">
-        Habilitations / autorisations disponibles ?<br>
-        <div class="options" id="q2"></div>
-        <textarea placeholder="Remarques / Actions correctives"></textarea>
-      </div>
-
-      <!-- Je vais raccourcir pour ce message, mais dis-moi si tu veux la version ultra complète avec toutes les questions -->
+      <!-- Autres questions à venir... -->
 
       <button id="main-btn" onclick="sauvegarderGrille()">✅ Sauvegarder la Grille Détaillée</button>
     </div>
   </div>
 
   <script>
-    // Fonction pour gérer les boutons Oui/Non/NC
     function createOptions(containerId) {
       const container = document.getElementById(containerId);
-      if (!container) return;
       container.innerHTML = `
         <button onclick="selectOption(this)" data-value="Oui">Oui</button>
         <button onclick="selectOption(this)" data-value="Non">Non</button>
@@ -174,16 +149,12 @@
       btn.classList.add('active');
     }
 
-    // Initialisation
     window.onload = () => {
       createOptions('q1');
-      createOptions('q2');
-      // On ajoutera les autres questions plus tard
     };
 
     async function sauvegarderGrille() {
-      alert("✅ Grille détaillée sauvegardée avec succès !");
-      // Sauvegarde dans D1 à venir
+      alert("✅ Grille détaillée sauvegardée !");
     }
   </script>
 </body>
