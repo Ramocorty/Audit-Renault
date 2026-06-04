@@ -16,7 +16,7 @@
       font-family: Arial, sans-serif;
       background: #1a1a1a;
       margin: 0;
-      padding: 15px;
+      padding: 0;
       color: white;
     }
     .phone {
@@ -28,15 +28,45 @@
       overflow: hidden;
       box-shadow: 0 20px 40px rgba(0,0,0,0.7);
       border: 12px solid var(--black);
+      min-height: 680px;
     }
     .header {
       background: var(--black);
       color: var(--yellow);
-      padding: 20px;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-menu {
+      display: flex;
+      background: #222;
+      padding: 10px;
+    }
+    .nav-btn {
+      flex: 1;
+      padding: 12px;
       text-align: center;
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 8px;
+      margin: 0 5px;
+    }
+    .nav-btn.active {
+      background: var(--yellow);
+      color: var(--black);
     }
     .container { padding: 20px; }
-    h2 { text-align: center; color: var(--black); }
+    h2 { text-align: center; color: var(--black); margin: 20px 0 15px; }
+    .stat-card {
+      background: #f8f8f8;
+      padding: 18px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -51,12 +81,16 @@
       background: var(--black);
       color: var(--yellow);
     }
-    .stat {
-      background: #f8f8f8;
-      padding: 15px;
-      border-radius: 12px;
-      margin-bottom: 15px;
-      text-align: center;
+    button {
+      background: var(--black);
+      color: var(--yellow);
+      padding: 14px;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      width: 100%;
+      margin: 10px 0;
     }
   </style>
 </head>
@@ -65,20 +99,34 @@
     <div class="header">
       <h1>📊 DASHBOARD KPI</h1>
     </div>
+
+    <!-- Menu de navigation -->
+    <div class="nav-menu">
+      <a href="index.html" class="nav-btn">📋 Nouvel Audit</a>
+      <a href="dashboard.html" class="nav-btn active">📊 KPI</a>
+    </div>
+
     <div class="container">
       <button onclick="loadStats()">🔄 Actualiser les statistiques</button>
 
-      <div class="stat" id="totalAudits">Nombre total d'audits : <strong>0</strong></div>
+      <div class="stat-card">
+        <h2>Nombre total d'audits</h2>
+        <h1 id="totalAudits" style="font-size: 42px; margin: 10px 0; color: var(--black);">0</h1>
+      </div>
 
       <h2>Audits par site</h2>
       <table id="tableSites">
-        <thead><tr><th>Site</th><th>Nombre</th></tr></thead>
+        <thead>
+          <tr><th>Site</th><th>Nombre d'audits</th></tr>
+        </thead>
         <tbody></tbody>
       </table>
 
-      <h2>Derniers audits</h2>
+      <h2>Derniers audits réalisés</h2>
       <table id="tableDerniers">
-        <thead><tr><th>Date</th><th>Site</th><th>Opération</th></tr></thead>
+        <thead>
+          <tr><th>Date</th><th>Site</th><th>Opération</th></tr>
+        </thead>
         <tbody></tbody>
       </table>
     </div>
@@ -91,34 +139,39 @@
         const audits = await response.json();
 
         // Total audits
-        document.getElementById('totalAudits').innerHTML = `Nombre total d'audits : <strong>${audits.length}</strong>`;
+        document.getElementById('totalAudits').textContent = audits.length;
 
         // Audits par site
         const parSite = {};
         audits.forEach(a => {
-          parSite[a.lieu] = (parSite[a.lieu] || 0) + 1;
+          const site = a.lieu || "Non renseigné";
+          parSite[site] = (parSite[site] || 0) + 1;
         });
 
         let htmlSites = '';
-        for (let site in parSite) {
+        Object.keys(parSite).sort().forEach(site => {
           htmlSites += `<tr><td>${site}</td><td><strong>${parSite[site]}</strong></td></tr>`;
-        }
+        });
         document.getElementById('tableSites').querySelector('tbody').innerHTML = htmlSites;
 
         // Derniers audits
         let htmlDerniers = '';
-        audits.slice(0, 10).forEach(a => {
-          const date = new Date(a.dateCreation).toLocaleDateString('fr-FR');
-          htmlDerniers += `<tr><td>${date}</td><td>${a.lieu}</td><td>${a.operation || '-'}</td></tr>`;
+        audits.slice(0, 8).forEach(a => {
+          const date = new Date(a.dateCreation).toLocaleDateString('fr-FR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
+          htmlDerniers += `<tr>
+            <td>${date}</td>
+            <td>${a.lieu || '-'}</td>
+            <td>${a.operation ? a.operation.substring(0, 25) + '...' : '-'}</td>
+          </tr>`;
         });
         document.getElementById('tableDerniers').querySelector('tbody').innerHTML = htmlDerniers;
 
       } catch (e) {
-        alert("Erreur lors du chargement des stats : " + e.message);
+        alert("Erreur de chargement des données : " + e.message);
       }
     }
 
-    // Charger les stats au chargement de la page
+    // Chargement automatique au démarrage
     window.onload = loadStats;
   </script>
 </body>
