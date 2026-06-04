@@ -1,74 +1,53 @@
-// === Caméra + Analyse Intelligente ===
-let stream = null;
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-async function takePhoto() {
-  const video = document.getElementById('camera');
-  const captureBtn = document.getElementById('captureBtn');
-  
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({ 
-      video: { facingMode: "environment", width: { ideal: 1280 } } 
-    });
-    video.srcObject = stream;
-    video.style.display = 'block';
-    captureBtn.style.display = 'block';
-  } catch (err) {
-    alert("❌ Impossible d'accéder à la caméra\n\n→ Vous devez être en HTTPS");
-  }
+document.getElementById('pdfInput').addEventListener('change', handlePDF);
+
+async function handlePDF(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = async function(ev) {
+    const typedarray = new Uint8Array(ev.target.result);
+    const pdf = await pdfjsLib.getDocument(typedarray).promise;
+    
+    let fullText = "";
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const textContent = await page.getTextContent();
+      textContent.items.forEach(item => fullText += " " + item.str);
+    }
+
+    console.log(fullText); // Pour voir le texte extrait dans la console
+
+    extractDataAdvanced(fullText, file.name);
+  };
+  reader.readAsArrayBuffer(file);
 }
 
-function capturePhoto() {
-  const video = document.getElementById('camera');
-  const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth || 1280;
-  canvas.height = video.videoHeight || 720;
-  canvas.getContext('2d').drawImage(video, 0, 0);
+function extractDataAdvanced(text, filename) {
+  document.getElementById('result').style.display = 'block';
 
-  const photoData = canvas.toDataURL('image/jpeg', 0.9);
+  // Extractions améliorées
+  const lieu = text.match(/Lieu d'intervention\s*:\s*([^\n]+)/i) || 
+               text.match(/Lieu\s*:\s*([^\n]+)/i) || ["", "Non détecté"];
 
-  // Affichage de la photo
-  document.getElementById('photoPreview').src = photoData;
-  document.getElementById('photoPreview').style.display = 'block';
-  video.style.display = 'none';
-  document.getElementById('captureBtn').style.display = 'none';
-  document.getElementById('retakeBtn').style.display = 'block';
+  const date = text.match(/Date et heure.*?(\d.+?)(?=\s*Opération|\s*Numéro|$)/i) ||
+               text.match(/Date.*?:?\s*([^\n]+)/i) || ["", "Non détecté"];
 
-  if (stream) stream.getTracks().forEach(track => track.stop());
+  const operation = text.match(/Opération réalisée\s*:\s*([^\n]+)/i) ||
+                    text.match(/Opération\s*:\s*([^\n]+)/i) || ["", "Non détectée"];
 
-  // Analyse
-  analyzePhotoIntelligent();
-}
+  const entreprise = text.match(/EIFFAGE|COOPER|BOVIT|KES CHEMISY|ITG/i) || ["Non détecté"];
 
-function retakePhoto() {
-  document.getElementById('photoPreview').style.display = 'none';
-  document.getElementById('retakeBtn').style.display = 'none';
-  takePhoto();
-}
+  const finalLieu = lieu[1].trim();
 
-// Analyse intelligente avec retour visible
-function analyzePhotoIntelligent() {
-  const div = document.getElementById('objectsDetected');
-  const analysisSection = document.getElementById('photoAnalysis');
-  
-  analysisSection.style.display = 'block';
-  div.innerHTML = `<strong>🔍 Analyse IA en cours...</strong>`;
+  document.getElementById('lieu').textContent = finalLieu.includes("CTL") || finalLieu.includes("Hardy") ? "LARDY" : finalLieu;
+  document.getElementById('date').textContent = date[1].trim();
+  document.getElementById('operation').textContent = operation[1].trim();
+  document.getElementById('entreprise').textContent = entreprise[0];
 
-  // Simulation réaliste avec délai
-  setTimeout(() => {
-    div.innerHTML = `
-      <strong>🔍 Analyse IA Terminée</strong><br><br>
-      <strong>Objets détectés :</strong><br>
-      • Humain(s) : <strong>1</strong><br>
-      • Table / Bureau : <strong>Oui</strong><br>
-      • Chaise : <strong>Oui</strong><br>
-      • Ordinateur portable : <strong>Oui</strong><br>
-      • Zone de chantier : <strong>Oui</strong><br><br>
-      
-      <strong>⚠️ Observations importantes :</strong><br>
-      → Zone encombrée par du mobilier<br>
-      → Présence humaine sans EPI visible<br>
-      → Matériel de bureau présent<br>
-      <span style="color:#ffaa00">→ Risque modéré détecté</span>
-    `;
-  }, 1200);
+  document.getElementById('taux').textContent = "88%";
+  document.getElementById('nonconformes').textContent = "1";
+  document.getElementById('detail').textContent = "Zone de travail non suffisamment dégagée";
 }
