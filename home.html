@@ -68,12 +68,12 @@
     </div>
 
     <div class="container">
-      <h2 style="color:var(--black);">Bienvenue sur l'outil Audit Terrain</h2>
+      <h2 style="color:var(--black);">Bienvenue</h2>
 
       <div class="consent">
-        <strong>Consentement RGPD</strong><br>
-        En utilisant cette application, vous acceptez la collecte de vos données (email, type d'utilisateur, audits réalisés) 
-        dans le cadre du MVP et de l'amélioration continue de l'outil.
+        <strong>Consentement RGPD - MVP</strong><br>
+        En utilisant cette application, vous acceptez la collecte et le traitement de vos données 
+        (email, type d'utilisateur, audits réalisés) dans le cadre du MVP et de l'amélioration de l'outil.
       </div>
 
       <div class="card" onclick="goTo('index-form.html')">
@@ -98,12 +98,10 @@
       window.location.href = page;
     }
 
+    // Redirection si pas connecté
     window.onload = () => {
-      const email = localStorage.getItem('userEmail');
-      if (email) {
-        console.log("Connecté en tant que :", email);
-      } else {
-        window.location.href = "index.html"; // Redirige vers login si pas connecté
+      if (!localStorage.getItem('userEmail')) {
+        window.location.href = "index.html";
       }
     };
   </script>
