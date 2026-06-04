@@ -33,17 +33,17 @@
 
       <div class="choice" id="interne" onclick="selectType('interne')">
         <h3>👨‍💼 Interne Renault</h3>
-        <input type="email" id="emailInterne" placeholder="nom.prenom@renault.com" style="display:none;">
+        <input type="email" id="emailInterne" placeholder="nom.prenom@renault.com" style="display:none;" oninput="toggleButton()">
       </div>
 
       <div class="choice" id="externe" onclick="selectType('externe')">
         <h3>🏗️ Extérieur</h3>
-        <input type="email" id="emailExterne" placeholder="votre.email@entreprise.com" style="display:none;">
+        <input type="email" id="emailExterne" placeholder="votre.email@entreprise.com" style="display:none;" oninput="toggleButton()">
       </div>
 
       <div class="consent">
         <input type="checkbox" id="consentCheck" onchange="toggleButton()">
-        <label for="consentCheck"><strong>Consentement RGPD :</strong> J'accepte la collecte de mes données (email, type, audits) pour ce MVP et l'amélioration de l'application.</label>
+        <label for="consentCheck"><strong>Consentement RGPD :</strong> J'accepte la collecte de mes données pour ce MVP et l'amélioration de l'application.</label>
       </div>
 
       <button onclick="validerLogin()" id="btnLogin" disabled>Se Connecter</button>
