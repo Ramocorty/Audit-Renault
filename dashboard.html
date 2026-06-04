@@ -51,9 +51,44 @@
       margin: 0 5px;
       font-size: 13.5px;
     }
-    .nav-btn.active { background: var(--yellow); color: var(--black); }
+    .nav-btn.active {
+      background: var(--yellow);
+      color: var(--black);
+    }
     .container { padding: 20px; }
-    /* ... le reste du style reste identique ... */
+    h2 { text-align: center; color: var(--black); margin: 20px 0 15px; }
+    .stat-card {
+      background: #f8f8f8;
+      padding: 18px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background: var(--black);
+      color: var(--yellow);
+    }
+    button {
+      background: var(--black);
+      color: var(--yellow);
+      padding: 14px;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      width: 100%;
+      margin: 10px 0;
+    }
   </style>
 </head>
 <body>
@@ -69,17 +104,68 @@
       <a href="dashboard.html" class="nav-btn active">📊 KPI</a>
     </div>
 
-    <!-- Le reste du contenu du dashboard reste identique -->
     <div class="container">
       <button onclick="loadStats()">🔄 Actualiser les statistiques</button>
-      <!-- ... reste du dashboard ... -->
+
+      <div class="stat-card">
+        <h2>Nombre total d'audits</h2>
+        <h1 id="totalAudits" style="font-size: 48px; margin: 10px 0; color: var(--black);">0</h1>
+      </div>
+
+      <h2>Audits par site</h2>
+      <table id="tableSites">
+        <thead><tr><th>Site</th><th>Nombre</th></tr></thead>
+        <tbody></tbody>
+      </table>
+
+      <h2>Derniers audits</h2>
+      <table id="tableDerniers">
+        <thead><tr><th>Date</th><th>Type</th><th>Site / Opération</th></tr></thead>
+        <tbody></tbody>
+      </table>
     </div>
   </div>
 
-  <!-- Le script reste le même -->
   <script>
-    // Ton script actuel du dashboard...
-    async function loadStats() { /* ... */ }
+    async function loadStats() {
+      try {
+        const response = await fetch('/api/audits');
+        const audits = await response.json();
+
+        document.getElementById('totalAudits').textContent = audits.length;
+
+        // Audits par site
+        const parSite = {};
+        audits.forEach(a => {
+          const site = a.lieu || "Non renseigné";
+          parSite[site] = (parSite[site] || 0) + 1;
+        });
+
+        let htmlSites = '';
+        Object.keys(parSite).sort().forEach(site => {
+          htmlSites += `<tr><td>${site}</td><td><strong>${parSite[site]}</strong></td></tr>`;
+        });
+        document.getElementById('tableSites').querySelector('tbody').innerHTML = htmlSites || '<tr><td colspan="2">Aucun audit</td></tr>';
+
+        // Derniers audits
+        let htmlDerniers = '';
+        audits.slice(0, 10).forEach(a => {
+          const date = new Date(a.dateCreation).toLocaleDateString('fr-FR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
+          const type = a.type_audit === 'grille_detaillee' ? 'Grille' : 'Audit';
+          htmlDerniers += `<tr>
+            <td>${date}</td>
+            <td>${type}</td>
+            <td>${a.lieu || a.operation || '-'}</td>
+          </tr>`;
+        });
+        document.getElementById('tableDerniers').querySelector('tbody').innerHTML = htmlDerniers || '<tr><td colspan="3">Aucun audit</td></tr>';
+
+      } catch (e) {
+        console.error(e);
+        alert("Erreur lors du chargement : " + e.message);
+      }
+    }
+
     window.onload = loadStats;
   </script>
 </body>
