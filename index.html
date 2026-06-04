@@ -9,14 +9,76 @@
 
   <style>
     :root { --black: #000000; --yellow: #efdf00; }
-    body { font-family: Arial, sans-serif; background: #1a1a1a; margin:0; padding:0; color:white; display:flex; justify-content:center; }
-    .phone { max-width:420px; width:100%; background:white; color:black; border-radius:35px; overflow:hidden; box-shadow:0 20px 40px rgba(0,0,0,0.7); border:12px solid var(--black); min-height:680px; }
-    .header { background:var(--black); color:var(--yellow); padding:20px; text-align:center; }
-    .container { padding:30px 20px; }
-    .choice { background:#f8f8f8; padding:20px; margin:15px 0; border-radius:15px; text-align:center; cursor:pointer; border:2px solid transparent; }
-    .choice.active { border-color:var(--yellow); background:#fff; }
-    input { width:100%; padding:14px; margin-top:10px; border:2px solid #ddd; border-radius:10px; font-size:16px; }
-    button { background:var(--black); color:var(--yellow); padding:16px; font-size:18px; font-weight:bold; border:none; border-radius:12px; width:100%; margin-top:25px; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #1a1a1a;
+      margin: 0;
+      padding: 0;
+      color: white;
+      display: flex;
+      justify-content: center;
+    }
+    .phone {
+      max-width: 420px;
+      width: 100%;
+      background: white;
+      color: black;
+      border-radius: 35px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+      border: 12px solid var(--black);
+      min-height: 680px;
+    }
+    .header {
+      background: var(--black);
+      color: var(--yellow);
+      padding: 20px;
+      text-align: center;
+    }
+    .container { padding: 30px 20px; }
+    .choice {
+      background: #f8f8f8;
+      padding: 20px;
+      margin: 15px 0;
+      border-radius: 15px;
+      text-align: center;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+    .choice.active {
+      border-color: var(--yellow);
+      background: #fff;
+    }
+    input[type="email"] {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+    .consent {
+      margin: 20px 0;
+      padding: 15px;
+      background: #f8f8f8;
+      border-radius: 10px;
+      font-size: 14px;
+      text-align: left;
+    }
+    button {
+      background: var(--black);
+      color: var(--yellow);
+      padding: 16px;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      border-radius: 12px;
+      width: 100%;
+      margin-top: 15px;
+    }
+    button:disabled {
+      background: #666;
+    }
   </style>
 </head>
 <body>
@@ -28,7 +90,7 @@
 
     <div class="container">
       <h2>Connexion</h2>
-      <p style="text-align:center; color:#555;">Identifiez-vous</p>
+      <p style="text-align:center; color:#555;">Identifiez-vous pour continuer</p>
 
       <div class="choice" id="interne" onclick="selectType('interne')">
         <h3>👨‍💼 Interne Renault</h3>
@@ -36,11 +98,19 @@
       </div>
 
       <div class="choice" id="externe" onclick="selectType('externe')">
-        <h3>🏗️ Extérieur</h3>
+        <h3>🏗️ Extérieur / Entreprise</h3>
         <input type="email" id="emailExterne" placeholder="votre.email@entreprise.com" style="display:none;">
       </div>
 
-      <button onclick="validerLogin()" id="btnLogin" style="display:none;">Se Connecter</button>
+      <div class="consent">
+        <input type="checkbox" id="consentCheck" onchange="toggleButton()">
+        <label for="consentCheck">
+          J'accepte la collecte de mes données (email, type d'utilisateur, audits) 
+          dans le cadre du MVP et de l'amélioration de l'application (RGPD)
+        </label>
+      </div>
+
+      <button onclick="validerLogin()" id="btnLogin" disabled>Se Connecter</button>
     </div>
   </div>
 
@@ -54,7 +124,15 @@
 
       document.getElementById('emailInterne').style.display = type === 'interne' ? 'block' : 'none';
       document.getElementById('emailExterne').style.display = type === 'externe' ? 'block' : 'none';
-      document.getElementById('btnLogin').style.display = 'block';
+      toggleButton();
+    }
+
+    function toggleButton() {
+      const consent = document.getElementById('consentCheck').checked;
+      const emailField = userType === 'interne' ? 'emailInterne' : 'emailExterne';
+      const emailFilled = document.getElementById(emailField) && document.getElementById(emailField).value.trim() !== '';
+      
+      document.getElementById('btnLogin').disabled = !(consent && userType && emailFilled);
     }
 
     async function validerLogin() {
@@ -66,14 +144,23 @@
         return;
       }
 
+      if (userType === 'interne' && !email.endsWith('@renault.com') && !email.endsWith('@renaultgroup.com')) {
+        alert("❌ Veuillez utiliser un email Renault");
+        return;
+      }
+
       // Enregistrement du login
       try {
         await fetch('/api/login', {
           method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ email, userType, dateConnexion: new Date().toISOString() })
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: email,
+            userType: userType,
+            dateConnexion: new Date().toISOString()
+          })
         });
-      } catch(e) {}
+      } catch (e) {}
 
       localStorage.setItem('userEmail', email);
       localStorage.setItem('userType', userType);
