@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Renault Audit Terrain</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#efdf00">
+
+  <style>
+    :root { --black: #000000; --yellow: #efdf00; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #1a1a1a;
+      margin: 0;
+      padding: 0;
+      color: white;
+    }
+    .phone {
+      max-width: 420px;
+      margin: 20px auto;
+      background: white;
+      color: black;
+      border-radius: 35px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+      border: 12px solid var(--black);
+      min-height: 680px;
+    }
+    .header {
+      background: var(--black);
+      color: var(--yellow);
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .container { padding: 25px 20px; text-align: center; }
+    .card {
+      background: #f8f8f8;
+      padding: 25px 20px;
+      margin: 18px 0;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+    .consent-banner {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #222;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-size: 14px;
+      z-index: 1000;
+    }
+    button {
+      background: var(--black);
+      color: var(--yellow);
+      padding: 14px 20px;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="header">
+      <h1>Renault Audit Terrain</h1>
+      <img src="logo-renault.png" height="45" alt="Renault">
+    </div>
+
+    <div class="container">
+      <h2 style="color:var(--black); margin-bottom: 30px;">Bienvenue</h2>
+
+      <div class="card" onclick="goTo('index-form.html')">
+        <h2>📋 Nouvel Audit Simple</h2>
+        <p>Audit classique avec signatures</p>
+      </div>
+
+      <div class="card" onclick="goTo('grille-detaillee.html')">
+        <h2>📋 Grille Détaillée</h2>
+        <p>Audit complet avec 26 points de contrôle</p>
+      </div>
+
+      <div class="card" onclick="goTo('dashboard.html')">
+        <h2>📊 Tableau de Bord KPI</h2>
+        <p>Statistiques et conformité</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Consentement RGPD -->
+  <div class="consent-banner" id="consentBanner">
+    <p>Nous collectons vos données (email, audits réalisés) pour améliorer l'outil.<br>
+    <button onclick="acceptConsent()">J'accepte</button>
+    <button onclick="refuseConsent()" style="background:#555;">Je refuse</button></p>
+  </div>
+
+  <script>
+    function goTo(page) {
+      if (localStorage.getItem('rgpdConsent') === 'true') {
+        window.location.href = page;
+      } else {
+        alert("Veuillez accepter le consentement RGPD pour continuer.");
+      }
+    }
+
+    function acceptConsent() {
+      localStorage.setItem('rgpdConsent', 'true');
+      document.getElementById('consentBanner').style.display = 'none';
+    }
+
+    function refuseConsent() {
+      alert("Vous devez accepter le consentement pour utiliser l'application.");
+    }
+
+    // Vérification au chargement
+    window.onload = () => {
+      if (localStorage.getItem('rgpdConsent') === 'true') {
+        document.getElementById('consentBanner').style.display = 'none';
+      }
+    };
+  </script>
+</body>
+</html>
