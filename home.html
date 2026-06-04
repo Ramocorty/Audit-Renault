@@ -70,10 +70,11 @@
     <div class="container">
       <h2 style="color:var(--black);">Bienvenue</h2>
 
+      <!-- Consentement RGPD après connexion -->
       <div class="consent">
-        <strong>Consentement RGPD - MVP</strong><br>
-        En utilisant cette application, vous acceptez la collecte et le traitement de vos données 
-        (email, type d'utilisateur, audits réalisés) dans le cadre du MVP et de l'amélioration de l'outil.
+        <strong>Consentement RGPD</strong><br>
+        En utilisant cette application, vous acceptez la collecte de vos données (email, type d'utilisateur, audits réalisés) 
+        dans le cadre du MVP et pour l'amélioration continue de l'outil.
       </div>
 
       <div class="card" onclick="goTo('index-form.html')">
@@ -98,7 +99,7 @@
       window.location.href = page;
     }
 
-    // Redirection si pas connecté
+    // Protection : redirige vers login si pas connecté
     window.onload = () => {
       if (!localStorage.getItem('userEmail')) {
         window.location.href = "index.html";
