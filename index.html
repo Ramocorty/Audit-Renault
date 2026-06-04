@@ -103,20 +103,18 @@
 
     function selectType(type) {
       userType = type;
-      
       document.getElementById('interne').classList.remove('active');
       document.getElementById('externe').classList.remove('active');
       document.getElementById(type).classList.add('active');
 
       document.getElementById('emailInterne').style.display = type === 'interne' ? 'block' : 'none';
       document.getElementById('emailExterne').style.display = type === 'externe' ? 'block' : 'none';
-      
       document.getElementById('btnLogin').style.display = 'block';
     }
 
     async function validerLogin() {
       let email = '';
-      
+
       if (userType === 'interne') {
         email = document.getElementById('emailInterne').value.trim();
         if (!email.endsWith('@renault.com') && !email.endsWith('@renaultgroup.com')) {
@@ -136,12 +134,24 @@
         return;
       }
 
-      // Sauvegarde des infos utilisateur
+      // Envoi des données de connexion à la base
+      try {
+        await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: email,
+            type: userType,
+            dateConnexion: new Date().toISOString()
+          })
+        });
+      } catch (e) {
+        console.log("Erreur d'enregistrement login (non bloquante)");
+      }
+
+      // Sauvegarde locale + redirection
       localStorage.setItem('userEmail', email);
       localStorage.setItem('userType', userType);
-      localStorage.setItem('loginTime', new Date().toISOString());
-
-      // Redirection vers la page d'accueil
       window.location.href = "home.html";
     }
   </script>
