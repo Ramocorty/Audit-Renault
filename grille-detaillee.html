@@ -124,6 +124,9 @@
           <option value="CTA">CTA</option>
           <option value="KIN">KIN</option>
         </select>
+
+        <label>Date et heure de la visite</label>
+        <input type="datetime-local" id="dateHeure">
       </div>
 
       <h2>Grille d'Audit Terrain Détaillée</h2>
@@ -197,6 +200,7 @@
       const data = {
         type: "grille_detaillee",
         lieu: lieu,
+        dateHeureVisite: document.getElementById('dateHeure').value || new Date().toISOString(),
         operation: "Grille Audit Détaillée",
         chargeAffaire: "Audit Terrain"
       };
