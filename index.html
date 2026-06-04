@@ -52,13 +52,13 @@
       font-weight: bold;
       border-radius: 8px;
       margin: 0 5px;
+      font-size: 13.5px;
     }
     .nav-btn.active {
       background: var(--yellow);
       color: var(--black);
     }
     .container { padding: 20px; }
-    /* Le reste de tes styles existants */
     h2 { text-align: center; color: var(--black); margin: 10px 0 25px; }
     label { display: block; margin: 15px 0 6px; font-weight: bold; color: #222; }
     input, select {
@@ -110,15 +110,14 @@
       <img src="logo-renault.png" height="45" alt="Renault">
     </div>
 
-    <!-- Menu de navigation -->
     <div class="nav-menu">
       <a href="index.html" class="nav-btn active">📋 Nouvel Audit</a>
+      <a href="grille-detaillee.html" class="nav-btn">📋 Grille Détaillée</a>
       <a href="dashboard.html" class="nav-btn">📊 KPI</a>
     </div>
    
     <div class="container">
       <h2>Nouvel Audit Terrain</h2>
-      <!-- Tout ton formulaire reste ici (inchangé) -->
       <div class="section">
         <label>Lieu d'intervention</label>
         <select id="lieu">
@@ -177,7 +176,6 @@
   </div>
 
   <script>
-    // === Ton code signature + validerAudit reste ici ===
     let canvasR = document.getElementById('sigRenault');
     let canvasE = document.getElementById('sigExterne');
     let ctxR = canvasR.getContext('2d');
