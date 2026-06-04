@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grille Détaillée - Terrain Vision</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#efdf00">
+
+  <style>
+    :root { --black: #000000; --yellow: #efdf00; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #1a1a1a;
+      margin: 0;
+      padding: 0;
+      color: white;
+    }
+    .phone {
+      max-width: 420px;
+      margin: 20px auto;
+      background: white;
+      color: black;
+      border-radius: 35px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+      border: 12px solid var(--black);
+      min-height: 680px;
+    }
+    .header {
+      background: var(--black);
+      color: var(--yellow);
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-menu {
+      display: flex;
+      background: #222;
+      padding: 10px;
+    }
+    .nav-btn {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 8px;
+      margin: 0 5px;
+      font-size: 14px;
+    }
+    .nav-btn.active {
+      background: var(--yellow);
+      color: var(--black);
+    }
+    .container { padding: 15px; }
+    .section {
+      background: #f8f8f8;
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+    label { font-weight: bold; display: block; margin: 12px 0 6px; }
+    select, input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+    .question {
+      margin: 18px 0;
+      padding: 12px;
+      background: white;
+      border-radius: 10px;
+      border-left: 5px solid var(--yellow);
+    }
+    .options {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .options button {
+      flex: 1;
+      padding: 10px;
+      font-size: 14px;
+    }
+    .remark { margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="header">
+      <h1>📋 GRILLE DÉTAILLÉE</h1>
+    </div>
+
+    <div class="nav-menu">
+      <a href="index.html" class="nav-btn">📋 Nouvel Audit</a>
+      <a href="grille-detaillee.html" class="nav-btn active">📋 Grille Détaillée</a>
+      <a href="dashboard.html" class="nav-btn">📊 KPI</a>
+    </div>
+
+    <div class="container">
+      <div class="section">
+        <label>Lieu d'intervention</label>
+        <input type="text" id="lieu" placeholder="Ex: LARDY (CTL)">
+
+        <label>Date et heure de la visite</label>
+        <input type="datetime-local" id="dateHeure">
+
+        <label>Opération réalisée</label>
+        <input type="text" id="operation" placeholder="Description des travaux">
+
+        <label>Numéro de plan de prévention</label>
+        <input type="text" id="plan">
+
+        <label>Chargé d'affaires Renault</label>
+        <input type="text" id="charge">
+      </div>
+
+      <!-- La grille détaillée commence ici -->
+      <h2 style="text-align:center; color:var(--black);">Grille d'Audit Terrain</h2>
+
+      <!-- Tu peux continuer ici avec les sections... -->
+
+      <button onclick="sauvegarderGrille()" style="margin-top:20px;">✅ Sauvegarder la Grille</button>
+    </div>
+  </div>
+
+  <script>
+    async function sauvegarderGrille() {
+      alert("✅ Grille sauvegardée ! (Fonctionnalité en cours de développement)");
+      // On ajoutera la sauvegarde dans D1 plus tard
+    }
+  </script>
+</body>
+</html>
