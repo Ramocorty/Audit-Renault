@@ -57,6 +57,9 @@
     }
     .container { padding: 15px; }
     h2 { text-align: center; color: var(--black); margin: 20px 0 15px; }
+    .section { background: #f8f8f8; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
+    label { font-weight: bold; display: block; margin: 12px 0 6px; color: #222; }
+    select, input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; }
     .question {
       background: white;
       padding: 12px;
@@ -104,12 +107,25 @@
     </div>
 
     <div class="nav-menu">
-      <a href="index.html" class="nav-btn">📋 Nouvel Audit</a>
-      <a href="grille-detaillee.html" class="nav-btn active">📋 Grille Détaillée</a>
+      <a href="index.html" class="nav-btn">🏠 Accueil</a>
+      <a href="grille-detaillee.html" class="nav-btn active">📋 Grille</a>
       <a href="dashboard.html" class="nav-btn">📊 KPI</a>
     </div>
 
     <div class="container">
+      <div class="section">
+        <label>Lieu d'intervention</label>
+        <select id="lieu">
+          <option value="">-- Choisir le site --</option>
+          <option value="LARDY (CTL)">LARDY (CTL)</option>
+          <option value="VSF">VSF</option>
+          <option value="TCR">TCR</option>
+          <option value="CRI">CRI</option>
+          <option value="CTA">CTA</option>
+          <option value="KIN">KIN</option>
+        </select>
+      </div>
+
       <h2>Grille d'Audit Terrain Détaillée</h2>
 
       <div class="question">1) Plan de prévention affiché ? <div class="options" id="q1"></div></div>
@@ -143,7 +159,7 @@
       <div class="question">Exutoires validés ? <div class="options" id="q23"></div></div>
       <div class="question">Utilisation raisonnée fluides ? <div class="options" id="q24"></div></div>
       <div class="question">Moyens de maîtrise présents ? <div class="options" id="q25"></div></div>
-      <div class="question">Rejets eaux OK ? <div class="options" id="q26"></div></div>
+      <div class="question">Rejets dans les eaux OK ? <div class="options" id="q26"></div></div>
 
       <button id="main-btn" onclick="sauvegarderGrille()">✅ Sauvegarder la Grille Détaillée</button>
     </div>
@@ -172,15 +188,19 @@
     };
 
     async function sauvegarderGrille() {
+      const lieu = document.getElementById('lieu').value;
+      if (!lieu) {
+        alert("⚠️ Veuillez choisir un lieu d'intervention");
+        return;
+      }
+
       const data = {
         type: "grille_detaillee",
-        dateCreation: new Date().toISOString(),
-        lieu: "Grille Détaillée", // On peut améliorer plus tard
-        operation: "Audit Grille Complète",
+        lieu: lieu,
+        operation: "Grille Audit Détaillée",
         chargeAffaire: "Audit Terrain"
       };
 
-      // Récupérer les réponses
       for (let i = 1; i <= 26; i++) {
         const btn = document.querySelector(`#q${i} button.active`);
         data[`q${i}`] = btn ? btn.dataset.value : "NC";
@@ -195,12 +215,12 @@
 
         const result = await response.json();
         if (result.success) {
-          alert("✅ Grille détaillée enregistrée avec succès dans la base !");
+          alert("✅ Grille détaillée enregistrée avec succès !");
         } else {
           alert("❌ Erreur : " + result.error);
         }
       } catch (e) {
-        alert("❌ Impossible d'enregistrer la grille.");
+        alert("❌ Impossible d'enregistrer.");
       }
     }
   </script>
