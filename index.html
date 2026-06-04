@@ -55,8 +55,16 @@
 
     function selectType(type) {
       userType = type;
-      document.querySelectorAll('.choice').forEach(c => c.classList.remove('active'));
+      
+      // Reset active state
+      document.getElementById('interne').classList.remove('active');
+      document.getElementById('externe').classList.remove('active');
       document.getElementById(type).classList.add('active');
+
+      // Show the correct email field
+      document.getElementById('emailInterne').style.display = type === 'interne' ? 'block' : 'none';
+      document.getElementById('emailExterne').style.display = type === 'externe' ? 'block' : 'none';
+
       toggleButton();
     }
 
@@ -90,7 +98,7 @@
             dateConnexion: new Date().toISOString()
           })
         });
-      } catch (e) { console.log("Erreur login"); }
+      } catch (e) {}
 
       localStorage.setItem('userEmail', email);
       localStorage.setItem('userType', userType);
