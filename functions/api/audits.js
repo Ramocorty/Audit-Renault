@@ -1,12 +1,7 @@
-// ======================
-// API Audits - Cloudflare Pages Functions
-// ======================
-
 export async function onRequestPost({ request, env }) {
   try {
     const data = await request.json();
 
-    // Détection si c'est une grille détaillée ou un audit normal
     const isGrille = data.type === "grille_detaillee";
 
     const result = await env.DB.prepare(`
@@ -20,7 +15,7 @@ export async function onRequestPost({ request, env }) {
         q21, q22, q23, q24, q25, q26
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
-      data.dateCreation || new Date().toISOString(),
+      new Date().toISOString(),
       data.lieu || '',
       data.dateHeureVisite || '',
       data.operation || '',
@@ -28,45 +23,25 @@ export async function onRequestPost({ request, env }) {
       data.chargeAffaire || '',
       data.entrepriseRang1 || '',
       data.entrepriseRang2 || '',
-      data.arretChantier || '',
-      data.courrierAR || '',
-      data.contreVisite || '',
+      data.arretChantier || 'Non',
+      data.courrierAR || 'Non',
+      data.contreVisite || 'Non',
       data.nomRenault || '',
       data.signatureRenault || '',
       data.nomExterne || '',
       data.signatureExterne || '',
       isGrille ? 'grille_detaillee' : 'audit_standard',
-      data.q1 || 'NC',
-      data.q2 || 'NC',
-      data.q3 || 'NC',
-      data.q4 || 'NC',
-      data.q5 || 'NC',
-      data.q6 || 'NC',
-      data.q7 || 'NC',
-      data.q8 || 'NC',
-      data.q9 || 'NC',
-      data.q10 || 'NC',
-      data.q11 || 'NC',
-      data.q12 || 'NC',
-      data.q13 || 'NC',
-      data.q14 || 'NC',
-      data.q15 || 'NC',
-      data.q16 || 'NC',
-      data.q17 || 'NC',
-      data.q18 || 'NC',
-      data.q19 || 'NC',
-      data.q20 || 'NC',
-      data.q21 || 'NC',
-      data.q22 || 'NC',
-      data.q23 || 'NC',
-      data.q24 || 'NC',
-      data.q25 || 'NC',
+      data.q1 || 'NC', data.q2 || 'NC', data.q3 || 'NC', data.q4 || 'NC', data.q5 || 'NC',
+      data.q6 || 'NC', data.q7 || 'NC', data.q8 || 'NC', data.q9 || 'NC', data.q10 || 'NC',
+      data.q11 || 'NC', data.q12 || 'NC', data.q13 || 'NC', data.q14 || 'NC', data.q15 || 'NC',
+      data.q16 || 'NC', data.q17 || 'NC', data.q18 || 'NC', data.q19 || 'NC', data.q20 || 'NC',
+      data.q21 || 'NC', data.q22 || 'NC', data.q23 || 'NC', data.q24 || 'NC', data.q25 || 'NC',
       data.q26 || 'NC'
     ).run();
 
     return Response.json({ 
       success: true, 
-      message: isGrille ? "Grille détaillée enregistrée" : "Audit enregistré avec succès",
+      message: isGrille ? "Grille détaillée enregistrée" : "Audit enregistré",
       id: result.meta.last_row_id 
     });
 
@@ -76,15 +51,10 @@ export async function onRequestPost({ request, env }) {
   }
 }
 
-// Récupérer tous les audits (pour le dashboard)
 export async function onRequestGet({ env }) {
   try {
-    const { results } = await env.DB.prepare(`
-      SELECT * FROM audits 
-      ORDER BY dateCreation DESC
-    `).all();
-
-    return Response.json(results);
+    const { results } = await env.DB.prepare("SELECT * FROM audits ORDER BY dateCreation DESC").all();
+    return Response.json(results || []);
   } catch (err) {
     console.error(err);
     return Response.json({ success: false, error: err.message }, { status: 500 });
