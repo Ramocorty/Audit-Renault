@@ -6,7 +6,7 @@
   <title>TERRAIN VISION - Renault</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#efdf00">
-  
+ 
   <style>
     :root {
       --black: #000000;
@@ -92,10 +92,9 @@
       <h1>TERRAIN VISION</h1>
       <img src="logo-renault.png" height="45" alt="Renault">
     </div>
-    
+   
     <div class="container">
       <h2>Nouvel Audit Terrain</h2>
-
       <div class="section">
         <label>Lieu d'intervention</label>
         <select id="lieu">
@@ -107,60 +106,48 @@
           <option value="CTA">CTA</option>
           <option value="KIN">KIN</option>
         </select>
-
         <label>Date et heure de la visite</label>
         <input type="datetime-local" id="dateHeure">
-
         <label>Opération réalisée</label>
         <input type="text" id="operation" placeholder="Ex: Travaux de rénovation de climatisation">
-
         <label>Numéro de plan de prévention</label>
         <input type="text" id="plan" placeholder="Ex: 9290-2026-1">
       </div>
-
       <div class="section">
         <label>Chargé d'affaires Renault</label>
         <input type="text" id="charge" placeholder="Nom et prénom">
-
         <label>Entreprise Rang 1</label>
         <input type="text" id="ent1" placeholder="Ex: EIFFAGE">
-
         <label>Entreprise Rang 2</label>
         <input type="text" id="ent2" placeholder="Ex: ITGC">
       </div>
-
       <div class="section">
         <label>Arrêt de chantier nécessaire ?</label>
         <select id="arret">
           <option value="Non">Non</option>
           <option value="Oui">Oui</option>
         </select>
-
         <label>Nécessite courrier avec AR ?</label>
         <select id="courrier">
           <option value="Non">Non</option>
           <option value="Oui">Oui</option>
         </select>
-
         <label>Contre-visite nécessaire ?</label>
         <select id="contrevisite">
           <option value="Non">Non</option>
           <option value="Oui">Oui</option>
         </select>
       </div>
-
       <div class="section">
         <label>Signature Représentant Renault</label>
         <input type="text" id="nomRenault" placeholder="Nom du représentant">
         <canvas id="sigRenault" class="signature-pad"></canvas>
         <button class="btn-signature" onclick="clearSig('Renault')">Effacer</button>
-
         <label>Signature Représentant Entreprise</label>
         <input type="text" id="nomExterne" placeholder="Nom du représentant">
         <canvas id="sigExterne" class="signature-pad"></canvas>
         <button class="btn-signature" onclick="clearSig('Externe')">Effacer</button>
       </div>
-
       <button onclick="validerAudit()">✅ Valider & Sauvegarder l'Audit</button>
     </div>
   </div>
@@ -190,12 +177,13 @@
 
     function startDrawing(e) { drawing = true; draw(e); }
     function stopDrawing() { drawing = false; }
+
     function draw(e) {
       if (!drawing) return;
       const rect = e.target.getBoundingClientRect();
       const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
       const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
-      
+     
       if (e.target.id === 'sigRenault') {
         ctxR.lineTo(x, y);
         ctxR.stroke();
@@ -223,15 +211,53 @@
       initSignature(canvasE, ctxE);
     };
 
-    function validerAudit() {
+    // Nouvelle fonction pour sauvegarder dans Cloudflare D1
+    async function validerAudit() {
       const lieu = document.getElementById('lieu').value;
       if (!lieu) {
         alert("⚠️ Veuillez choisir un lieu d'intervention");
         return;
       }
 
-      alert("✅ Audit enregistré avec succès !\n\nLes signatures ont été capturées.");
-      console.log("Audit complet enregistré");
+      const sigRenault = canvasR.toDataURL('image/png');
+      const sigExterne = canvasE.toDataURL('image/png');
+
+      const auditData = {
+        lieu: lieu,
+        dateHeureVisite: document.getElementById('dateHeure').value,
+        operation: document.getElementById('operation').value,
+        planPrevention: document.getElementById('plan').value,
+        chargeAffaire: document.getElementById('charge').value,
+        entrepriseRang1: document.getElementById('ent1').value,
+        entrepriseRang2: document.getElementById('ent2').value,
+        arretChantier: document.getElementById('arret').value,
+        courrierAR: document.getElementById('courrier').value,
+        contreVisite: document.getElementById('contrevisite').value,
+        nomRenault: document.getElementById('nomRenault').value,
+        signatureRenault: sigRenault,
+        nomExterne: document.getElementById('nomExterne').value,
+        signatureExterne: sigExterne
+      };
+
+      try {
+        const response = await fetch('/api/audits', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(auditData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          alert("✅ Audit enregistré avec succès dans Cloudflare D1 !");
+        } else {
+          alert("❌ Erreur : " + (result.error || "Erreur inconnue"));
+        }
+
+      } catch (error) {
+        console.error(error);
+        alert("❌ Impossible de contacter le serveur. Vérifie ta connexion ou le déploiement.");
+      }
     }
   </script>
 </body>
