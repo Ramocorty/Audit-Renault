@@ -36,7 +36,7 @@
       text-align: center;
     }
     .container { padding: 30px 20px; }
-    h1 { color: var(--black); }
+    h1 { color: var(--black); margin-bottom: 10px; }
     .choice {
       background: #f8f8f8;
       padding: 20px;
@@ -45,10 +45,12 @@
       text-align: center;
       cursor: pointer;
       border: 2px solid transparent;
+      transition: all 0.2s;
     }
     .choice:hover, .choice.active {
       border-color: var(--yellow);
       background: #fff;
+      transform: scale(1.02);
     }
     input {
       width: 100%;
@@ -80,7 +82,7 @@
 
     <div class="container">
       <h2>Identification</h2>
-      <p style="text-align:center; color:#555;">Qui êtes-vous ?</p>
+      <p style="text-align:center; color:#555; margin-bottom:25px;">Qui êtes-vous ?</p>
 
       <div class="choice" id="interne" onclick="selectType('interne')">
         <h3>👨‍💼 Interne Renault</h3>
@@ -106,7 +108,6 @@
       document.getElementById('externe').classList.remove('active');
       document.getElementById(type).classList.add('active');
 
-      // Afficher le champ email correspondant
       document.getElementById('emailInterne').style.display = type === 'interne' ? 'block' : 'none';
       document.getElementById('emailExterne').style.display = type === 'externe' ? 'block' : 'none';
       
@@ -118,19 +119,16 @@
       
       if (userType === 'interne') {
         email = document.getElementById('emailInterne').value.trim();
-        if (!email.endsWith('@renault.com')) {
-          alert("❌ Veuillez utiliser un email @renault.com");
+        if (!email.endsWith('@renault.com') && !email.endsWith('@renaultgroup.com')) {
+          alert("❌ Veuillez utiliser un email Renault (@renault.com)");
           return;
         }
       } else if (userType === 'externe') {
         email = document.getElementById('emailExterne').value.trim();
-        if (!email.includes('@')) {
+        if (!email || !email.includes('@')) {
           alert("❌ Veuillez entrer un email valide");
           return;
         }
-      } else {
-        alert("Veuillez choisir Interne ou Extérieur");
-        return;
       }
 
       if (!email) {
@@ -138,11 +136,12 @@
         return;
       }
 
-      // Sauvegarde temporaire (localStorage)
+      // Sauvegarde des infos utilisateur
       localStorage.setItem('userEmail', email);
       localStorage.setItem('userType', userType);
+      localStorage.setItem('loginTime', new Date().toISOString());
 
-      // Redirection vers la vraie page d'accueil
+      // Redirection vers la page d'accueil
       window.location.href = "home.html";
     }
   </script>
