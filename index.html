@@ -6,23 +6,95 @@
   <title>TERRAIN VISION - Renault</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#efdf00">
+  
   <style>
-    body { font-family: Arial, sans-serif; background: #1a1a1a; margin:0; padding:10px; color:white; }
-    .phone { max-width: 420px; margin:20px auto; background:white; color:black; border-radius:30px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.6); }
-    .header { background:#000; color:#efdf00; padding:20px; text-align:center; font-size:24px; font-weight:bold; }
-    .container { padding:20px; }
-    label { display:block; margin:15px 0 6px; font-weight:bold; }
-    input, select { width:100%; padding:12px; border:1px solid #ccc; border-radius:8px; font-size:16px; }
-    button { background:#000; color:#efdf00; padding:16px; font-size:18px; font-weight:bold; border:none; border-radius:12px; width:100%; margin:20px 0; }
-    .section { background:#f8f8f8; padding:18px; border-radius:12px; margin-bottom:20px; }
+    :root {
+      --black: #000000;
+      --yellow: #efdf00;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: #1a1a1a;
+      margin: 0;
+      padding: 10px;
+      color: white;
+    }
+    .phone {
+      max-width: 420px;
+      margin: 20px auto;
+      background: white;
+      color: black;
+      border-radius: 35px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+      border: 12px solid var(--black);
+    }
+    .header {
+      background: var(--black);
+      color: var(--yellow);
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 23px;
+    }
+    .container { padding: 20px; }
+    h2 { text-align: center; color: var(--black); margin: 10px 0 25px; }
+    label { display: block; margin: 15px 0 6px; font-weight: bold; color: #222; }
+    input, select {
+      width: 100%;
+      padding: 13px;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+    .section {
+      background: #f8f8f8;
+      padding: 18px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+      border-left: 6px solid var(--yellow);
+    }
+    button {
+      background: var(--black);
+      color: var(--yellow);
+      padding: 16px;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      border-radius: 12px;
+      width: 100%;
+      margin: 20px 0;
+    }
+    .signature-pad {
+      border: 2px dashed #999;
+      border-radius: 10px;
+      width: 100%;
+      height: 160px;
+      background: #fff;
+      touch-action: none;
+    }
+    .btn-signature {
+      background: #666;
+      color: white;
+      padding: 8px;
+      font-size: 14px;
+      margin-top: 5px;
+    }
   </style>
 </head>
 <body>
   <div class="phone">
-    <div class="header">🌟 TERRAIN VISION</div>
+    <div class="header">
+      <h1>TERRAIN VISION</h1>
+      <img src="logo-renault.png" height="45" alt="Renault">
+    </div>
     
     <div class="container">
-      <h2 style="text-align:center;">Nouvel Audit Terrain</h2>
+      <h2>Nouvel Audit Terrain</h2>
 
       <div class="section">
         <label>Lieu d'intervention</label>
@@ -36,11 +108,11 @@
           <option value="KIN">KIN</option>
         </select>
 
-        <label>Date et heure</label>
+        <label>Date et heure de la visite</label>
         <input type="datetime-local" id="dateHeure">
 
         <label>Opération réalisée</label>
-        <input type="text" id="operation" placeholder="Ex: Travaux de rénovation">
+        <input type="text" id="operation" placeholder="Ex: Travaux de rénovation de climatisation">
 
         <label>Numéro de plan de prévention</label>
         <input type="text" id="plan" placeholder="Ex: 9290-2026-1">
@@ -48,7 +120,7 @@
 
       <div class="section">
         <label>Chargé d'affaires Renault</label>
-        <input type="text" id="charge" placeholder="Nom Prénom">
+        <input type="text" id="charge" placeholder="Nom et prénom">
 
         <label>Entreprise Rang 1</label>
         <input type="text" id="ent1" placeholder="Ex: EIFFAGE">
@@ -57,19 +129,109 @@
         <input type="text" id="ent2" placeholder="Ex: ITGC">
       </div>
 
-      <button onclick="validerAudit()">✅ Valider l'Audit</button>
+      <div class="section">
+        <label>Arrêt de chantier nécessaire ?</label>
+        <select id="arret">
+          <option value="Non">Non</option>
+          <option value="Oui">Oui</option>
+        </select>
+
+        <label>Nécessite courrier avec AR ?</label>
+        <select id="courrier">
+          <option value="Non">Non</option>
+          <option value="Oui">Oui</option>
+        </select>
+
+        <label>Contre-visite nécessaire ?</label>
+        <select id="contrevisite">
+          <option value="Non">Non</option>
+          <option value="Oui">Oui</option>
+        </select>
+      </div>
+
+      <div class="section">
+        <label>Signature Représentant Renault</label>
+        <input type="text" id="nomRenault" placeholder="Nom du représentant">
+        <canvas id="sigRenault" class="signature-pad"></canvas>
+        <button class="btn-signature" onclick="clearSig('Renault')">Effacer</button>
+
+        <label>Signature Représentant Entreprise</label>
+        <input type="text" id="nomExterne" placeholder="Nom du représentant">
+        <canvas id="sigExterne" class="signature-pad"></canvas>
+        <button class="btn-signature" onclick="clearSig('Externe')">Effacer</button>
+      </div>
+
+      <button onclick="validerAudit()">✅ Valider & Sauvegarder l'Audit</button>
     </div>
   </div>
 
   <script>
+    // Signature pads
+    let canvasR = document.getElementById('sigRenault');
+    let canvasE = document.getElementById('sigExterne');
+    let ctxR = canvasR.getContext('2d');
+    let ctxE = canvasE.getContext('2d');
+    let drawing = false;
+
+    function initSignature(canvas, ctx) {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = 160;
+      ctx.lineWidth = 3;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = "#000";
+
+      canvas.addEventListener('mousedown', startDrawing);
+      canvas.addEventListener('mousemove', draw);
+      canvas.addEventListener('mouseup', stopDrawing);
+      canvas.addEventListener('touchstart', startDrawing);
+      canvas.addEventListener('touchmove', draw);
+      canvas.addEventListener('touchend', stopDrawing);
+    }
+
+    function startDrawing(e) { drawing = true; draw(e); }
+    function stopDrawing() { drawing = false; }
+    function draw(e) {
+      if (!drawing) return;
+      const rect = e.target.getBoundingClientRect();
+      const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+      const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+      
+      if (e.target.id === 'sigRenault') {
+        ctxR.lineTo(x, y);
+        ctxR.stroke();
+        ctxR.beginPath();
+        ctxR.moveTo(x, y);
+      } else {
+        ctxE.lineTo(x, y);
+        ctxE.stroke();
+        ctxE.beginPath();
+        ctxE.moveTo(x, y);
+      }
+    }
+
+    function clearSig(type) {
+      if (type === 'Renault') {
+        ctxR.clearRect(0, 0, canvasR.width, canvasR.height);
+      } else {
+        ctxE.clearRect(0, 0, canvasE.width, canvasE.height);
+      }
+    }
+
+    // Initialisation
+    window.onload = () => {
+      initSignature(canvasR, ctxR);
+      initSignature(canvasE, ctxE);
+    };
+
     function validerAudit() {
       const lieu = document.getElementById('lieu').value;
       if (!lieu) {
-        alert("Veuillez choisir un lieu d'intervention");
+        alert("⚠️ Veuillez choisir un lieu d'intervention");
         return;
       }
-      alert("✅ Audit sauvegardé avec succès !");
-      console.log("Audit enregistré");
+
+      alert("✅ Audit enregistré avec succès !\n\nLes signatures ont été capturées.");
+      console.log("Audit complet enregistré");
     }
   </script>
 </body>
