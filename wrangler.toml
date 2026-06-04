@@ -1,0 +1,7 @@
+name = "audit-renault"
+compatibility_date = "2026-06-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "audit-renault"
+database_id = "ton_id_ici"
