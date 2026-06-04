@@ -49,14 +49,13 @@
       transform: scale(1.03);
       box-shadow: 0 8px 25px rgba(0,0,0,0.15);
     }
-    .consent {
-      background: #fff3cd;
-      color: #856404;
-      padding: 15px;
-      margin: 20px 0;
+    .user-info {
+      background: #e8f5e9;
+      color: #2e7d32;
+      padding: 12px;
       border-radius: 10px;
-      font-size: 14px;
-      border: 1px solid #ffeeba;
+      margin-bottom: 25px;
+      font-size: 15px;
     }
   </style>
 </head>
@@ -68,14 +67,12 @@
     </div>
 
     <div class="container">
-      <h2 style="color:var(--black);">Bienvenue</h2>
-
-      <!-- Consentement RGPD après connexion -->
-      <div class="consent">
-        <strong>Consentement RGPD</strong><br>
-        En utilisant cette application, vous acceptez la collecte de vos données (email, type d'utilisateur, audits réalisés) 
-        dans le cadre du MVP et pour l'amélioration continue de l'outil.
+      <div class="user-info">
+        Connecté en tant que :<br>
+        <strong id="userDisplay"></strong>
       </div>
+
+      <h2 style="color:var(--black);">Que souhaitez-vous faire ?</h2>
 
       <div class="card" onclick="goTo('index-form.html')">
         <h2>📋 Nouvel Audit Simple</h2>
@@ -99,10 +96,12 @@
       window.location.href = page;
     }
 
-    // Protection : redirige vers login si pas connecté
     window.onload = () => {
-      if (!localStorage.getItem('userEmail')) {
-        window.location.href = "index.html";
+      const email = localStorage.getItem('userEmail');
+      if (!email) {
+        window.location.href = "index.html"; // Retour au login si pas connecté
+      } else {
+        document.getElementById('userDisplay').textContent = email;
       }
     };
   </script>
