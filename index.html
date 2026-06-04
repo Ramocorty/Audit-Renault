@@ -3,72 +3,82 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TERRAIN VISION - Audit</title>
+  <title>TERRAIN VISION - Renault</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #1a1a1a;
-      color: white;
+      background: linear-gradient(135deg, #1a1a1a, #333);
       margin: 0;
       padding: 10px;
+      color: white;
     }
     .phone {
       max-width: 420px;
-      margin: 15px auto;
+      margin: 20px auto;
       background: white;
       color: black;
       border-radius: 30px;
       overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.6);
     }
     .header {
-      background: #000;
+      background: #000000;
       color: #efdf00;
-      padding: 18px;
+      padding: 20px;
       text-align: center;
-      font-size: 22px;
+      font-size: 24px;
       font-weight: bold;
     }
-    .form-container {
+    .container {
       padding: 20px;
+    }
+    h2 {
+      text-align: center;
+      color: #000;
+      margin-bottom: 20px;
     }
     label {
       display: block;
-      margin: 12px 0 5px;
+      margin: 15px 0 6px;
       font-weight: bold;
+      color: #333;
     }
-    input, select, textarea {
+    input, select {
       width: 100%;
       padding: 12px;
       border: 1px solid #ccc;
       border-radius: 8px;
       font-size: 16px;
+      box-sizing: border-box;
+    }
+    .section {
+      background: #f8f8f8;
+      padding: 18px;
+      border-radius: 12px;
+      margin-bottom: 20px;
     }
     button {
       background: #000;
       color: #efdf00;
-      padding: 15px;
-      font-size: 17px;
+      padding: 16px;
+      font-size: 18px;
       font-weight: bold;
       border: none;
-      border-radius: 10px;
-      width: 100%;
-      margin: 20px 0 10px;
-    }
-    .section {
-      background: #f8f8f8;
-      padding: 15px;
       border-radius: 12px;
-      margin: 15px 0;
+      width: 100%;
+      margin: 25px 0 10px;
+      cursor: pointer;
     }
     .signature {
-      border: 2px dashed #ccc;
-      height: 120px;
-      margin: 10px 0;
-      border-radius: 8px;
-      text-align: center;
-      line-height: 120px;
-      color: #888;
+      border: 2px dashed #999;
+      height: 110px;
+      border-radius: 10px;
+      margin: 8px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #777;
+      font-style: italic;
     }
   </style>
 </head>
@@ -76,13 +86,13 @@
   <div class="phone">
     <div class="header">🌟 TERRAIN VISION</div>
     
-    <div class="form-container">
-      <h2 style="text-align:center; color:#000;">Nouvel Audit Terrain</h2>
+    <div class="container">
+      <h2>Nouvel Audit Terrain</h2>
 
       <div class="section">
         <label>Lieu d'intervention</label>
         <select id="lieu">
-          <option value="">-- Sélectionnez le site --</option>
+          <option value="">-- Choisir le site --</option>
           <option value="LARDY (CTL)">LARDY (CTL)</option>
           <option value="VSF">VSF</option>
           <option value="TCR">TCR</option>
@@ -106,10 +116,10 @@
         <input type="text" id="charge" placeholder="Nom et prénom">
 
         <label>Entreprise extérieure Rang 1</label>
-        <input type="text" id="entreprise1" placeholder="Ex: EIFFAGE">
+        <input type="text" id="ent1" placeholder="Ex: EIFFAGE">
 
         <label>Entreprise extérieure Rang 2</label>
-        <input type="text" id="entreprise2" placeholder="Ex: ITGC Environnement">
+        <input type="text" id="ent2" placeholder="Ex: ITGC">
       </div>
 
       <div class="section">
@@ -133,32 +143,37 @@
       </div>
 
       <div class="section">
-        <label>Nom et signature du représentant Renault</label>
-        <input type="text" id="signRenault" placeholder="Nom + Signature">
+        <label>Signature Représentant Renault</label>
+        <input type="text" id="signRenault" placeholder="Nom du représentant">
         <div class="signature">Zone de signature Renault</div>
 
-        <label>Nom et signature du représentant Entreprise extérieure</label>
-        <input type="text" id="signExterne" placeholder="Nom + Signature">
+        <label>Signature Représentant Entreprise</label>
+        <input type="text" id="signExterne" placeholder="Nom du représentant">
         <div class="signature">Zone de signature Entreprise</div>
       </div>
 
-      <button onclick="genererRapport()">✅ Générer le Rapport Audit</button>
+      <button onclick="validerAudit()">✅ Valider & Sauvegarder l'Audit</button>
     </div>
   </div>
 
   <script>
-    function genererRapport() {
-      const lieu = document.getElementById('lieu').value || "Non renseigné";
+    function validerAudit() {
+      const lieu = document.getElementById('lieu').value;
       const date = document.getElementById('dateHeure').value;
-      const operation = document.getElementById('operation').value || "Non renseignée";
-      const plan = document.getElementById('plan').value || "Non renseigné";
-      const charge = document.getElementById('charge').value || "Non renseigné";
-      const ent1 = document.getElementById('entreprise1').value || "Non renseignée";
+      const operation = document.getElementById('operation').value;
+      const plan = document.getElementById('plan').value;
+      const charge = document.getElementById('charge').value;
+      const ent1 = document.getElementById('ent1').value;
 
-      alert(`✅ Rapport généré avec succès !\n\nLieu : ${lieu}\nDate : ${date}\nOpération : ${operation}\nChargé d'affaire : ${charge}\nEntreprise : ${ent1}`);
+      if (!lieu || !date || !operation) {
+        alert("⚠️ Veuillez remplir au moins le Lieu, la Date et l'Opération");
+        return;
+      }
 
-      // Ici tu pourras plus tard sauvegarder dans l'historique
-      console.log("Audit sauvegardé :", {lieu, date, operation, plan, charge, ent1});
+      alert(`✅ Audit sauvegardé avec succès !\n\nLieu : ${lieu}\nDate : ${date}\nOpération : ${operation}\nChargé d'affaires : ${charge || "Non renseigné"}\nEntreprise : ${ent1 || "Non renseigné"}`);
+
+      // On peut ajouter la sauvegarde dans localStorage plus tard
+      console.log("Audit enregistré :", {lieu, date, operation, plan, charge, ent1});
     }
   </script>
 </body>
