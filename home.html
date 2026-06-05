@@ -9,54 +9,13 @@
 
   <style>
     :root { --black: #000000; --yellow: #efdf00; }
-    body {
-      font-family: Arial, sans-serif;
-      background: #1a1a1a;
-      margin: 0;
-      padding: 0;
-      color: white;
-    }
-    .phone {
-      max-width: 420px;
-      margin: 20px auto;
-      background: white;
-      color: black;
-      border-radius: 35px;
-      overflow: hidden;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.7);
-      border: 12px solid var(--black);
-      min-height: 680px;
-    }
-    .header {
-      background: var(--black);
-      color: var(--yellow);
-      padding: 15px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .container { padding: 30px 20px; text-align: center; }
-    .user-info {
-      background: #e8f5e9;
-      color: #2e7d32;
-      padding: 12px;
-      border-radius: 10px;
-      margin-bottom: 25px;
-      font-size: 15px;
-    }
-    .card {
-      background: #f8f8f8;
-      padding: 25px 20px;
-      margin: 18px 0;
-      border-radius: 15px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .card:hover {
-      transform: scale(1.03);
-      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-    }
+    body { font-family: Arial, sans-serif; background: #1a1a1a; margin:0; padding:0; color:white; }
+    .phone { max-width:420px; margin:20px auto; background:white; color:black; border-radius:35px; overflow:hidden; box-shadow:0 20px 40px rgba(0,0,0,0.7); border:12px solid var(--black); min-height:680px; }
+    .header { background:var(--black); color:var(--yellow); padding:15px 20px; display:flex; align-items:center; justify-content:space-between; }
+    .container { padding:30px 20px; text-align:center; }
+    .user-info { background:#e8f5e9; color:#2e7d32; padding:12px; border-radius:10px; margin-bottom:25px; }
+    .card { background:#f8f8f8; padding:25px 20px; margin:18px 0; border-radius:15px; box-shadow:0 4px 15px rgba(0,0,0,0.1); cursor:pointer; transition:all 0.2s; }
+    .card:hover { transform:scale(1.03); }
   </style>
 </head>
 <body>
@@ -68,8 +27,7 @@
 
     <div class="container">
       <div class="user-info">
-        Connecté en tant que :<br>
-        <strong id="userDisplay"></strong>
+        Connecté : <strong id="userDisplay"></strong>
       </div>
 
       <h2 style="color:var(--black);">Que souhaitez-vous faire ?</h2>
@@ -99,7 +57,7 @@
     }
 
     function logout() {
-      if (confirm("Voulez-vous vous déconnecter ?")) {
+      if (confirm("Déconnexion ?")) {
         localStorage.clear();
         window.location.href = "index.html";
       }
