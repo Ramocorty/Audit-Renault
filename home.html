@@ -12,6 +12,9 @@
     body { font-family: Arial, sans-serif; background: #1a1a1a; margin:0; padding:0; color:white; }
     .phone { max-width:420px; margin:20px auto; background:white; color:black; border-radius:35px; overflow:hidden; box-shadow:0 20px 40px rgba(0,0,0,0.7); border:12px solid var(--black); min-height:680px; }
     .header { background:var(--black); color:var(--yellow); padding:15px 20px; display:flex; align-items:center; justify-content:space-between; }
+    .nav-menu { display:flex; background:#222; padding:10px; }
+    .nav-btn { flex:1; padding:12px; text-align:center; color:white; text-decoration:none; font-weight:bold; border-radius:8px; margin:0 5px; font-size:13.5px; }
+    .nav-btn.active { background:var(--yellow); color:var(--black); }
     .container { padding:30px 20px; text-align:center; }
     .user-info { background:#e8f5e9; color:#2e7d32; padding:12px; border-radius:10px; margin-bottom:25px; }
     .card { background:#f8f8f8; padding:25px 20px; margin:18px 0; border-radius:15px; box-shadow:0 4px 15px rgba(0,0,0,0.1); cursor:pointer; transition:all 0.2s; }
@@ -25,50 +28,41 @@
       <img src="logo-renault.png" height="45" alt="Renault">
     </div>
 
+    <div class="nav-menu">
+      <a href="index-form.html" class="nav-btn">📋 Audit Simple</a>
+      <a href="grille-detaillee.html" class="nav-btn">📋 Grille Détaillée</a>
+      <a href="dashboard.html" class="nav-btn">📊 KPI</a>
+    </div>
+
     <div class="container">
       <div class="user-info">
         Connecté : <strong id="userDisplay"></strong>
       </div>
-
       <h2 style="color:var(--black);">Que souhaitez-vous faire ?</h2>
 
-      <div class="card" onclick="goTo('index-form.html')">
+      <div class="card" onclick="window.location.href='index-form.html'">
         <h2>📋 Nouvel Audit Simple</h2>
         <p>Audit classique avec signatures</p>
       </div>
 
-      <div class="card" onclick="goTo('grille-detaillee.html')">
+      <div class="card" onclick="window.location.href='grille-detaillee.html'">
         <h2>📋 Grille Détaillée</h2>
-        <p>Audit complet avec 26 points de contrôle</p>
+        <p>Audit complet avec 26 points</p>
       </div>
 
-      <div class="card" onclick="goTo('dashboard.html')">
+      <div class="card" onclick="window.location.href='dashboard.html'">
         <h2>📊 Tableau de Bord KPI</h2>
         <p>Statistiques et conformité</p>
       </div>
-
-      <button onclick="logout()" style="margin-top:40px;background:#666;color:white;padding:12px;">Déconnexion</button>
     </div>
   </div>
 
   <script>
-    function goTo(page) {
-      window.location.href = page;
-    }
-
-    function logout() {
-      if (confirm("Déconnexion ?")) {
-        localStorage.clear();
-        window.location.href = "index.html";
-      }
-    }
-
     window.onload = () => {
-      const email = localStorage.getItem('userEmail');
-      if (!email) {
+      if (!localStorage.getItem('userEmail')) {
         window.location.href = "index.html";
       } else {
-        document.getElementById('userDisplay').textContent = email;
+        document.getElementById('userDisplay').textContent = localStorage.getItem('userEmail');
       }
     };
   </script>
