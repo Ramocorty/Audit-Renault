@@ -1,8 +1,9 @@
+// functions/api/audits.js
 export async function onRequestPost({ request, env }) {
   try {
     const data = await request.json();
 
-    // Login
+    // === LOGIN ===
     if (data.email) {
       await env.DB.prepare(`
         INSERT INTO logins (email, userType, consentRGPD, dateConnexion)
@@ -11,16 +12,21 @@ export async function onRequestPost({ request, env }) {
       return Response.json({ success: true });
     }
 
-    // Audit / Grille
+    // === GRILLE / AUDIT ===
     await env.DB.prepare(`
-      INSERT INTO audits (type, lieu, dateHeureVisite, operation, planPrevention, chargeAffaire,
+      INSERT INTO audits (
+        type, lieu, dateHeureVisite, operation, planPrevention, chargeAffaire,
         entrepriseRang1, entrepriseRang2, arretChantier, courrierAR, contreVisite,
         nomRenault, signatureRenault, nomExterne, signatureExterne,
-        q1,q2,q3,q4,q5,q6,q7,q8,q9,q10,q11,q12,q13,q14,q15,q16,q17,q18,q19,q20,q21,q22,q23,q24,q25,q26)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        q1, q2, q3, q4, q5, q6, q7, q8, q9, q10,
+        q11, q12, q13, q14, q15, q16, q17, q18, q19, q20,
+        q21, q22, q23, q24, q25, q26
+      ) VALUES (
+        ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
+      )
     `).bind(
       data.type || "grille_detaillee",
-      data.lieu,
+      data.lieu || null,
       data.dateHeureVisite || null,
       data.operation || null,
       data.planPrevention || null,
@@ -44,7 +50,7 @@ export async function onRequestPost({ request, env }) {
     return Response.json({ success: true });
 
   } catch (error) {
-    console.error(error);
+    console.error("Erreur D1:", error.message);
     return Response.json({ success: false, error: error.message });
   }
 }
