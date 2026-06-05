@@ -98,9 +98,13 @@
   <script>
     function createOptions(id) {
       const container = document.getElementById(id);
-      if (container) container.innerHTML = `<button onclick="selectOption(this)" data-value="Oui">Oui</button>
-        <button onclick="selectOption(this)" data-value="Non">Non</button>
-        <button onclick="selectOption(this)" data-value="NC">NC</button>`;
+      if (container) {
+        container.innerHTML = `
+          <button onclick="selectOption(this)" data-value="Oui">Oui</button>
+          <button onclick="selectOption(this)" data-value="Non">Non</button>
+          <button onclick="selectOption(this)" data-value="NC">NC</button>
+        `;
+      }
     }
 
     function selectOption(btn) {
@@ -113,7 +117,11 @@
       const lieu = document.getElementById('lieu').value;
       if (!lieu) return alert("Veuillez choisir un lieu");
 
-      const data = { type: "grille_detaillee", lieu: lieu, dateHeureVisite: document.getElementById('dateHeure').value || new Date().toISOString() };
+      const data = {
+        type: "grille_detaillee",
+        lieu: lieu,
+        dateHeureVisite: document.getElementById('dateHeure').value || new Date().toISOString()
+      };
 
       for (let i = 1; i <= 26; i++) {
         const btn = document.querySelector(`#q${i} button.active`);
@@ -127,8 +135,11 @@
           body: JSON.stringify(data)
         });
         const result = await response.json();
-        if (result.success) alert("✅ Grille enregistrée avec succès !");
-        else alert("❌ Erreur : " + (result.error || "Inconnue"));
+        if (result.success) {
+          alert("✅ Grille enregistrée avec succès !");
+        } else {
+          alert("❌ Erreur : " + (result.error || "Inconnue"));
+        }
       } catch (e) {
         alert("❌ Impossible de sauvegarder");
       }
