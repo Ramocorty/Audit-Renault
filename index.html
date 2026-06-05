@@ -6,47 +6,28 @@
   <title>Connexion - Renault Audit</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#efdf00">
-
-  <style>
-    :root { --black: #000000; --yellow: #efdf00; }
-    body { font-family: Arial, sans-serif; background: #1a1a1a; margin:0; padding:0; color:white; display:flex; justify-content:center; }
-    .phone { max-width:420px; width:100%; background:white; color:black; border-radius:35px; overflow:hidden; box-shadow:0 20px 40px rgba(0,0,0,0.7); border:12px solid var(--black); min-height:680px; }
-    .header { background:var(--black); color:var(--yellow); padding:20px; text-align:center; }
-    .container { padding:30px 20px; }
-    .choice { background:#f8f8f8; padding:20px; margin:15px 0; border-radius:15px; text-align:center; cursor:pointer; border:2px solid transparent; }
-    .choice.active { border-color:var(--yellow); background:#fff; }
-    input[type="email"] { width:100%; padding:14px; margin-top:10px; border:2px solid #ddd; border-radius:10px; font-size:16px; }
-    .consent { margin:20px 0; padding:15px; background:#f8f8f8; border-radius:10px; font-size:14px; }
-    button { background:var(--black); color:var(--yellow); padding:16px; font-size:18px; font-weight:bold; border:none; border-radius:12px; width:100%; margin-top:15px; }
-    button:disabled { background:#666; color:#ccc; }
-  </style>
 </head>
-<body>
-  <div class="phone">
-    <div class="header">
+<body style="font-family:Arial;background:#1a1a1a;color:white;display:flex;justify-content:center;">
+  <div style="max-width:420px;width:100%;background:white;color:black;border-radius:35px;overflow:hidden;border:12px solid #000;margin:20px auto;box-shadow:0 20px 40px rgba(0,0,0,0.7);">
+    
+    <div style="background:#000;color:#efdf00;padding:20px;text-align:center;">
       <h1>Renault Audit Terrain</h1>
-      <img src="logo-renault.png" height="45" alt="Renault">
     </div>
 
-    <div class="container">
+    <div style="padding:30px 20px;">
       <h2>Connexion</h2>
 
-      <div class="choice" id="interne" onclick="selectType('interne')">
+      <div onclick="selectType('interne')" id="interne" style="background:#f8f8f8;padding:20px;margin:15px 0;border-radius:15px;text-align:center;cursor:pointer;border:2px solid transparent;">
         <h3>👨‍💼 Interne Renault</h3>
-        <input type="email" id="emailInterne" placeholder="nom.prenom@renault.com" style="display:none;" oninput="toggleButton()">
+        <input type="email" id="emailInterne" placeholder="nom.prenom@renault.com" style="display:none;width:100%;padding:12px;margin-top:10px;" oninput="checkReady()">
       </div>
 
-      <div class="choice" id="externe" onclick="selectType('externe')">
+      <div onclick="selectType('externe')" id="externe" style="background:#f8f8f8;padding:20px;margin:15px 0;border-radius:15px;text-align:center;cursor:pointer;border:2px solid transparent;">
         <h3>🏗️ Extérieur</h3>
-        <input type="email" id="emailExterne" placeholder="votre.email@entreprise.com" style="display:none;" oninput="toggleButton()">
+        <input type="email" id="emailExterne" placeholder="votre.email@entreprise.com" style="display:none;width:100%;padding:12px;margin-top:10px;" oninput="checkReady()">
       </div>
 
-      <div class="consent">
-        <input type="checkbox" id="consentCheck" onchange="toggleButton()">
-        <label for="consentCheck"><strong>Consentement RGPD :</strong> J'accepte la collecte de mes données pour ce MVP et l'amélioration de l'application.</label>
-      </div>
-
-      <button onclick="validerLogin()" id="btnLogin" disabled>Se Connecter</button>
+      <button onclick="validerLogin()" id="btnLogin" disabled style="width:100%;padding:16px;background:#000;color:#efdf00;border:none;border-radius:12px;font-size:18px;margin-top:20px;">Se Connecter</button>
     </div>
   </div>
 
@@ -55,53 +36,38 @@
 
     function selectType(type) {
       userType = type;
-      
-      // Reset active state
-      document.getElementById('interne').classList.remove('active');
-      document.getElementById('externe').classList.remove('active');
-      document.getElementById(type).classList.add('active');
+      document.getElementById('interne').style.borderColor = type === 'interne' ? '#efdf00' : 'transparent';
+      document.getElementById('externe').style.borderColor = type === 'externe' ? '#efdf00' : 'transparent';
 
-      // Show the correct email field
       document.getElementById('emailInterne').style.display = type === 'interne' ? 'block' : 'none';
       document.getElementById('emailExterne').style.display = type === 'externe' ? 'block' : 'none';
-
-      toggleButton();
+      checkReady();
     }
 
-    function toggleButton() {
-      const consentChecked = document.getElementById('consentCheck').checked;
-      let emailOk = false;
-
-      if (userType === 'interne') {
-        emailOk = document.getElementById('emailInterne').value.trim() !== '';
-      } else if (userType === 'externe') {
-        emailOk = document.getElementById('emailExterne').value.trim() !== '';
-      }
-
-      document.getElementById('btnLogin').disabled = !(consentChecked && userType && emailOk);
+    function checkReady() {
+      let ready = false;
+      if (userType === 'interne') ready = document.getElementById('emailInterne').value.trim() !== '';
+      if (userType === 'externe') ready = document.getElementById('emailExterne').value.trim() !== '';
+      document.getElementById('btnLogin').disabled = !ready;
     }
 
     async function validerLogin() {
-      const emailField = userType === 'interne' ? 'emailInterne' : 'emailExterne';
-      const email = document.getElementById(emailField).value.trim();
-
-      if (!email) return alert("Veuillez entrer votre email");
-
-      try {
-        await fetch('/api/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: email,
-            userType: userType,
-            consentRGPD: true,
-            dateConnexion: new Date().toISOString()
-          })
-        });
-      } catch (e) {}
+      const email = userType === 'interne' ? 
+        document.getElementById('emailInterne').value.trim() : 
+        document.getElementById('emailExterne').value.trim();
 
       localStorage.setItem('userEmail', email);
       localStorage.setItem('userType', userType);
+
+      // Essayer d'enregistrer
+      try {
+        await fetch('/api/login', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ email, userType, dateConnexion: new Date().toISOString() })
+        });
+      } catch(e) {}
+
       window.location.href = "home.html";
     }
   </script>
