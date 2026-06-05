@@ -116,7 +116,12 @@
       const lieu = document.getElementById('lieu').value;
       if (!lieu) return alert("Veuillez choisir un lieu");
 
-      const data = { type: "grille_detaillee", lieu: lieu, dateHeureVisite: document.getElementById('dateHeure').value || new Date().toISOString() };
+      const data = {
+        type: "grille_detaillee",
+        lieu: lieu,
+        dateHeureVisite: document.getElementById('dateHeure').value,
+        operation: "Grille Audit Détaillée"
+      };
 
       for (let i = 1; i <= 26; i++) {
         const btn = document.querySelector(`#q${i} button.active`);
@@ -132,11 +137,10 @@
         const result = await response.json();
         if (result.success) alert("✅ Grille enregistrée avec succès !");
       } catch (e) {
-        alert("Erreur d'enregistrement");
+        alert("❌ Erreur d'enregistrement");
       }
     }
 
-    // Initialisation des options
     window.onload = () => {
       if (!localStorage.getItem('userEmail')) {
         window.location.href = "index.html";
