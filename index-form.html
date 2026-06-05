@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Renault Audit Terrain</title>
+  <title>Audit Simple - Renault Audit Terrain</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#efdf00">
 
@@ -189,7 +189,7 @@
       }
     }
 
-    // Initialisation signatures
+    // Initialisation + Protection session
     window.onload = () => {
       if (!localStorage.getItem('userEmail')) {
         window.location.href = "index.html";
