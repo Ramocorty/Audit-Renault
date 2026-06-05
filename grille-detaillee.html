@@ -48,15 +48,12 @@
           <option value="LARDY (CTL)">LARDY (CTL)</option>
           <option value="VSF">VSF</option>
           <option value="TCR">TCR</option>
-          <option value="CRI">CRI</option>
-          <option value="CTA">CTA</option>
-          <option value="KIN">KIN</option>
         </select>
         <label>Date et heure de la visite</label>
         <input type="datetime-local" id="dateHeure">
       </div>
 
-      <h2>Grille d'Audit Terrain Détaillée</h2>
+      <h2>Grille d'Audit Terrain Détaillée (Test)</h2>
 
       <div class="question">1) Plan de prévention affiché ? <div class="options" id="q1"></div></div>
       <div class="question">Habilitations disponibles ? <div class="options" id="q2"></div></div>
@@ -88,10 +85,8 @@
       <div class="question">7) Tri des déchets respecté ? <div class="options" id="q22"></div></div>
       <div class="question">Exutoires validés ? <div class="options" id="q23"></div></div>
       <div class="question">Utilisation raisonnée fluides ? <div class="options" id="q24"></div></div>
-      <div class="question">Moyens de maîtrise présents ? <div class="options" id="q25"></div></div>
-      <div class="question">Rejets dans les eaux OK ? <div class="options" id="q26"></div></div>
 
-      <button id="main-btn" onclick="sauvegarderGrille()">✅ Sauvegarder la Grille Détaillée</button>
+      <button id="main-btn" onclick="sauvegarderGrille()">✅ Sauvegarder la Grille (Test 24 questions)</button>
     </div>
   </div>
 
@@ -123,7 +118,7 @@
         dateHeureVisite: document.getElementById('dateHeure').value || new Date().toISOString()
       };
 
-      for (let i = 1; i <= 26; i++) {
+      for (let i = 1; i <= 24; i++) {
         const btn = document.querySelector(`#q${i} button.active`);
         data[`q${i}`] = btn ? btn.dataset.value : "NC";
       }
@@ -147,7 +142,7 @@
 
     window.onload = () => {
       if (!localStorage.getItem('userEmail')) window.location.href = "index.html";
-      for (let i = 1; i <= 26; i++) createOptions('q' + i);
+      for (let i = 1; i <= 24; i++) createOptions('q' + i);
     };
   </script>
 </body>
