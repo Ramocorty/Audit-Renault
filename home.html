@@ -9,13 +9,54 @@
 
   <style>
     :root { --black: #000000; --yellow: #efdf00; }
-    body { font-family: Arial, sans-serif; background: #1a1a1a; margin:0; padding:0; color:white; }
-    .phone { max-width:420px; margin:20px auto; background:white; color:black; border-radius:35px; overflow:hidden; box-shadow:0 20px 40px rgba(0,0,0,0.7); border:12px solid var(--black); min-height:680px; }
-    .header { background:var(--black); color:var(--yellow); padding:15px 20px; display:flex; align-items:center; justify-content:space-between; }
-    .container { padding:30px 20px; text-align:center; }
-    .user-info { background:#e8f5e9; color:#2e7d32; padding:12px; border-radius:10px; margin-bottom:25px; }
-    .card { background:#f8f8f8; padding:25px 20px; margin:18px 0; border-radius:15px; box-shadow:0 4px 15px rgba(0,0,0,0.1); cursor:pointer; transition:all 0.2s; }
-    .card:hover { transform:scale(1.03); }
+    body {
+      font-family: Arial, sans-serif;
+      background: #1a1a1a;
+      margin: 0;
+      padding: 0;
+      color: white;
+    }
+    .phone {
+      max-width: 420px;
+      margin: 20px auto;
+      background: white;
+      color: black;
+      border-radius: 35px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+      border: 12px solid var(--black);
+      min-height: 680px;
+    }
+    .header {
+      background: var(--black);
+      color: var(--yellow);
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .container { padding: 30px 20px; text-align: center; }
+    .user-info {
+      background: #e8f5e9;
+      color: #2e7d32;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 25px;
+      font-size: 15px;
+    }
+    .card {
+      background: #f8f8f8;
+      padding: 25px 20px;
+      margin: 18px 0;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
   </style>
 </head>
 <body>
@@ -27,14 +68,26 @@
 
     <div class="container">
       <div class="user-info">
-        Connecté : <strong id="userDisplay"></strong>
+        Connecté en tant que :<br>
+        <strong id="userDisplay"></strong>
       </div>
 
-      <h2 style="color:var(--black);">Menu Principal</h2>
+      <h2 style="color:var(--black);">Que souhaitez-vous faire ?</h2>
 
-      <div class="card" onclick="goTo('index-form.html')">📋 Nouvel Audit Simple</div>
-      <div class="card" onclick="goTo('grille-detaillee.html')">📋 Grille Détaillée</div>
-      <div class="card" onclick="goTo('dashboard.html')">📊 KPI</div>
+      <div class="card" onclick="goTo('index-form.html')">
+        <h2>📋 Nouvel Audit Simple</h2>
+        <p>Audit classique avec signatures</p>
+      </div>
+
+      <div class="card" onclick="goTo('grille-detaillee.html')">
+        <h2>📋 Grille Détaillée</h2>
+        <p>Audit complet avec 26 points de contrôle</p>
+      </div>
+
+      <div class="card" onclick="goTo('dashboard.html')">
+        <h2>📊 Tableau de Bord KPI</h2>
+        <p>Statistiques et conformité</p>
+      </div>
 
       <button onclick="logout()" style="margin-top:40px;background:#666;color:white;padding:12px;">Déconnexion</button>
     </div>
@@ -46,17 +99,18 @@
     }
 
     function logout() {
-      if (confirm("Déconnexion ?")) {
+      if (confirm("Voulez-vous vous déconnecter ?")) {
         localStorage.clear();
         window.location.href = "index.html";
       }
     }
 
     window.onload = () => {
-      if (!localStorage.getItem('userEmail')) {
+      const email = localStorage.getItem('userEmail');
+      if (!email) {
         window.location.href = "index.html";
       } else {
-        document.getElementById('userDisplay').textContent = localStorage.getItem('userEmail');
+        document.getElementById('userDisplay').textContent = email;
       }
     };
   </script>
