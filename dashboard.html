@@ -51,11 +51,10 @@
         <h1 id="totalLogins" style="font-size:48px;margin:10px 0;color:var(--black);">0</h1>
       </div>
 
-      <!-- Nouveau KPI Conformité -->
       <div class="stat-card compliance-card">
         <h2>% Conformité Global</h2>
         <h1 id="conformitePercent" style="font-size:52px;margin:10px 0;color:#2e7d32;">0%</h1>
-        <p id="conformiteDetail" style="margin:5px 0; color:#1b5e20;">Calculé sur les grilles détaillées</p>
+        <p id="conformiteDetail" style="margin:5px 0; color:#1b5e20;">Calculé sur les grilles</p>
       </div>
 
       <h2>Audits par site</h2>
@@ -75,53 +74,50 @@
   <script>
     async function loadStats() {
       try {
-        const response = await fetch('/api/audits');
-        const audits = await response.json();
+        const res = await fetch('/api/audits');
+        const audits = await res.json();
 
-        // Total audits
         document.getElementById('totalAudits').textContent = audits.length;
 
-        // Total logins (si tu as l'endpoint)
-        try {
-          const loginRes = await fetch('/api/logins');
-          const logins = await loginRes.json();
-          document.getElementById('totalLogins').textContent = logins.length;
-        } catch(e) {}
-
-        // Calcul % Conformité (uniquement sur les grilles détaillées)
+        // Conformité
         const grilles = audits.filter(a => a.type === "grille_detaillee");
-        let totalQuestions = 0;
-        let totalOui = 0;
-
-        grilles.forEach(grille => {
+        let totalQ = 0, totalOui = 0;
+        grilles.forEach(g => {
           for (let i = 1; i <= 26; i++) {
-            const reponse = grille[`q${i}`];
-            if (reponse) {
-              totalQuestions++;
-              if (reponse === "Oui") totalOui++;
+            const rep = g[`q${i}`];
+            if (rep) {
+              totalQ++;
+              if (rep === "Oui") totalOui++;
             }
           }
         });
-
-        const percent = totalQuestions > 0 ? Math.round((totalOui / totalQuestions) * 100) : 0;
+        const percent = totalQ > 0 ? Math.round((totalOui / totalQ) * 100) : 0;
         document.getElementById('conformitePercent').textContent = percent + "%";
-        document.getElementById('conformiteDetail').textContent = `${totalOui} Oui / ${totalQuestions} questions`;
+        document.getElementById('conformiteDetail').textContent = `${totalOui} Oui / ${totalQ} réponses`;
 
         // Audits par site
         const parSite = {};
         audits.forEach(a => {
-          let site = a.lieu ? a.lieu.trim() : "Non renseigné";
+          const site = a.lieu ? a.lieu.trim() : "Non renseigné";
           parSite[site] = (parSite[site] || 0) + 1;
         });
-
-        let htmlSites = '';
+        let html = '';
         Object.keys(parSite).sort().forEach(site => {
-          htmlSites += `<tr><td>${site}</td><td><strong>${parSite[site]}</strong></td></tr>`;
+          html += `<tr><td>${site}</td><td><strong>${parSite[site]}</strong></td></tr>`;
         });
-        document.getElementById('tableSites').querySelector('tbody').innerHTML = htmlSites || '<tr><td colspan="2">Aucun audit</td></tr>';
+        document.getElementById('tableSites').querySelector('tbody').innerHTML = html || '<tr><td colspan="2">Aucun audit</td></tr>';
+
+        // Derniers audits
+        let htmlDerniers = '';
+        audits.slice(0, 8).forEach(a => {
+          const date = a.dateCreation ? new Date(a.dateCreation).toLocaleDateString('fr-FR') : '—';
+          htmlDerniers += `<tr><td>${date}</td><td>${a.type || 'audit'}</td><td>${a.lieu || '—'}</td></tr>`;
+        });
+        document.getElementById('tableDerniers').querySelector('tbody').innerHTML = htmlDerniers || '<tr><td colspan="3">Aucun audit récent</td></tr>';
 
       } catch (e) {
         console.error(e);
+        alert("Erreur de chargement des KPI. Vérifie ta connexion.");
       }
     }
 
