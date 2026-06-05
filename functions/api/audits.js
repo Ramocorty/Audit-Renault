@@ -3,29 +3,33 @@ export async function onRequestPost({ request, env }) {
   try {
     const data = await request.json();
 
-    // === LOGIN ===
+    // LOGIN
     if (data.email && data.userType) {
       await env.DB.prepare(`
         INSERT INTO logins (email, userType, consentRGPD, dateConnexion)
         VALUES (?, ?, ?, ?)
-      `).bind(data.email, data.userType, data.consentRGPD || true, data.dateConnexion || new Date().toISOString()).run();
-      
+      `).bind(
+        data.email,
+        data.userType,
+        data.consentRGPD || true,
+        data.dateConnexion || new Date().toISOString()
+      ).run();
       return Response.json({ success: true });
     }
 
-    // === AUDIT / GRILLE ===
-    const stmt = await env.DB.prepare(`
+    // AUDIT / GRILLE
+    await env.DB.prepare(`
       INSERT INTO audits (
         type, lieu, dateHeureVisite, operation, planPrevention, chargeAffaire,
         entrepriseRang1, entrepriseRang2, arretChantier, courrierAR, contreVisite,
         nomRenault, signatureRenault, nomExterne, signatureExterne,
-        q1,q2,q3,q4,q5,q6,q7,q8,q9,q10,q11,q12,q13,q14,q15,q16,q17,q18,q19,q20,q21,q22,q23,q24,q25,q26
+        q1, q2, q3, q4, q5, q6, q7, q8, q9, q10,
+        q11, q12, q13, q14, q15, q16, q17, q18, q19, q20,
+        q21, q22, q23, q24, q25, q26
       ) VALUES (
         ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
       )
-    `);
-
-    await stmt.bind(
+    `).bind(
       data.type || "audit_simple",
       data.lieu,
       data.dateHeureVisite || null,
@@ -51,7 +55,7 @@ export async function onRequestPost({ request, env }) {
     return Response.json({ success: true });
 
   } catch (error) {
-    console.error(error);
+    console.error("Erreur sauvegarde :", error);
     return Response.json({ success: false, error: error.message }, { status: 500 });
   }
 }
