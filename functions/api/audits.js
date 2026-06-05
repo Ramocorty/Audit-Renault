@@ -1,36 +1,25 @@
-// functions/api/audits.js
 export async function onRequestPost({ request, env }) {
   try {
     const data = await request.json();
 
-    // LOGIN
-    if (data.email && data.userType) {
+    // Login
+    if (data.email) {
       await env.DB.prepare(`
         INSERT INTO logins (email, userType, consentRGPD, dateConnexion)
         VALUES (?, ?, ?, ?)
-      `).bind(
-        data.email,
-        data.userType,
-        data.consentRGPD || true,
-        data.dateConnexion || new Date().toISOString()
-      ).run();
+      `).bind(data.email, data.userType || 'externe', true, new Date().toISOString()).run();
       return Response.json({ success: true });
     }
 
-    // AUDIT / GRILLE
+    // Audit / Grille
     await env.DB.prepare(`
-      INSERT INTO audits (
-        type, lieu, dateHeureVisite, operation, planPrevention, chargeAffaire,
+      INSERT INTO audits (type, lieu, dateHeureVisite, operation, planPrevention, chargeAffaire,
         entrepriseRang1, entrepriseRang2, arretChantier, courrierAR, contreVisite,
         nomRenault, signatureRenault, nomExterne, signatureExterne,
-        q1, q2, q3, q4, q5, q6, q7, q8, q9, q10,
-        q11, q12, q13, q14, q15, q16, q17, q18, q19, q20,
-        q21, q22, q23, q24, q25, q26
-      ) VALUES (
-        ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
-      )
+        q1,q2,q3,q4,q5,q6,q7,q8,q9,q10,q11,q12,q13,q14,q15,q16,q17,q18,q19,q20,q21,q22,q23,q24,q25,q26)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
     `).bind(
-      data.type || "audit_simple",
+      data.type || "grille_detaillee",
       data.lieu,
       data.dateHeureVisite || null,
       data.operation || null,
@@ -55,8 +44,8 @@ export async function onRequestPost({ request, env }) {
     return Response.json({ success: true });
 
   } catch (error) {
-    console.error("Erreur sauvegarde :", error);
-    return Response.json({ success: false, error: error.message }, { status: 500 });
+    console.error(error);
+    return Response.json({ success: false, error: error.message });
   }
 }
 
