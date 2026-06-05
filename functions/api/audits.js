@@ -3,7 +3,7 @@ export async function onRequestPost({ request, env }) {
   try {
     const data = await request.json();
 
-    // === LOGIN ===
+    // Login
     if (data.email) {
       await env.DB.prepare(`
         INSERT INTO logins (email, userType, consentRGPD, dateConnexion)
@@ -12,7 +12,7 @@ export async function onRequestPost({ request, env }) {
       return Response.json({ success: true });
     }
 
-    // === GRILLE / AUDIT ===
+    // Grille / Audit - Correspondance exacte avec la table
     await env.DB.prepare(`
       INSERT INTO audits (
         type, lieu, dateHeureVisite, operation, planPrevention, chargeAffaire,
@@ -26,7 +26,7 @@ export async function onRequestPost({ request, env }) {
       )
     `).bind(
       data.type || "grille_detaillee",
-      data.lieu || null,
+      data.lieu,
       data.dateHeureVisite || null,
       data.operation || null,
       data.planPrevention || null,
@@ -50,7 +50,7 @@ export async function onRequestPost({ request, env }) {
     return Response.json({ success: true });
 
   } catch (error) {
-    console.error("Erreur D1:", error.message);
+    console.error("Erreur :", error.message);
     return Response.json({ success: false, error: error.message });
   }
 }
