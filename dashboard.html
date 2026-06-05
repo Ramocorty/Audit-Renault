@@ -9,86 +9,19 @@
 
   <style>
     :root { --black: #000000; --yellow: #efdf00; }
-    body {
-      font-family: Arial, sans-serif;
-      background: #1a1a1a;
-      margin: 0;
-      padding: 0;
-      color: white;
-    }
-    .phone {
-      max-width: 420px;
-      margin: 20px auto;
-      background: white;
-      color: black;
-      border-radius: 35px;
-      overflow: hidden;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.7);
-      border: 12px solid var(--black);
-      min-height: 680px;
-    }
-    .header {
-      background: var(--black);
-      color: var(--yellow);
-      padding: 15px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .nav-menu {
-      display: flex;
-      background: #222;
-      padding: 10px;
-    }
-    .nav-btn {
-      flex: 1;
-      padding: 12px;
-      text-align: center;
-      color: white;
-      text-decoration: none;
-      font-weight: bold;
-      border-radius: 8px;
-      margin: 0 5px;
-      font-size: 13.5px;
-    }
-    .nav-btn.active {
-      background: var(--yellow);
-      color: var(--black);
-    }
-    .container { padding: 20px; }
-    h2 { text-align: center; color: var(--black); margin: 20px 0 15px; }
-    .stat-card {
-      background: #f8f8f8;
-      padding: 18px;
-      border-radius: 12px;
-      margin-bottom: 15px;
-      text-align: center;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 15px 0;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 10px;
-      text-align: left;
-    }
-    th {
-      background: var(--black);
-      color: var(--yellow);
-    }
-    button {
-      background: var(--black);
-      color: var(--yellow);
-      padding: 14px;
-      font-size: 16px;
-      font-weight: bold;
-      border: none;
-      border-radius: 10px;
-      width: 100%;
-      margin: 10px 0;
-    }
+    body { font-family: Arial, sans-serif; background: #1a1a1a; margin:0; padding:0; color:white; }
+    .phone { max-width:420px; margin:20px auto; background:white; color:black; border-radius:35px; overflow:hidden; box-shadow:0 20px 40px rgba(0,0,0,0.7); border:12px solid var(--black); min-height:680px; }
+    .header { background:var(--black); color:var(--yellow); padding:15px 20px; display:flex; align-items:center; justify-content:space-between; }
+    .nav-menu { display:flex; background:#222; padding:10px; }
+    .nav-btn { flex:1; padding:12px; text-align:center; color:white; text-decoration:none; font-weight:bold; border-radius:8px; margin:0 5px; font-size:13.5px; }
+    .nav-btn.active { background:var(--yellow); color:var(--black); }
+    .container { padding:20px; }
+    h2 { text-align:center; color:var(--black); margin:20px 0 15px; }
+    .stat-card { background:#f8f8f8; padding:18px; border-radius:12px; margin-bottom:15px; text-align:center; }
+    table { width:100%; border-collapse:collapse; margin:15px 0; }
+    th, td { border:1px solid #ddd; padding:10px; text-align:left; }
+    th { background:var(--black); color:var(--yellow); }
+    button { background:var(--black); color:var(--yellow); padding:14px; font-size:16px; font-weight:bold; border:none; border-radius:10px; width:100%; margin:10px 0; }
   </style>
 </head>
 <body>
@@ -109,7 +42,7 @@
 
       <div class="stat-card">
         <h2>Nombre total d'audits</h2>
-        <h1 id="totalAudits" style="font-size: 48px; margin: 10px 0; color: var(--black);">0</h1>
+        <h1 id="totalAudits" style="font-size:48px;margin:10px 0;color:var(--black);">0</h1>
       </div>
 
       <h2>Audits par site</h2>
@@ -136,10 +69,8 @@
 
         const parSite = {};
         audits.forEach(a => {
-          let site = a.lieu?.trim();
-          if (site && site !== "") {
-            parSite[site] = (parSite[site] || 0) + 1;
-          }
+          let site = a.lieu ? a.lieu.trim() : null;
+          if (site) parSite[site] = (parSite[site] || 0) + 1;
         });
 
         let htmlSites = '';
@@ -153,7 +84,7 @@
       }
     }
 
-    // === VÉRIFICATION DE SESSION ===
+    // VÉRIFICATION DE SESSION
     window.onload = () => {
       if (!localStorage.getItem('userEmail')) {
         window.location.href = "index.html";
