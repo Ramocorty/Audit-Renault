@@ -18,6 +18,7 @@
     .container { padding:20px; }
     h2 { text-align:center; color:var(--black); margin:20px 0 15px; }
     .stat-card { background:#f8f8f8; padding:18px; border-radius:12px; margin-bottom:15px; text-align:center; }
+    .compliance-card { background:linear-gradient(135deg, #e8f5e9, #c8e6c9); }
     table { width:100%; border-collapse:collapse; margin:15px 0; }
     th, td { border:1px solid #ddd; padding:10px; text-align:left; }
     th { background:var(--black); color:var(--yellow); }
@@ -45,6 +46,18 @@
         <h1 id="totalAudits" style="font-size:48px;margin:10px 0;color:var(--black);">0</h1>
       </div>
 
+      <div class="stat-card">
+        <h2>Nombre de connexions</h2>
+        <h1 id="totalLogins" style="font-size:48px;margin:10px 0;color:var(--black);">0</h1>
+      </div>
+
+      <!-- Nouveau KPI Conformité -->
+      <div class="stat-card compliance-card">
+        <h2>% Conformité Global</h2>
+        <h1 id="conformitePercent" style="font-size:52px;margin:10px 0;color:#2e7d32;">0%</h1>
+        <p id="conformiteDetail" style="margin:5px 0; color:#1b5e20;">Calculé sur les grilles détaillées</p>
+      </div>
+
       <h2>Audits par site</h2>
       <table id="tableSites">
         <thead><tr><th>Site</th><th>Nombre</th></tr></thead>
@@ -65,12 +78,40 @@
         const response = await fetch('/api/audits');
         const audits = await response.json();
 
+        // Total audits
         document.getElementById('totalAudits').textContent = audits.length;
 
+        // Total logins (si tu as l'endpoint)
+        try {
+          const loginRes = await fetch('/api/logins');
+          const logins = await loginRes.json();
+          document.getElementById('totalLogins').textContent = logins.length;
+        } catch(e) {}
+
+        // Calcul % Conformité (uniquement sur les grilles détaillées)
+        const grilles = audits.filter(a => a.type === "grille_detaillee");
+        let totalQuestions = 0;
+        let totalOui = 0;
+
+        grilles.forEach(grille => {
+          for (let i = 1; i <= 26; i++) {
+            const reponse = grille[`q${i}`];
+            if (reponse) {
+              totalQuestions++;
+              if (reponse === "Oui") totalOui++;
+            }
+          }
+        });
+
+        const percent = totalQuestions > 0 ? Math.round((totalOui / totalQuestions) * 100) : 0;
+        document.getElementById('conformitePercent').textContent = percent + "%";
+        document.getElementById('conformiteDetail').textContent = `${totalOui} Oui / ${totalQuestions} questions`;
+
+        // Audits par site
         const parSite = {};
         audits.forEach(a => {
-          let site = a.lieu ? a.lieu.trim() : null;
-          if (site) parSite[site] = (parSite[site] || 0) + 1;
+          let site = a.lieu ? a.lieu.trim() : "Non renseigné";
+          parSite[site] = (parSite[site] || 0) + 1;
         });
 
         let htmlSites = '';
