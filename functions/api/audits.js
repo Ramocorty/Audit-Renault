@@ -5,18 +5,19 @@ export async function onRequestPost({ request, env }) {
     // === LOGIN ===
     if (data.email && data.userType) {
       await env.DB.prepare(`
-        INSERT INTO logins (email, userType, dateConnexion)
-        VALUES (?, ?, ?)
+        INSERT INTO logins (email, userType, consentRGPD, dateConnexion)
+        VALUES (?, ?, ?, ?)
       `).bind(
         data.email,
         data.userType,
+        data.consentRGPD || true,
         data.dateConnexion || new Date().toISOString()
       ).run();
 
       return Response.json({ success: true, message: "Login enregistré" });
     }
 
-    // === AUDIT ou GRILLE ===
+    // === AUDITS & GRILLES (le reste reste inchangé) ===
     const isGrille = data.type === "grille_detaillee";
 
     const result = await env.DB.prepare(`
@@ -54,11 +55,7 @@ export async function onRequestPost({ request, env }) {
       data.q26 || 'NC'
     ).run();
 
-    return Response.json({ 
-      success: true, 
-      message: isGrille ? "Grille enregistrée" : "Audit enregistré",
-      id: result.meta.last_row_id 
-    });
+    return Response.json({ success: true, message: "Enregistré" });
 
   } catch (err) {
     console.error(err);
