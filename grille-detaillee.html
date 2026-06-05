@@ -17,7 +17,10 @@
     .nav-btn.active { background:var(--yellow); color:var(--black); }
     .container { padding:15px; }
     h2 { text-align:center; color:var(--black); margin:20px 0 15px; }
-    .question { background:white; padding:12px; border-radius:10px; margin-bottom:12px; border-left:5px solid var(--yellow); }
+    .section { background:#f8f8f8; padding:15px; border-radius:12px; margin-bottom:20px; }
+    label { font-weight:bold; display:block; margin:12px 0 6px; color:#222; }
+    select, input { width:100%; padding:12px; border:2px solid #ddd; border-radius:8px; font-size:16px; }
+    .question { background:white; padding:12px; border-radius:10px; margin-bottom:12px; border-left:5px solid var(--yellow); font-size:15px; }
     .options { display:flex; gap:8px; margin-top:8px; }
     .options button { flex:1; padding:10px; font-size:14px; border:none; border-radius:8px; cursor:pointer; }
     .options button.active { background:var(--yellow); color:var(--black); font-weight:bold; }
@@ -38,26 +41,107 @@
     </div>
 
     <div class="container">
+      <div class="section">
+        <label>Lieu d'intervention</label>
+        <select id="lieu">
+          <option value="">-- Choisir le site --</option>
+          <option value="LARDY (CTL)">LARDY (CTL)</option>
+          <option value="VSF">VSF</option>
+          <option value="TCR">TCR</option>
+          <option value="CRI">CRI</option>
+          <option value="CTA">CTA</option>
+          <option value="KIN">KIN</option>
+        </select>
+
+        <label>Date et heure de la visite</label>
+        <input type="datetime-local" id="dateHeure">
+      </div>
+
       <h2>Grille d'Audit Terrain Détaillée</h2>
-      <!-- Tes questions ici... -->
+
+      <div class="question">1) Plan de prévention affiché ? <div class="options" id="q1"></div></div>
+      <div class="question">Habilitations disponibles ? <div class="options" id="q2"></div></div>
+      <div class="question">Concordance PdP / travaux ? <div class="options" id="q3"></div></div>
+      <div class="question">Livret d'accueil signé ? <div class="options" id="q4"></div></div>
+      <div class="question">Règles connues par les salariés ? <div class="options" id="q5"></div></div>
+
+      <div class="question">2) Zones dangereuses balisées ? <div class="options" id="q6"></div></div>
+      <div class="question">Balisage visible et respecté ? <div class="options" id="q7"></div></div>
+      <div class="question">Circulation / stationnement OK ? <div class="options" id="q8"></div></div>
+      <div class="question">Ordre et propreté général ? <div class="options" id="q9"></div></div>
+
+      <div class="question">3) Protection collective disponible ? <div class="options" id="q10"></div></div>
+      <div class="question">Protection collective en bon état ? <div class="options" id="q11"></div></div>
+      <div class="question">Protection collective utilisée ? <div class="options" id="q12"></div></div>
+
+      <div class="question">4) EPI disponibles ? <div class="options" id="q13"></div></div>
+      <div class="question">EPI adaptés et en bon état ? <div class="options" id="q14"></div></div>
+      <div class="question">EPI portés correctement ? <div class="options" id="q15"></div></div>
+
+      <div class="question">5) Outillage en bon état ? <div class="options" id="q16"></div></div>
+      <div class="question">Outillage adapté ? <div class="options" id="q17"></div></div>
+      <div class="question">Outillage bien utilisé ? <div class="options" id="q18"></div></div>
+
+      <div class="question">6) FDS disponibles ? <div class="options" id="q19"></div></div>
+      <div class="question">Produits sur rétentions ? <div class="options" id="q20"></div></div>
+      <div class="question">CMR autorisés ? <div class="options" id="q21"></div></div>
+
+      <div class="question">7) Tri des déchets respecté ? <div class="options" id="q22"></div></div>
+      <div class="question">Exutoires validés ? <div class="options" id="q23"></div></div>
+      <div class="question">Utilisation raisonnée fluides ? <div class="options" id="q24"></div></div>
+      <div class="question">Moyens de maîtrise présents ? <div class="options" id="q25"></div></div>
+      <div class="question">Rejets dans les eaux OK ? <div class="options" id="q26"></div></div>
 
       <button id="main-btn" onclick="sauvegarderGrille()">✅ Sauvegarder la Grille Détaillée</button>
     </div>
   </div>
 
   <script>
-    // Ton code existant pour les questions...
-
-    async function sauvegarderGrille() {
-      // Ton code de sauvegarde...
-      alert("✅ Grille sauvegardée !");
+    function createOptions(id) {
+      const container = document.getElementById(id);
+      container.innerHTML = `
+        <button onclick="selectOption(this)" data-value="Oui">Oui</button>
+        <button onclick="selectOption(this)" data-value="Non">Non</button>
+        <button onclick="selectOption(this)" data-value="NC">NC</button>
+      `;
     }
 
-    // === VÉRIFICATION DE SESSION ===
+    function selectOption(btn) {
+      const parent = btn.parentElement;
+      Array.from(parent.children).forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    async function sauvegarderGrille() {
+      const lieu = document.getElementById('lieu').value;
+      if (!lieu) return alert("Veuillez choisir un lieu");
+
+      const data = { type: "grille_detaillee", lieu: lieu, dateHeureVisite: document.getElementById('dateHeure').value || new Date().toISOString() };
+
+      for (let i = 1; i <= 26; i++) {
+        const btn = document.querySelector(`#q${i} button.active`);
+        data[`q${i}`] = btn ? btn.dataset.value : "NC";
+      }
+
+      try {
+        const response = await fetch('/api/audits', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await response.json();
+        if (result.success) alert("✅ Grille enregistrée avec succès !");
+      } catch (e) {
+        alert("Erreur d'enregistrement");
+      }
+    }
+
+    // Initialisation des options
     window.onload = () => {
       if (!localStorage.getItem('userEmail')) {
         window.location.href = "index.html";
       }
+      for (let i = 1; i <= 26; i++) createOptions('q' + i);
     };
   </script>
 </body>
