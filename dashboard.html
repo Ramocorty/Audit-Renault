@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Renault Audit Terrain</title>
+  <title>KPI - Renault Audit Terrain</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#efdf00">
 
@@ -30,7 +30,7 @@
     .header {
       background: var(--black);
       color: var(--yellow);
-      padding: 12px 20px;
+      padding: 15px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -134,13 +134,12 @@
 
         document.getElementById('totalAudits').textContent = audits.length;
 
-        // Audits par site (propre)
         const parSite = {};
         audits.forEach(a => {
-          let site = a.lieu || "Non renseigné";
-          // Nettoyage si "Grille Détaillée" est mal passé
-          if (site.includes("Grille") || site === "") site = "Non renseigné";
-          parSite[site] = (parSite[site] || 0) + 1;
+          let site = a.lieu?.trim();
+          if (site && site !== "") {
+            parSite[site] = (parSite[site] || 0) + 1;
+          }
         });
 
         let htmlSites = '';
@@ -149,26 +148,19 @@
         });
         document.getElementById('tableSites').querySelector('tbody').innerHTML = htmlSites || '<tr><td colspan="2">Aucun audit</td></tr>';
 
-        // Derniers audits
-        let htmlDerniers = '';
-        audits.slice(0, 10).forEach(a => {
-          const date = new Date(a.dateCreation).toLocaleDateString('fr-FR', {day:'2-digit', month:'2-digit'});
-          const type = a.type_audit === 'grille_detaillee' ? 'Grille' : 'Audit';
-          htmlDerniers += `<tr>
-            <td>${date}</td>
-            <td>${type}</td>
-            <td>${a.lieu || '-'}</td>
-          </tr>`;
-        });
-        document.getElementById('tableDerniers').querySelector('tbody').innerHTML = htmlDerniers || '<tr><td colspan="3">Aucun audit</td></tr>';
-
       } catch (e) {
         console.error(e);
-        alert("Erreur de chargement : " + e.message);
       }
     }
 
-    window.onload = loadStats;
+    // === VÉRIFICATION DE SESSION ===
+    window.onload = () => {
+      if (!localStorage.getItem('userEmail')) {
+        window.location.href = "index.html";
+      } else {
+        loadStats();
+      }
+    };
   </script>
 </body>
 </html>
