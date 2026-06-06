@@ -3,41 +3,28 @@ export async function onRequestPost({ request, env }) {
   try {
     const data = await request.json();
 
-    // LOGIN
+    // Login
     if (data.email) {
-      await env.DB.prepare(`
-        INSERT INTO logins (email, userType, consentRGPD, dateConnexion)
-        VALUES (?, ?, ?, ?)
-      `).bind(data.email, data.userType || 'externe', true, new Date().toISOString()).run();
+      await env.DB.prepare("INSERT INTO logins (email, userType, consentRGPD, dateConnexion) VALUES (?, ?, ?, ?)")
+        .bind(data.email, data.userType || 'externe', true, new Date().toISOString())
+        .run();
       return Response.json({ success: true });
     }
 
-    // AUDIT + GRILLE (41 valeurs)
+    // Sauvegarde Audit + Grille (version stable)
     await env.DB.prepare(`
-      INSERT INTO audits (
-        type, lieu, dateHeureVisite, operation, planPrevention, chargeAffaire,
+      INSERT INTO audits (type, lieu, dateHeureVisite, operation, planPrevention, chargeAffaire,
         entrepriseRang1, entrepriseRang2, arretChantier, courrierAR, contreVisite,
         nomRenault, signatureRenault, nomExterne, signatureExterne,
-        q1,q2,q3,q4,q5,q6,q7,q8,q9,q10,q11,q12,q13,q14,q15,q16,q17,q18,q19,q20,q21,q22,q23,q24,q25,q26
-      ) VALUES (
-        ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
-      )
+        q1,q2,q3,q4,q5,q6,q7,q8,q9,q10,q11,q12,q13,q14,q15,q16,q17,q18,q19,q20,q21,q22,q23,q24,q25,q26)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
     `).bind(
       data.type || "grille_detaillee",
-      data.lieu || null,
+      data.lieu,
       data.dateHeureVisite || null,
       data.operation || null,
-      data.planPrevention || null,
-      data.chargeAffaire || null,
-      data.entrepriseRang1 || null,
-      data.entrepriseRang2 || null,
-      data.arretChantier || null,
-      data.courrierAR || null,
-      data.contreVisite || null,
-      data.nomRenault || null,
-      data.signatureRenault || null,
-      data.nomExterne || null,
-      data.signatureExterne || null,
+      null, null, null, null, null, null, null,
+      null, null, null, null,
       data.q1 || "NC", data.q2 || "NC", data.q3 || "NC", data.q4 || "NC", data.q5 || "NC",
       data.q6 || "NC", data.q7 || "NC", data.q8 || "NC", data.q9 || "NC", data.q10 || "NC",
       data.q11 || "NC", data.q12 || "NC", data.q13 || "NC", data.q14 || "NC", data.q15 || "NC",
@@ -48,7 +35,7 @@ export async function onRequestPost({ request, env }) {
     return Response.json({ success: true });
 
   } catch (error) {
-    console.error("Erreur :", error.message);
+    console.error(error);
     return Response.json({ success: false, error: error.message });
   }
 }
