@@ -75,6 +75,7 @@
   <script>
     async function loadStats() {
       try {
+        // Audits
         const resAudits = await fetch('/api/audits');
         const audits = await resAudits.json();
         document.getElementById('totalAudits').textContent = audits.length;
