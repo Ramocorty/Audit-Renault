@@ -84,6 +84,22 @@
         const logins = await resLogins.json();
         document.getElementById('totalLogins').textContent = logins.length || 0;
 
+        // Conformité
+        const grilles = audits.filter(a => a.type === "grille_detaillee");
+        let totalQ = 0, totalOui = 0;
+        grilles.forEach(g => {
+          for (let i = 1; i <= 26; i++) {
+            const rep = g[`q${i}`];
+            if (rep) {
+              totalQ++;
+              if (rep === "Oui") totalOui++;
+            }
+          }
+        });
+        const percent = totalQ > 0 ? Math.round((totalOui / totalQ) * 100) : 0;
+        document.getElementById('conformitePercent').textContent = percent + "%";
+        document.getElementById('conformiteDetail').textContent = `${totalOui} Oui / ${totalQ} réponses`;
+
       } catch (e) {
         console.error(e);
       }
