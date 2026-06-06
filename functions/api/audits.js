@@ -43,7 +43,7 @@ export async function onRequestGet({ env }) {
   return Response.json(results || []);
 }
 
-// GET pour logins (nouveau endpoint)
+// GET pour logins (important pour le compteur dans KPI)
 export async function onRequestGetLogins({ env }) {
   const { results } = await env.DB.prepare("SELECT * FROM logins ORDER BY dateConnexion DESC").all();
   return Response.json(results || []);
