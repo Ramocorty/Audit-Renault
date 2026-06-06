@@ -38,6 +38,7 @@
       <div class="user-info">
         Connecté : <strong id="userDisplay"></strong>
       </div>
+
       <h2 style="color:var(--black);">Que souhaitez-vous faire ?</h2>
 
       <div class="card" onclick="window.location.href='index-form.html'">
@@ -47,22 +48,32 @@
 
       <div class="card" onclick="window.location.href='grille-detaillee.html'">
         <h2>📋 Grille Détaillée</h2>
-        <p>Audit complet avec 26 points</p>
+        <p>Audit complet avec 26 points de contrôle</p>
       </div>
 
       <div class="card" onclick="window.location.href='dashboard.html'">
         <h2>📊 Tableau de Bord KPI</h2>
         <p>Statistiques et conformité</p>
       </div>
+
+      <button onclick="logout()" style="margin-top:40px;background:#666;color:white;padding:12px;width:100%;">Déconnexion</button>
     </div>
   </div>
 
   <script>
+    function logout() {
+      if (confirm("Voulez-vous vous déconnecter ?")) {
+        localStorage.clear();
+        window.location.href = "index.html";
+      }
+    }
+
     window.onload = () => {
-      if (!localStorage.getItem('userEmail')) {
+      const email = localStorage.getItem('userEmail');
+      if (!email) {
         window.location.href = "index.html";
       } else {
-        document.getElementById('userDisplay').textContent = localStorage.getItem('userEmail');
+        document.getElementById('userDisplay').textContent = email;
       }
     };
   </script>
