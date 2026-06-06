@@ -55,9 +55,7 @@
 
     async function startCamera() {
       try {
-        stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { facingMode: "environment" } 
-        });
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
         video.srcObject = stream;
       } catch (err) {
         alert("Impossible d'accéder à la caméra");
@@ -72,12 +70,27 @@
       photoPreview.style.display = 'block';
     }
 
-    function savePhoto() {
-      if (photoPreview.src && photoPreview.src !== "") {
-        alert("✅ Photo sauvegardée (stockage sera ajouté plus tard)");
-        // On pourra améliorer le stockage plus tard
-      } else {
+    async function savePhoto() {
+      if (!photoPreview.src || photoPreview.src === "") {
         alert("Prenez d'abord une photo");
+        return;
+      }
+
+      const email = localStorage.getItem('userEmail') || "inconnu";
+
+      try {
+        await fetch('/api/photos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: email,
+            photo_base64: photoPreview.src,
+            description: "Photo audit " + new Date().toLocaleString('fr-FR')
+          })
+        });
+        alert("✅ Photo sauvegardée avec succès !");
+      } catch (e) {
+        alert("❌ Erreur lors de la sauvegarde de la photo");
       }
     }
 
