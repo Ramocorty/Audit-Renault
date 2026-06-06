@@ -3,7 +3,7 @@ export async function onRequestPost({ request, env }) {
   try {
     const data = await request.json();
 
-    // === LOGIN ===
+    // LOGIN
     if (data.email) {
       await env.DB.prepare(`
         INSERT INTO logins (email, userType, consentRGPD, dateConnexion)
@@ -12,7 +12,7 @@ export async function onRequestPost({ request, env }) {
       return Response.json({ success: true });
     }
 
-    // === AUDIT + GRILLE (version exacte 42 valeurs) ===
+    // AUDIT + GRILLE (41 valeurs)
     await env.DB.prepare(`
       INSERT INTO audits (
         type, lieu, dateHeureVisite, operation, planPrevention, chargeAffaire,
@@ -38,17 +38,17 @@ export async function onRequestPost({ request, env }) {
       data.signatureRenault || null,
       data.nomExterne || null,
       data.signatureExterne || null,
-      data.q1 || null, data.q2 || null, data.q3 || null, data.q4 || null, data.q5 || null,
-      data.q6 || null, data.q7 || null, data.q8 || null, data.q9 || null, data.q10 || null,
-      data.q11 || null, data.q12 || null, data.q13 || null, data.q14 || null, data.q15 || null,
-      data.q16 || null, data.q17 || null, data.q18 || null, data.q19 || null, data.q20 || null,
-      data.q21 || null, data.q22 || null, data.q23 || null, data.q24 || null, data.q25 || null, data.q26 || null
+      data.q1 || "NC", data.q2 || "NC", data.q3 || "NC", data.q4 || "NC", data.q5 || "NC",
+      data.q6 || "NC", data.q7 || "NC", data.q8 || "NC", data.q9 || "NC", data.q10 || "NC",
+      data.q11 || "NC", data.q12 || "NC", data.q13 || "NC", data.q14 || "NC", data.q15 || "NC",
+      data.q16 || "NC", data.q17 || "NC", data.q18 || "NC", data.q19 || "NC", data.q20 || "NC",
+      data.q21 || "NC", data.q22 || "NC", data.q23 || "NC", data.q24 || "NC", data.q25 || "NC", data.q26 || "NC"
     ).run();
 
     return Response.json({ success: true });
 
   } catch (error) {
-    console.error("Erreur D1:", error.message);
+    console.error("Erreur :", error.message);
     return Response.json({ success: false, error: error.message });
   }
 }
