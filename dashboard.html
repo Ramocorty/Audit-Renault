@@ -35,6 +35,7 @@
     <div class="nav-menu">
       <a href="index-form.html" class="nav-btn">📋 Audit Simple</a>
       <a href="grille-detaillee.html" class="nav-btn">📋 Grille Détaillée</a>
+      <a href="photo.html" class="nav-btn">📸 Photo</a>
       <a href="dashboard.html" class="nav-btn active">📊 KPI</a>
     </div>
 
@@ -74,12 +75,11 @@
   <script>
     async function loadStats() {
       try {
-        // Audits
         const resAudits = await fetch('/api/audits');
         const audits = await resAudits.json();
         document.getElementById('totalAudits').textContent = audits.length;
 
-        // Logins
+        // Connexions
         const resLogins = await fetch('/api/logins');
         const logins = await resLogins.json();
         document.getElementById('totalLogins').textContent = logins.length;
@@ -99,18 +99,6 @@
         const percent = totalQ > 0 ? Math.round((totalOui / totalQ) * 100) : 0;
         document.getElementById('conformitePercent').textContent = percent + "%";
         document.getElementById('conformiteDetail').textContent = `${totalOui} Oui / ${totalQ} réponses`;
-
-        // Audits par site
-        const parSite = {};
-        audits.forEach(a => {
-          const site = a.lieu ? a.lieu.trim() : "Non renseigné";
-          parSite[site] = (parSite[site] || 0) + 1;
-        });
-        let html = '';
-        Object.keys(parSite).sort().forEach(site => {
-          html += `<tr><td>${site}</td><td><strong>${parSite[site]}</strong></td></tr>`;
-        });
-        document.getElementById('tableSites').querySelector('tbody').innerHTML = html || '<tr><td colspan="2">Aucun audit</td></tr>';
 
       } catch (e) {
         console.error(e);
