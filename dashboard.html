@@ -74,16 +74,15 @@
   <script>
     async function loadStats() {
       try {
-        const res = await fetch('/api/audits');
-        const audits = await res.json();
+        // Audits
+        const resAudits = await fetch('/api/audits');
+        const audits = await resAudits.json();
         document.getElementById('totalAudits').textContent = audits.length;
 
-        // Nombre de connexions
-        try {
-          const loginRes = await fetch('/api/logins');
-          const logins = await loginRes.json();
-          document.getElementById('totalLogins').textContent = logins.length;
-        } catch(e) {}
+        // Logins
+        const resLogins = await fetch('/api/logins');
+        const logins = await resLogins.json();
+        document.getElementById('totalLogins').textContent = logins.length;
 
         // Conformité
         const grilles = audits.filter(a => a.type === "grille_detaillee");
@@ -100,6 +99,18 @@
         const percent = totalQ > 0 ? Math.round((totalOui / totalQ) * 100) : 0;
         document.getElementById('conformitePercent').textContent = percent + "%";
         document.getElementById('conformiteDetail').textContent = `${totalOui} Oui / ${totalQ} réponses`;
+
+        // Audits par site
+        const parSite = {};
+        audits.forEach(a => {
+          const site = a.lieu ? a.lieu.trim() : "Non renseigné";
+          parSite[site] = (parSite[site] || 0) + 1;
+        });
+        let html = '';
+        Object.keys(parSite).sort().forEach(site => {
+          html += `<tr><td>${site}</td><td><strong>${parSite[site]}</strong></td></tr>`;
+        });
+        document.getElementById('tableSites').querySelector('tbody').innerHTML = html || '<tr><td colspan="2">Aucun audit</td></tr>';
 
       } catch (e) {
         console.error(e);
