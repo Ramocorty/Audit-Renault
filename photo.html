@@ -79,7 +79,7 @@
       const email = localStorage.getItem('userEmail') || "inconnu";
 
       try {
-        await fetch('/api/photos', {
+        const response = await fetch('/api/photo', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -88,9 +88,15 @@
             description: "Photo audit " + new Date().toLocaleString('fr-FR')
           })
         });
-        alert("✅ Photo sauvegardée avec succès !");
+
+        const result = await response.json();
+        if (result.success) {
+          alert("✅ Photo sauvegardée avec succès !");
+        } else {
+          alert("❌ Erreur : " + (result.error || "Inconnue"));
+        }
       } catch (e) {
-        alert("❌ Erreur lors de la sauvegarde de la photo");
+        alert("❌ Impossible de sauvegarder la photo");
       }
     }
 
