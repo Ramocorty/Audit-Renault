@@ -138,10 +138,10 @@
         if (result.success) {
           alert("✅ Grille enregistrée avec succès !");
         } else {
-          alert("❌ Erreur serveur : " + (result.error || "Inconnue"));
+          alert("❌ Erreur : " + (result.error || "Inconnue"));
         }
       } catch (e) {
-        alert("❌ Impossible de sauvegarder (erreur réseau)");
+        alert("❌ Impossible de sauvegarder");
       }
     }
 
