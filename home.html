@@ -11,112 +11,109 @@
     :root { --black: #000000; --yellow: #efdf00; }
     body { font-family: Arial, sans-serif; background: #1a1a1a; margin:0; padding:0; color:white; }
     .phone { max-width:420px; margin:20px auto; background:white; color:black; border-radius:35px; overflow:hidden; box-shadow:0 20px 40px rgba(0,0,0,0.7); border:12px solid var(--black); min-height:680px; }
+
     .header { 
-      background: linear-gradient(135deg, var(--black), #222); 
+      background: linear-gradient(135deg, var(--black), #1f1f1f); 
       color: var(--yellow); 
-      padding: 25px 20px; 
+      padding: 40px 20px 30px; 
       text-align:center; 
     }
-    .logo { height: 70px; margin-bottom: 8px; }
+    .logo { height: 85px; margin-bottom: 12px; animation: pulse 2s infinite; }
+    .welcome { font-size: 26px; font-weight: bold; margin: 10px 0 5px; }
+    .user { font-size: 16px; opacity: 0.9; }
 
-    .container { padding: 20px; }
-    h2 { text-align:center; color:var(--black); margin:25px 0 15px; }
+    .container { padding: 25px 20px; }
+    h2 { text-align:center; color:var(--black); margin-bottom:25px; font-size:22px; }
 
-    #map { 
-      height: 280px; 
-      border-radius: 16px; 
-      margin: 15px 0; 
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    }
-
-    .quick-access .card {
+    .card {
       background: #f8f8f8;
-      border-radius: 14px;
-      padding: 18px;
-      margin-bottom: 12px;
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 18px;
       display: flex;
       align-items: center;
-      gap: 15px;
-      cursor: pointer;
+      gap: 20px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      transition: all 0.4s ease;
+      animation: fadeInUp 0.8s ease forwards;
+      opacity: 0;
     }
-    .card-icon { font-size: 38px; width: 60px; }
-  </style>
+    .card:hover {
+      transform: translateY(-8px) scale(1.03);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+    }
+    .card-icon { font-size: 48px; width: 70px; transition: transform 0.4s; }
+    .card:hover .card-icon { transform: scale(1.15); }
+    .card-content h3 { margin: 0 0 6px 0; font-size: 19px; color: var(--black); }
+    .card-content p { margin: 0; color: #444; font-size: 14.5px; }
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+  </style>
 </head>
 <body>
   <div class="phone">
     <div class="header">
       <img src="logo-renault.png" class="logo" alt="Renault">
-      <h2>Audit Terrain</h2>
+      <div class="welcome">Bienvenue sur Audit Terrain</div>
+      <div class="user" id="userDisplay">Utilisateur</div>
     </div>
 
     <div class="container">
-      <h2>Carte des Sites</h2>
-      <div id="map"></div>
+      <h2>Que souhaitez-vous faire aujourd'hui ?</h2>
 
-      <p style="text-align:center; color:#555; margin:10px 0 25px;">Cliquez sur les marqueurs pour ouvrir le KPI du site</p>
-
-      <div class="quick-access">
-        <h2 style="text-align:center; margin:20px 0 15px;">Accès Rapide</h2>
-        
-        <div class="card" onclick="goTo('index-form.html')">
-          <div class="card-icon">📋</div>
-          <div><strong>Audit Simple</strong><br><small>Formulaire rapide</small></div>
+      <div class="card" onclick="goTo('index-form.html')">
+        <div class="card-icon">📋</div>
+        <div class="card-content">
+          <h3>Audit Simple</h3>
+          <p>Formulaire rapide avec signatures digitales</p>
         </div>
+      </div>
 
-        <div class="card" onclick="goTo('grille-detaillee.html')">
-          <div class="card-icon">📊</div>
-          <div><strong>Grille Détaillée</strong><br><small>26 points de contrôle</small></div>
+      <div class="card" onclick="goTo('grille-detaillee.html')">
+        <div class="card-icon">📊</div>
+        <div class="card-content">
+          <h3>Grille Détaillée</h3>
+          <p>Analyse complète en 26 points</p>
         </div>
+      </div>
 
-        <div class="card" onclick="goTo('photo.html')">
-          <div class="card-icon">📸</div>
-          <div><strong>Photo + Analyse IA</strong><br><small>Détection intelligente</small></div>
+      <div class="card" onclick="goTo('photo.html')">
+        <div class="card-icon">📸</div>
+        <div class="card-content">
+          <h3>Photo + Analyse IA</h3>
+          <p>Détection automatique des objets et personnes</p>
         </div>
+      </div>
 
-        <div class="card" onclick="goTo('dashboard.html')">
-          <div class="card-icon">📈</div>
-          <div><strong>Tableau de Bord KPI</strong><br><small>Statistiques & Conformité</small></div>
+      <div class="card" onclick="goTo('dashboard.html')">
+        <div class="card-icon">📈</div>
+        <div class="card-content">
+          <h3>Tableau de Bord KPI</h3>
+          <p>Statistiques, conformité et performance</p>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    let map = L.map('map').setView([48.8, 2.0], 9);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap'
-    }).addTo(map);
-
-    const sites = [
-      { name: "TCR", full: "Techno-centre Guyancourt", lat: 48.766, lng: 2.046 },
-      { name: "VSF", full: "Villiers Saint Fréderic", lat: 48.64, lng: 1.89 },
-      { name: "CTL", full: "Lardy", lat: 48.52, lng: 2.25 },
-      { name: "CRI", full: "Boulogne-Billancourt", lat: 48.83, lng: 2.24 },
-      { name: "KIN", full: "Boulogne-Billancourt", lat: 48.835, lng: 2.245 },
-      { name: "CTA", full: "Aubevoye", lat: 49.17, lng: 1.33 }
-    ];
-
-    sites.forEach(site => {
-      const marker = L.marker([site.lat, site.lng]).addTo(map);
-      marker.bindPopup(`<b>${site.name}</b><br>${site.full}`);
-      
-      marker.on('click', () => {
-        localStorage.setItem('selectedSite', site.name);
-        window.location.href = "dashboard.html";
-      });
-    });
-
     function goTo(page) {
       window.location.href = page;
     }
 
     window.onload = () => {
       const email = localStorage.getItem('userEmail');
-      if (!email) window.location.href = "index.html";
+      if (!email) {
+        window.location.href = "index.html";
+      } else {
+        document.getElementById('userDisplay').textContent = email.split('@')[0] || email;
+      }
     };
   </script>
 </body>
