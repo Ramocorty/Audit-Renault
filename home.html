@@ -11,82 +11,93 @@
     :root { --black: #000000; --yellow: #efdf00; }
     body { font-family: Arial, sans-serif; background: #1a1a1a; margin:0; padding:0; color:white; }
     .phone { max-width:420px; margin:20px auto; background:white; color:black; border-radius:35px; overflow:hidden; box-shadow:0 20px 40px rgba(0,0,0,0.7); border:12px solid var(--black); min-height:680px; }
-    .header { background: linear-gradient(135deg, var(--black), #222); color: var(--yellow); padding: 30px 20px; text-align:center; }
-    .logo { height: 75px; margin-bottom: 10px; }
-    .welcome { font-size: 24px; font-weight: bold; }
+    .header { background: linear-gradient(135deg, var(--black), #222); color: var(--yellow); padding: 25px 20px; text-align:center; }
+    .logo { height: 70px; margin-bottom: 8px; }
 
     .container { padding: 20px; }
-    .sites-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin: 25px 0;
+    h2 { text-align:center; color:var(--black); margin:25px 0 15px; }
+
+    .map-container {
+      position: relative;
+      height: 220px;
+      background: #e5e5e5 url('https://i.imgur.com/5v4vL0k.jpg') center/cover;
+      border-radius: 16px;
+      margin: 15px 0;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
-    .site-card {
+    .map-pin {
+      position: absolute;
+      font-size: 26px;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+    .map-pin:hover { transform: scale(1.4); }
+
+    .card {
       background: #f8f8f8;
-      border-radius: 14px;
-      padding: 18px 12px;
-      text-align: center;
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      transition: all 0.3s;
       cursor: pointer;
     }
-    .site-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-    }
-    .site-card h3 { margin: 8px 0 4px; color: var(--black); }
-    .site-card p { margin: 0; font-size: 13px; color: #555; }
+    .card-icon { font-size: 36px; width: 55px; }
   </style>
 </head>
 <body>
   <div class="phone">
     <div class="header">
       <img src="logo-renault.png" class="logo" alt="Renault">
-      <div class="welcome">Audit Terrain</div>
-      <div id="userDisplay" style="font-size:15px; opacity:0.9;"></div>
+      <h2>Audit Terrain</h2>
     </div>
 
     <div class="container">
-      <h2 style="text-align:center; margin-bottom:20px; color:var(--black);">Choisissez un site</h2>
+      <h2>Choisissez un site</h2>
+      
+      <!-- Carte interactive -->
+      <div class="map-container">
+        <div class="map-pin" style="top:42%; left:48%;" onclick="goToSite('TCR')">📍</div>
+        <div class="map-pin" style="top:55%; left:35%;" onclick="goToSite('VSF')">📍</div>
+        <div class="map-pin" style="top:68%; left:52%;" onclick="goToSite('CTL')">📍</div>
+        <div class="map-pin" style="top:32%; left:68%;" onclick="goToSite('CRI')">📍</div>
+      </div>
 
-      <div class="sites-grid">
-        <div class="site-card" onclick="goToSite('TCR')">
-          <h3>TCR</h3>
-          <p>Techno-centre Guyancourt</p>
-        </div>
-        <div class="site-card" onclick="goToSite('VSF')">
-          <h3>VSF</h3>
-          <p>Villiers Saint Fréderic</p>
-        </div>
-        <div class="site-card" onclick="goToSite('CTL')">
-          <h3>CTL</h3>
-          <p>Lardy</p>
-        </div>
-        <div class="site-card" onclick="goToSite('CRI')">
-          <h3>CRI</h3>
-          <p>Boulogne-Billancourt</p>
-        </div>
-        <div class="site-card" onclick="goToSite('KIN')">
-          <h3>KIN</h3>
-          <p>Boulogne-Billancourt</p>
-        </div>
-        <div class="site-card" onclick="goToSite('CTA')">
-          <h3>CTA</h3>
-          <p>Aubevoye</p>
+      <h2 style="margin-top:30px;">Ou accéder directement</h2>
+
+      <div class="card" onclick="goTo('index-form.html')">
+        <div class="card-icon">📋</div>
+        <div>
+          <strong>Audit Simple</strong><br>
+          <small>Formulaire rapide</small>
         </div>
       </div>
 
-      <h2 style="text-align:center; margin:30px 0 15px; color:var(--black);">Ou accéder directement</h2>
+      <div class="card" onclick="goTo('grille-detaillee.html')">
+        <div class="card-icon">📊</div>
+        <div>
+          <strong>Grille Détaillée</strong><br>
+          <small>26 points de contrôle</small>
+        </div>
+      </div>
 
-      <div onclick="goTo('index-form.html')" style="background:#f8f8f8; padding:18px; border-radius:14px; margin-bottom:12px; cursor:pointer;">
-        📋 Audit Simple
+      <div class="card" onclick="goTo('photo.html')">
+        <div class="card-icon">📸</div>
+        <div>
+          <strong>Photo + Analyse IA</strong><br>
+          <small>Détection intelligente</small>
+        </div>
       </div>
-      <div onclick="goTo('grille-detaillee.html')" style="background:#f8f8f8; padding:18px; border-radius:14px; margin-bottom:12px; cursor:pointer;">
-        📋 Grille Détaillée
-      </div>
-      <div onclick="goTo('photo.html')" style="background:#f8f8f8; padding:18px; border-radius:14px; margin-bottom:12px; cursor:pointer;">
-        📸 Photo + Analyse IA
+
+      <div class="card" onclick="goTo('dashboard.html')">
+        <div class="card-icon">📈</div>
+        <div>
+          <strong>Tableau de Bord KPI</strong><br>
+          <small>Statistiques globales</small>
+        </div>
       </div>
     </div>
   </div>
@@ -97,17 +108,13 @@
     }
 
     function goToSite(site) {
-      localStorage.setItem('selectedSite', site);
+      localStorage.setItem('selectedSite', site);   // On enregistre le site choisi
       window.location.href = "dashboard.html";
     }
 
     window.onload = () => {
       const email = localStorage.getItem('userEmail');
-      if (!email) {
-        window.location.href = "index.html";
-      } else {
-        document.getElementById('userDisplay').textContent = email;
-      }
+      if (!email) window.location.href = "index.html";
     };
   </script>
 </body>
