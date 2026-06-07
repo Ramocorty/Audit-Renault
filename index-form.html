@@ -36,7 +36,6 @@
       <a href="photo.html" class="nav-btn">📸 Photo IA</a>
       <a href="dashboard.html" class="nav-btn">📊 KPI</a>
     </div>
- 
     <div class="container">
       <h2>Nouvel Audit Simple</h2>
       <div class="section">
@@ -101,6 +100,7 @@
     let ctxR = canvasR.getContext('2d');
     let ctxE = canvasE.getContext('2d');
     let drawing = false;
+
     function initSignature(canvas, ctx) {
       canvas.width = canvas.offsetWidth;
       canvas.height = 160;
@@ -114,14 +114,16 @@
       canvas.addEventListener('touchmove', draw);
       canvas.addEventListener('touchend', stopDrawing);
     }
+
     function startDrawing(e) { drawing = true; draw(e); }
     function stopDrawing() { drawing = false; }
+
     function draw(e) {
       if (!drawing) return;
       const rect = e.target.getBoundingClientRect();
       const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
       const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
-    
+   
       if (e.target.id === 'sigRenault') {
         ctxR.lineTo(x, y);
         ctxR.stroke();
@@ -134,25 +136,29 @@
         ctxE.moveTo(x, y);
       }
     }
+
     function clearSig(type) {
       if (type === 'Renault') ctxR.clearRect(0, 0, canvasR.width, canvasR.height);
       else ctxE.clearRect(0, 0, canvasE.width, canvasE.height);
     }
+
     async function validerAudit() {
       const lieu = document.getElementById('lieu').value;
       if (!lieu) {
         alert("⚠️ Veuillez choisir un lieu d'intervention");
         return;
       }
+
       const sigRenault = canvasR.toDataURL('image/png');
       const sigExterne = canvasE.toDataURL('image/png');
+
       const auditData = {
         type: "audit_simple",
         lieu: lieu,
         dateHeureVisite: document.getElementById('dateHeure').value,
         operation: document.getElementById('operation').value,
         planPrevention: document.getElementById('plan').value,
-        chargeAffaire: document.getElementById('charge').value,
+        chargeAffaire: document.getElementById('charge').value.trim(),
         entrepriseRang1: document.getElementById('ent1').value,
         entrepriseRang2: document.getElementById('ent2').value,
         arretChantier: document.getElementById('arret').value,
@@ -163,6 +169,7 @@
         nomExterne: document.getElementById('nomExterne').value,
         signatureExterne: sigExterne
       };
+
       try {
         const response = await fetch('/api/audits', {
           method: 'POST',
@@ -179,6 +186,7 @@
         alert("❌ Impossible de sauvegarder.");
       }
     }
+
     window.onload = () => {
       if (!localStorage.getItem('userEmail')) {
         window.location.href = "index.html";
