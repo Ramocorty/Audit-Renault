@@ -3,167 +3,146 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Connexion - Renault Audit Terrain</title>
+  <title>KPI - Renault Audit Terrain</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#efdf00">
 
   <style>
     :root { --black: #000000; --yellow: #efdf00; }
-    body { 
-      font-family: Arial, sans-serif; 
-      background: linear-gradient(135deg, #1a1a1a, #333); 
-      margin:0; padding:0; color:white; 
-      display:flex; justify-content:center; align-items:center; 
-      min-height:100vh;
-    }
-    .phone { 
-      max-width:420px; width:100%; background:white; color:black; 
-      border-radius:35px; overflow:hidden; 
-      box-shadow:0 20px 40px rgba(0,0,0,0.7); 
-      border:12px solid var(--black); 
-      min-height:680px;
-    }
-    .header { 
-      background: linear-gradient(135deg, var(--black), #222); 
-      color: var(--yellow); 
-      padding: 40px 20px 30px; 
-      text-align:center; 
-    }
-    .logo { height: 90px; margin-bottom: 15px; }
-    .title { font-size: 26px; font-weight: bold; margin: 10px 0; }
-    .subtitle { font-size: 16px; opacity: 0.9; }
+    body { font-family: Arial, sans-serif; background: #1a1a1a; margin:0; padding:0; color:white; }
+    .phone { max-width:420px; margin:20px auto; background:white; color:black; border-radius:35px; overflow:hidden; box-shadow:0 20px 40px rgba(0,0,0,0.7); border:12px solid var(--black); min-height:680px; }
+    .header { background:var(--black); color:var(--yellow); padding:15px 20px; display:flex; align-items:center; justify-content:space-between; }
+    .nav-menu { display:flex; background:#222; padding:10px; }
+    .nav-btn { flex:1; padding:12px; text-align:center; color:white; text-decoration:none; font-weight:bold; border-radius:8px; margin:0 5px; font-size:13.5px; }
+    .nav-btn.active { background:var(--yellow); color:var(--black); }
+    .container { padding:20px; }
+    h2 { text-align:center; color:var(--black); margin:20px 0 12px; }
 
-    .container { padding: 30px 25px; }
-    .choice { 
-      background:#f8f8f8; 
-      padding:20px; 
-      margin:15px 0; 
-      border-radius:16px; 
-      text-align:center; 
-      cursor:pointer; 
-      border:3px solid transparent; 
-      transition: all 0.3s;
-    }
-    .choice.active { 
-      border-color:var(--yellow); 
-      background:white; 
-      box-shadow:0 0 0 4px rgba(239, 223, 0, 0.3);
-    }
-    .choice h3 { margin: 10px 0 5px; color:var(--black); }
-    
-    input[type="email"] { 
-      width:100%; padding:15px; margin-top:10px; 
-      border:2px solid #ddd; border-radius:10px; font-size:16px; 
-    }
-    .consent { 
-      margin:25px 0; padding:15px; background:#f8f8f8; 
-      border-radius:12px; font-size:14px; line-height:1.5; 
-    }
-    button { 
-      background:var(--black); color:var(--yellow); 
-      padding:18px; font-size:18px; font-weight:bold; 
-      border:none; border-radius:12px; width:100%; 
-      margin-top:20px; cursor:pointer;
-    }
-    button:disabled { background:#555; color:#aaa; cursor:not-allowed; }
+    .filter-box { background:#f8f8f8; padding:16px; border-radius:12px; margin-bottom:20px; border-left:6px solid var(--yellow); }
+    select { width:100%; padding:16px; font-size:17px; border:2px solid #ddd; border-radius:10px; }
+    button { background:var(--black); color:var(--yellow); padding:16px; font-size:17px; font-weight:bold; border:none; border-radius:12px; width:100%; margin:10px 0; }
+
+    .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+    .stat-card { background:#f8f8f8; padding:18px; border-radius:12px; text-align:center; }
+    .stat-card h3 { margin:0 0 8px 0; font-size:15px; color:#555; }
+    .stat-card h1 { margin:0; font-size:36px; }
+    .score-card { background:linear-gradient(135deg, #e8f5e9, #c8e6c9); grid-column: span 2; padding:20px; text-align:center; }
+
+    table { width:100%; border-collapse:collapse; margin:15px 0; background:white; }
+    th, td { border:1px solid #ccc; padding:12px; text-align:left; }
+    th { background:var(--black); color:var(--yellow); }
+    tr:nth-child(even) { background:#f9f9f9; }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
   <div class="phone">
     <div class="header">
-      <img src="logo-renault.png" class="logo" alt="Renault">
-      <div class="title">Audit Terrain</div>
-      <div class="subtitle">Système de conformité sécurité</div>
+      <h1>Renault Audit Terrain</h1>
+      <img src="logo-renault.png" height="45" alt="Renault">
+    </div>
+
+    <div class="nav-menu">
+      <a href="home.html" class="nav-btn">🏠 Accueil</a>
+      <a href="index-form.html" class="nav-btn">📋 Audit Simple</a>
+      <a href="grille-detaillee.html" class="nav-btn">📋 Grille Détaillée</a>
+      <a href="photo.html" class="nav-btn">📸 Photo IA</a>
+      <a href="dashboard.html" class="nav-btn active">📊 KPI</a>
     </div>
 
     <div class="container">
-      <h2 style="text-align:center; color:var(--black); margin-bottom:25px;">Qui êtes-vous ?</h2>
-
-      <div class="choice" id="interneChoice" onclick="selectType('interne')">
-        <h3>👷 Interne Renault</h3>
-        <p>Employé Renault</p>
+      <div class="filter-box">
+        <label>🔍 Filtrer par site</label>
+        <select id="siteFilter" onchange="loadStats()">
+          <option value="">🌐 Tous les sites</option>
+        </select>
       </div>
 
-      <div class="choice" id="externeChoice" onclick="selectType('externe')">
-        <h3>🏗️ Externe / Prestataire</h3>
-        <p>Société partenaire</p>
+      <button onclick="loadStats()">🔄 Actualiser</button>
+      <button onclick="exportToExcel()">📊 Exporter en Excel</button>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <h3>Audits Simples</h3>
+          <h1 id="simpleCount" style="color:#1976d2;">0</h1>
+        </div>
+        <div class="stat-card">
+          <h3>Grilles Détaillées</h3>
+          <h1 id="grilleCount" style="color:#388e3c;">0</h1>
+        </div>
+        <div class="stat-card">
+          <h3>Non-Conformités</h3>
+          <h1 id="nonCount" style="color:#d32f2f;">0</h1>
+        </div>
+        <div class="stat-card score-card">
+          <h3>Score Global</h3>
+          <h1 id="globalScore" style="font-size:52px;color:#2e7d32;">0%</h1>
+          <p id="scoreLabel" style="margin:5px 0; font-weight:bold;"></p>
+        </div>
       </div>
 
-      <div id="emailInterne" style="display:none;">
-        <label>Email Renault</label>
-        <input type="email" id="emailInterneInput" placeholder="prenom.nom@renault.com" oninput="toggleButton()">
-      </div>
+      <h2>Audits par site</h2>
+      <table id="tableSites">
+        <thead><tr><th>Site</th><th>Nombre</th></tr></thead>
+        <tbody></tbody>
+      </table>
 
-      <div id="emailExterne" style="display:none;">
-        <label>Votre Email</label>
-        <input type="email" id="emailExterneInput" placeholder="votre.email@entreprise.com" oninput="toggleButton()">
-      </div>
-
-      <div class="consent">
-        <input type="checkbox" id="consentCheck" onchange="toggleButton()">
-        <label for="consentCheck" style="display:inline; font-weight:normal;">
-          J'accepte la collecte de mes données dans le cadre de ce MVP Audit Renault 
-          (conformément au RGPD)
-        </label>
-      </div>
-
-      <button id="btnLogin" disabled onclick="validerLogin()">Se Connecter</button>
+      <h2>Derniers Audits Simples</h2>
+      <table id="tableDerniers">
+        <thead><tr><th>Date</th><th>Site</th><th>Opération</th><th>Chargé</th></tr></thead>
+        <tbody></tbody>
+      </table>
     </div>
   </div>
 
   <script>
-    let userType = null;
-
-    function selectType(type) {
-      userType = type;
-      
-      document.getElementById('interneChoice').classList.toggle('active', type === 'interne');
-      document.getElementById('externeChoice').classList.toggle('active', type === 'externe');
-
-      document.getElementById('emailInterne').style.display = type === 'interne' ? 'block' : 'none';
-      document.getElementById('emailExterne').style.display = type === 'externe' ? 'block' : 'none';
-
-      toggleButton();
-    }
-
-    function toggleButton() {
-      const consent = document.getElementById('consentCheck').checked;
-      let emailOk = false;
-
-      if (userType === 'interne') {
-        emailOk = document.getElementById('emailInterneInput').value.trim() !== '';
-      } else if (userType === 'externe') {
-        emailOk = document.getElementById('emailExterneInput').value.trim() !== '';
-      }
-
-      document.getElementById('btnLogin').disabled = !(consent && userType && emailOk);
-    }
-
-    async function validerLogin() {
-      const emailField = userType === 'interne' ? 'emailInterneInput' : 'emailExterneInput';
-      const email = document.getElementById(emailField).value.trim();
-
-      if (!email) return alert("Veuillez entrer votre email");
-
+    async function loadStats() {
       try {
-        await fetch('/api/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: email,
-            userType: userType,
-            consentRGPD: true,
-            dateConnexion: new Date().toISOString()
-          })
-        });
-      } catch (e) {
-        console.log("Erreur envoi login");
-      }
+        const res = await fetch('/api/audits');
+        const audits = await res.json();
 
-      localStorage.setItem('userEmail', email);
-      localStorage.setItem('userType', userType);
-      window.location.href = "home.html";
+        const selectedSite = document.getElementById('siteFilter').value;
+        let filtered = selectedSite ? audits.filter(a => a.lieu === selectedSite) : audits;
+
+        // Comptages
+        document.getElementById('simpleCount').textContent = filtered.filter(a => a.type === "audit_simple").length;
+        document.getElementById('grilleCount').textContent = filtered.filter(a => a.type === "grille_detaillee").length;
+
+        let nonCount = 0;
+        filtered.forEach(a => {
+          for (let i = 1; i <= 26; i++) {
+            if (a[`q${i}`] === "Non") nonCount++;
+          }
+        });
+        document.getElementById('nonCount').textContent = nonCount;
+
+        // Score Global
+        let totalQ = 0, totalOui = 0;
+        filtered.filter(a => a.type === "grille_detaillee").forEach(g => {
+          for (let i = 1; i <= 26; i++) {
+            if (g[`q${i}`]) {
+              totalQ++;
+              if (g[`q${i}`] === "Oui") totalOui++;
+            }
+          }
+        });
+        const score = totalQ > 0 ? Math.round((totalOui / totalQ) * 100) : 0;
+        document.getElementById('globalScore').textContent = score + "%";
+
+      } catch (e) { console.error(e); }
     }
+
+    function exportToExcel() {
+      alert("Export en cours... (à compléter si besoin)");
+    }
+
+    window.onload = () => {
+      if (!localStorage.getItem('userEmail')) {
+        window.location.href = "index.html";
+      } else {
+        loadStats();
+      }
+    };
   </script>
 </body>
 </html>
