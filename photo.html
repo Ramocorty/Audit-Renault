@@ -15,11 +15,14 @@
     .nav-menu { display:flex; background:#222; padding:10px; }
     .nav-btn { flex:1; padding:12px; text-align:center; color:white; text-decoration:none; font-weight:bold; border-radius:8px; margin:0 5px; font-size:13.5px; }
     .nav-btn.active { background:var(--yellow); color:var(--black); }
-    .container { padding:20px; text-align:center; }
-    button { background:var(--black); color:var(--yellow); padding:16px; font-size:18px; font-weight:bold; border:none; border-radius:12px; width:100%; margin:12px 0; }
-    #camera { width:100%; border-radius:12px; margin:15px 0; background:#000; }
+    .container { padding:15px; text-align:center; }
+    button { background:var(--black); color:var(--yellow); padding:14px; font-size:16px; font-weight:bold; border:none; border-radius:10px; width:100%; margin:10px 0; }
+    #camera { width:100%; border-radius:12px; margin:10px 0; background:#000; }
     #photoPreview { max-width:100%; border-radius:12px; margin:15px 0; display:none; }
+    #detectionResult { margin:15px 0; padding:15px; background:#f8f8f8; border-radius:12px; text-align:left; min-height:150px; }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.2"></script>
 </head>
 <body>
   <div class="phone">
@@ -36,23 +39,28 @@
     </div>
 
     <div class="container">
-      <h2>📸 Prendre une Photo</h2>
+      <h2>📸 Photo + Détection d'Objets</h2>
       
       <video id="camera" autoplay playsinline></video>
       <canvas id="canvas" style="display:none;"></canvas>
       <img id="photoPreview" alt="Photo prise">
 
       <button onclick="takePhoto()">📸 Prendre la Photo</button>
+      <button onclick="detectObjects()">🔍 Analyser les Objets</button>
       <button onclick="savePhoto()">💾 Sauvegarder la Photo</button>
       <button onclick="window.location.href='home.html'">⬅️ Retour Accueil</button>
+
+      <div id="detectionResult"></div>
     </div>
   </div>
 
   <script>
     let stream = null;
+    let model = null;
     const video = document.getElementById('camera');
     const canvas = document.getElementById('canvas');
     const photoPreview = document.getElementById('photoPreview');
+    const resultDiv = document.getElementById('detectionResult');
 
     async function startCamera() {
       try {
@@ -63,19 +71,51 @@
       }
     }
 
+    async function loadModel() {
+      if (!model) {
+        resultDiv.innerHTML = "<p>Chargement du modèle de détection...</p>";
+        model = await cocoSsd.load();
+        resultDiv.innerHTML = "";
+      }
+    }
+
     function takePhoto() {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       canvas.getContext('2d').drawImage(video, 0, 0);
       photoPreview.src = canvas.toDataURL('image/png');
       photoPreview.style.display = 'block';
+      resultDiv.innerHTML = "";
+    }
+
+    async function detectObjects() {
+      if (!photoPreview.src || photoPreview.src === "") {
+        return alert("Prenez d'abord une photo");
+      }
+
+      await loadModel();
+
+      resultDiv.innerHTML = "<p>Analyse en cours...</p>";
+
+      const img = new Image();
+      img.src = photoPreview.src;
+      img.onload = async () => {
+        const predictions = await model.detect(img);
+
+        let html = "<strong>Objets détectés :</strong><br><br>";
+        if (predictions.length === 0) {
+          html += "Aucun objet détecté.";
+        } else {
+          predictions.forEach(p => {
+            html += `• ${p.class} <strong>(${Math.round(p.score * 100)}%)</strong><br>`;
+          });
+        }
+        resultDiv.innerHTML = html;
+      };
     }
 
     async function savePhoto() {
-      if (!photoPreview.src || photoPreview.src === "") {
-        alert("Prenez d'abord une photo");
-        return;
-      }
+      if (!photoPreview.src) return alert("Prenez d'abord une photo");
 
       const email = localStorage.getItem('userEmail') || "inconnu";
 
@@ -92,12 +132,12 @@
 
         const result = await response.json();
         if (result.success) {
-          alert("✅ Photo sauvegardée avec succès !");
+          alert("✅ Photo sauvegardée !");
         } else {
-          alert("❌ Erreur : " + (result.error || "Inconnue"));
+          alert("❌ Erreur sauvegarde");
         }
       } catch (e) {
-        alert("❌ Impossible de sauvegarder la photo");
+        alert("❌ Impossible de sauvegarder");
       }
     }
 
