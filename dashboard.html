@@ -66,7 +66,7 @@
 
       <h2>Derniers audits</h2>
       <table id="tableDerniers">
-        <thead><tr><th>Date</th><th>Type</th><th>Site</th></tr></thead>
+        <thead><tr><th>Date</th><th>Site</th><th>Opération réalisée</th><th>Chargé d'affaires</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
@@ -115,13 +115,18 @@
         });
         document.getElementById('tableSites').querySelector('tbody').innerHTML = html || '<tr><td colspan="2">Aucun audit</td></tr>';
 
-        // Derniers audits
+        // Derniers audits (nouveau format demandé)
         let htmlDerniers = '';
         audits.slice(0, 10).forEach(a => {
-          const date = a.dateCreation ? new Date(a.dateCreation).toLocaleString('fr-FR', {hour:'2-digit', minute:'2-digit'}) : '—';
-          htmlDerniers += `<tr><td>${date}</td><td>${a.type || 'Audit'}</td><td>${a.lieu || '—'}</td></tr>`;
+          const date = a.dateCreation ? new Date(a.dateCreation).toLocaleString('fr-FR') : '—';
+          htmlDerniers += `<tr>
+            <td>${date}</td>
+            <td>${a.lieu || '—'}</td>
+            <td>${a.operation || '—'}</td>
+            <td>${a.chargeAffaire || '—'}</td>
+          </tr>`;
         });
-        document.getElementById('tableDerniers').querySelector('tbody').innerHTML = htmlDerniers || '<tr><td colspan="3">Aucun audit récent</td></tr>';
+        document.getElementById('tableDerniers').querySelector('tbody').innerHTML = htmlDerniers || '<tr><td colspan="4">Aucun audit récent</td></tr>';
 
       } catch (e) {
         console.error(e);
