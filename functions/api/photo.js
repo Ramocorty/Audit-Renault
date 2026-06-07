@@ -1,113 +1,25 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Photo - Renault Audit Terrain</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#efdf00">
+// functions/api/photo.js
+export async function onRequestPost({ request, env }) {
+  try {
+    const data = await request.json();
 
-  <style>
-    :root { --black: #000000; --yellow: #efdf00; }
-    body { font-family: Arial, sans-serif; background: #1a1a1a; margin:0; padding:0; color:white; }
-    .phone { max-width:420px; margin:20px auto; background:white; color:black; border-radius:35px; overflow:hidden; box-shadow:0 20px 40px rgba(0,0,0,0.7); border:12px solid var(--black); min-height:680px; }
-    .header { background:var(--black); color:var(--yellow); padding:15px 20px; display:flex; align-items:center; justify-content:space-between; }
-    .nav-menu { display:flex; background:#222; padding:10px; }
-    .nav-btn { flex:1; padding:12px; text-align:center; color:white; text-decoration:none; font-weight:bold; border-radius:8px; margin:0 5px; font-size:13.5px; }
-    .nav-btn.active { background:var(--yellow); color:var(--black); }
-    .container { padding:20px; text-align:center; }
-    button { background:var(--black); color:var(--yellow); padding:16px; font-size:18px; font-weight:bold; border:none; border-radius:12px; width:100%; margin:12px 0; }
-    #camera { width:100%; border-radius:12px; margin:15px 0; background:#000; }
-    #photoPreview { max-width:100%; border-radius:12px; margin:15px 0; display:none; }
-  </style>
-</head>
-<body>
-  <div class="phone">
-    <div class="header">
-      <h1>Renault Audit Terrain</h1>
-      <img src="logo-renault.png" height="45" alt="Renault">
-    </div>
-
-    <div class="nav-menu">
-      <a href="index-form.html" class="nav-btn">📋 Audit Simple</a>
-      <a href="grille-detaillee.html" class="nav-btn">📋 Grille Détaillée</a>
-      <a href="photo.html" class="nav-btn active">📸 Photo</a>
-      <a href="dashboard.html" class="nav-btn">📊 KPI</a>
-    </div>
-
-    <div class="container">
-      <h2>📸 Prendre une Photo</h2>
-      
-      <video id="camera" autoplay playsinline></video>
-      <canvas id="canvas" style="display:none;"></canvas>
-      <img id="photoPreview" alt="Photo prise">
-
-      <button onclick="takePhoto()">📸 Prendre la Photo</button>
-      <button onclick="savePhoto()">💾 Sauvegarder la Photo</button>
-      <button onclick="window.location.href='home.html'">⬅️ Retour Accueil</button>
-    </div>
-  </div>
-
-  <script>
-    let stream = null;
-    const video = document.getElementById('camera');
-    const canvas = document.getElementById('canvas');
-    const photoPreview = document.getElementById('photoPreview');
-
-    async function startCamera() {
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-        video.srcObject = stream;
-      } catch (err) {
-        alert("Impossible d'accéder à la caméra");
-      }
+    if (!data.photo_base64) {
+      return Response.json({ success: false, error: "Aucune photo" });
     }
 
-    function takePhoto() {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      canvas.getContext('2d').drawImage(video, 0, 0);
-      photoPreview.src = canvas.toDataURL('image/png');
-      photoPreview.style.display = 'block';
-    }
+    await env.DB.prepare(`
+      INSERT INTO photos (email, photo_base64, description)
+      VALUES (?, ?, ?)
+    `).bind(
+      data.email || "inconnu",
+      data.photo_base64,
+      data.description || "Photo audit"
+    ).run();
 
-    async function savePhoto() {
-      if (!photoPreview.src || photoPreview.src === "") {
-        alert("Prenez d'abord une photo");
-        return;
-      }
+    return Response.json({ success: true });
 
-      const email = localStorage.getItem('userEmail') || "inconnu";
-
-      try {
-        const response = await fetch('/api/photo', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: email,
-            photo_base64: photoPreview.src,
-            description: "Photo audit " + new Date().toLocaleString('fr-FR')
-          })
-        });
-
-        const result = await response.json();
-        if (result.success) {
-          alert("✅ Photo sauvegardée avec succès !");
-        } else {
-          alert("❌ Erreur : " + (result.error || "Inconnue"));
-        }
-      } catch (e) {
-        alert("❌ Impossible de sauvegarder la photo");
-      }
-    }
-
-    window.onload = () => {
-      if (!localStorage.getItem('userEmail')) {
-        window.location.href = "index.html";
-      } else {
-        startCamera();
-      }
-    };
-  </script>
-</body>
-</html>
+  } catch (error) {
+    console.error(error);
+    return Response.json({ success: false, error: error.message });
+  }
+}
