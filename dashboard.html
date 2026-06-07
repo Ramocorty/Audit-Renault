@@ -6,7 +6,6 @@
   <title>KPI - Renault Audit Terrain</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#efdf00">
-
   <style>
     :root { --black: #000000; --yellow: #efdf00; }
     body { font-family: Arial, sans-serif; background: #1a1a1a; margin:0; padding:0; color:white; }
@@ -17,18 +16,14 @@
     .nav-btn.active { background:var(--yellow); color:var(--black); }
     .container { padding:20px; }
     h2 { text-align:center; color:var(--black); margin:20px 0 12px; }
-
     .filter-box { background:#f8f8f8; padding:16px; border-radius:12px; margin-bottom:20px; border-left:6px solid var(--yellow); }
     select { width:100%; padding:16px; font-size:17px; border:2px solid #ddd; border-radius:10px; }
-
     button { background:var(--black); color:var(--yellow); padding:16px; font-size:17px; font-weight:bold; border:none; border-radius:12px; width:100%; margin:10px 0; }
-
     .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
     .stat-card { background:#f8f8f8; padding:18px; border-radius:12px; text-align:center; }
     .stat-card h3 { margin:0 0 8px 0; font-size:15px; color:#555; }
     .stat-card h1 { margin:0; font-size:36px; }
     .score-card { background:linear-gradient(135deg, #e8f5e9, #c8e6c9); grid-column: span 2; padding:20px; text-align:center; }
-
     table { width:100%; border-collapse:collapse; margin:15px 0; background:white; }
     th, td { border:1px solid #ccc; padding:12px; text-align:left; }
     th { background:var(--black); color:var(--yellow); }
@@ -42,7 +37,6 @@
       <h1>Renault Audit Terrain</h1>
       <img src="logo-renault.png" height="45" alt="Renault">
     </div>
-
     <div class="nav-menu">
       <a href="home.html" class="nav-btn">🏠 Accueil</a>
       <a href="index-form.html" class="nav-btn">📋 Audit Simple</a>
@@ -50,7 +44,6 @@
       <a href="photo.html" class="nav-btn">📸 Photo IA</a>
       <a href="dashboard.html" class="nav-btn active">📊 KPI</a>
     </div>
-
     <div class="container">
       <div class="filter-box">
         <label>🔍 Filtrer par site</label>
@@ -58,9 +51,8 @@
           <option value="">🌐 Tous les sites</option>
         </select>
       </div>
-
       <button onclick="loadStats()">🔄 Actualiser</button>
-      <button onclick="exportToExcel()">📊 Exporter en Excel</button>
+      <button onclick="exportToExcel()">📧 Exporter et Envoyer par Email</button>
 
       <div class="stat-grid">
         <div class="stat-card">
@@ -81,13 +73,11 @@
           <p id="scoreLabel" style="margin:5px 0; font-weight:bold;"></p>
         </div>
       </div>
-
       <h2>Audits par site</h2>
       <table id="tableSites">
         <thead><tr><th>Site</th><th>Nombre</th></tr></thead>
         <tbody></tbody>
       </table>
-
       <h2>Derniers Audits Simples</h2>
       <table id="tableDerniers">
         <thead><tr><th>Date</th><th>Site</th><th>Opération</th><th>Chargé</th></tr></thead>
@@ -103,11 +93,9 @@
       try {
         const res = await fetch('/api/audits');
         allAudits = await res.json() || [];
-
         const selectedSite = document.getElementById('siteFilter').value;
         let filtered = selectedSite ? allAudits.filter(a => a.lieu === selectedSite) : allAudits;
 
-        // Mise à jour des compteurs
         document.getElementById('simpleCount').textContent = filtered.filter(a => a.type === "audit_simple").length;
         document.getElementById('grilleCount').textContent = filtered.filter(a => a.type === "grille_detaillee").length;
 
@@ -119,7 +107,6 @@
         });
         document.getElementById('nonCount').textContent = nonCount;
 
-        // Score Global
         let totalQ = 0, totalOui = 0;
         filtered.filter(a => a.type === "grille_detaillee").forEach(g => {
           for (let i = 1; i <= 26; i++) {
@@ -135,7 +122,6 @@
         let label = score >= 85 ? "Excellent" : score >= 70 ? "Bon" : score >= 50 ? "Moyen" : "Faible";
         document.getElementById('scoreLabel').textContent = label;
 
-        // Remplissage des tables
         renderTables(filtered);
         updateSiteFilter();
 
@@ -145,7 +131,6 @@
     }
 
     function renderTables(filtered) {
-      // Table Audits par site
       const parSite = {};
       filtered.forEach(a => {
         const site = a.lieu || "Non renseigné";
@@ -157,7 +142,6 @@
       });
       document.getElementById('tableSites').querySelector('tbody').innerHTML = html || '<tr><td colspan="2">Aucun audit pour le moment</td></tr>';
 
-      // Table Derniers Audits Simples
       let htmlDerniers = '';
       filtered.filter(a => a.type === "audit_simple").slice(0, 10).forEach(a => {
         const date = a.dateCreation ? new Date(a.dateCreation).toLocaleString('fr-FR') : '—';
@@ -183,11 +167,21 @@
       });
     }
 
+    // ====================== EXPORT EMAIL ======================
     function exportToExcel() {
-      if (allAudits.length === 0) return alert("Aucune donnée à exporter");
-      // Code export simplifié
-      alert("Export Excel lancé...");
+      const email = localStorage.getItem('userEmail');
+      if (!email) {
+        return alert("❌ Aucun email connecté");
+      }
+
+      if (allAudits.length === 0) {
+        return alert("Aucune donnée à exporter");
+      }
+
+      alert(`✅ Rapport Excel généré et envoyé à :\n${email}\n\n(En vrai il serait envoyé par email)`);
+      console.log("✅ Export simulé envoyé à :", email);
     }
+    // ========================================================
 
     window.onload = () => {
       if (!localStorage.getItem('userEmail')) {
