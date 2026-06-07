@@ -19,33 +19,33 @@
 
     .map-container {
       position: relative;
-      height: 220px;
-      background: #e5e5e5 url('https://i.imgur.com/5v4vL0k.jpg') center/cover;
+      height: 280px;
+      background: #f0f0f0;
       border-radius: 16px;
       margin: 15px 0;
       overflow: hidden;
       box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      border: 2px solid #ddd;
     }
     .map-pin {
       position: absolute;
-      font-size: 26px;
+      font-size: 32px;
       cursor: pointer;
-      transition: transform 0.3s;
+      transition: all 0.3s;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.5);
     }
-    .map-pin:hover { transform: scale(1.4); }
-
-    .card {
-      background: #f8f8f8;
-      border-radius: 16px;
-      padding: 18px;
-      margin-bottom: 15px;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      cursor: pointer;
+    .map-pin:hover { transform: scale(1.35); }
+    .pin-label {
+      position: absolute;
+      background: white;
+      color: black;
+      font-size: 13px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      white-space: nowrap;
+      pointer-events: none;
     }
-    .card-icon { font-size: 36px; width: 55px; }
   </style>
 </head>
 <body>
@@ -56,48 +56,39 @@
     </div>
 
     <div class="container">
-      <h2>Choisissez un site</h2>
+      <h2>Choisissez un site d'intervention</h2>
       
-      <!-- Carte interactive -->
+      <!-- Carte France / Île-de-France stylisée -->
       <div class="map-container">
-        <div class="map-pin" style="top:42%; left:48%;" onclick="goToSite('TCR')">📍</div>
-        <div class="map-pin" style="top:55%; left:35%;" onclick="goToSite('VSF')">📍</div>
-        <div class="map-pin" style="top:68%; left:52%;" onclick="goToSite('CTL')">📍</div>
-        <div class="map-pin" style="top:32%; left:68%;" onclick="goToSite('CRI')">📍</div>
+        <!-- Pins bien positionnés -->
+        <div class="map-pin" style="top:38%; left:52%;" onclick="goToSite('TCR')">📍</div>
+        <div class="pin-label" style="top:32%; left:45%;">TCR<br>Guyancourt</div>
+
+        <div class="map-pin" style="top:48%; left:38%;" onclick="goToSite('VSF')">📍</div>
+        <div class="pin-label" style="top:50%; left:25%;">VSF</div>
+
+        <div class="map-pin" style="top:62%; left:48%;" onclick="goToSite('CTL')">📍</div>
+        <div class="pin-label" style="top:65%; left:42%;">CTL - Lardy</div>
+
+        <div class="map-pin" style="top:28%; left:72%;" onclick="goToSite('CRI')">📍</div>
+        <div class="pin-label" style="top:23%; left:65%;">CRI / KIN</div>
+
+        <div class="map-pin" style="top:55%; left:65%;" onclick="goToSite('CTA')">📍</div>
+        <div class="pin-label" style="top:58%; left:68%;">CTA - Aubevoye</div>
       </div>
 
-      <h2 style="margin-top:30px;">Ou accéder directement</h2>
+      <p style="text-align:center; color:#666; margin:10px 0 25px;">Cliquez sur les épingles pour accéder directement au KPI du site</p>
 
-      <div class="card" onclick="goTo('index-form.html')">
-        <div class="card-icon">📋</div>
-        <div>
-          <strong>Audit Simple</strong><br>
-          <small>Formulaire rapide</small>
-        </div>
+      <h2 style="margin-top:20px;">Accès rapide</h2>
+
+      <div onclick="goTo('index-form.html')" style="background:#f8f8f8;padding:18px;border-radius:14px;margin-bottom:12px;cursor:pointer;">
+        📋 Audit Simple
       </div>
-
-      <div class="card" onclick="goTo('grille-detaillee.html')">
-        <div class="card-icon">📊</div>
-        <div>
-          <strong>Grille Détaillée</strong><br>
-          <small>26 points de contrôle</small>
-        </div>
+      <div onclick="goTo('grille-detaillee.html')" style="background:#f8f8f8;padding:18px;border-radius:14px;margin-bottom:12px;cursor:pointer;">
+        📋 Grille Détaillée
       </div>
-
-      <div class="card" onclick="goTo('photo.html')">
-        <div class="card-icon">📸</div>
-        <div>
-          <strong>Photo + Analyse IA</strong><br>
-          <small>Détection intelligente</small>
-        </div>
-      </div>
-
-      <div class="card" onclick="goTo('dashboard.html')">
-        <div class="card-icon">📈</div>
-        <div>
-          <strong>Tableau de Bord KPI</strong><br>
-          <small>Statistiques globales</small>
-        </div>
+      <div onclick="goTo('photo.html')" style="background:#f8f8f8;padding:18px;border-radius:14px;margin-bottom:12px;cursor:pointer;">
+        📸 Photo + Analyse IA
       </div>
     </div>
   </div>
@@ -108,7 +99,7 @@
     }
 
     function goToSite(site) {
-      localStorage.setItem('selectedSite', site);   // On enregistre le site choisi
+      localStorage.setItem('selectedSite', site);
       window.location.href = "dashboard.html";
     }
 
