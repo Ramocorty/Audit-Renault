@@ -18,18 +18,8 @@ export async function onRequestPost({ request, env }) {
       data.lieu,
       data.dateHeureVisite || null,
       data.operation || null,
-      data.planPrevention || null,        // ← ajouté (plan de prévention)
-      data.chargeAffaire || null,         // ← CORRIGÉ : chargé d'affaires maintenant bien pris
-      data.entrepriseRang1 || null,
-      data.entrepriseRang2 || null,
-      data.arretChantier || null,
-      data.courrierAR || null,
-      data.contreVisite || null,
-      data.nomRenault || null,
-      data.signatureRenault || null,
-      data.nomExterne || null,
-      data.signatureExterne || null,
-      null,null,null,null,null,           // ← placeholders pour les anciens nulls
+      null,null,null,null,null,null,null,
+      null,null,null,null,
       data.q1 || "NC",data.q2 || "NC",data.q3 || "NC",data.q4 || "NC",data.q5 || "NC",
       data.q6 || "NC",data.q7 || "NC",data.q8 || "NC",data.q9 || "NC",data.q10 || "NC",
       data.q11 || "NC",data.q12 || "NC",data.q13 || "NC",data.q14 || "NC",data.q15 || "NC",
@@ -42,13 +32,11 @@ export async function onRequestPost({ request, env }) {
     return Response.json({ success: false, error: error.message });
   }
 }
-
 // GET Audits
 export async function onRequestGet({ env }) {
   const { results } = await env.DB.prepare("SELECT * FROM audits ORDER BY dateCreation DESC").all();
   return Response.json(results || []);
 }
-
 // GET Logins (pour KPI)
 export async function onRequestGetLogins({ env }) {
   const { results } = await env.DB.prepare("SELECT * FROM logins ORDER BY dateConnexion DESC").all();
