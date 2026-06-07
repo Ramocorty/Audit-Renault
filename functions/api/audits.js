@@ -37,13 +37,13 @@ export async function onRequestPost({ request, env }) {
   }
 }
 
-// GET pour audits
+// GET Audits
 export async function onRequestGet({ env }) {
   const { results } = await env.DB.prepare("SELECT * FROM audits ORDER BY dateCreation DESC").all();
   return Response.json(results || []);
 }
 
-// GET pour logins (important pour le compteur dans KPI)
+// GET Logins (pour le compteur dans KPI)
 export async function onRequestGetLogins({ env }) {
   const { results } = await env.DB.prepare("SELECT * FROM logins ORDER BY dateConnexion DESC").all();
   return Response.json(results || []);
