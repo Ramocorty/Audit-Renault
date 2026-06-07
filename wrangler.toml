@@ -1,7 +1,14 @@
-name = "audit-renault"
+name = "rai"
 compatibility_date = "2026-06-01"
 
+# === Nouvelle base de données (rai-db) ===
 [[d1_databases]]
 binding = "DB"
-database_name = "audit-renault"
-database_id = "16350de1-dbd4-45de-b90f-0f4a9d432d6e"
+database_name = "rai-db"
+database_id = "5e0a8721-52c3-47ad-9946-2a8618d31a29"
+
+# === Ancienne base gardée en commentaire (au cas où) ===
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "audit-renault"
+# database_id = "16350de1-dbd4-45de-b90f-0f4a9d432d6e"
