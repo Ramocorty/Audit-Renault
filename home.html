@@ -6,9 +6,7 @@
   <title>Accueil - Renault Audit Terrain</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#efdf00">
-  
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
   <style>
     :root { --black: #000000; --yellow: #efdf00; }
     body { font-family: Arial, sans-serif; background: #1a1a1a; margin:0; padding:0; color:white; }
@@ -20,13 +18,29 @@
     h2 { text-align:center; color:var(--black); margin:20px 0 15px; }
 
     #map { 
-      height: 320px; 
+      height: 260px; 
       border-radius: 16px; 
       margin: 15px 0; 
       box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
+
+    .quick-access {
+      margin-top: 30px;
+    }
+    .card {
+      background: #f8f8f8;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      cursor: pointer;
+    }
+    .card-icon { font-size: 36px; width: 55px; }
   </style>
-  <!-- Leaflet JS -->
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
@@ -37,39 +51,61 @@
     </div>
 
     <div class="container">
-      <h2>Carte des Sites Renault</h2>
+      <h2>Carte des Sites</h2>
       <div id="map"></div>
 
-      <p style="text-align:center; color:#555; margin:10px 0;">Cliquez sur les marqueurs pour ouvrir le KPI du site</p>
+      <div class="quick-access">
+        <h2 style="text-align:center; margin:25px 0 15px;">Accès Rapide</h2>
+        
+        <div class="card" onclick="goTo('index-form.html')">
+          <div class="card-icon">📋</div>
+          <div><strong>Audit Simple</strong><br><small>Formulaire rapide</small></div>
+        </div>
+
+        <div class="card" onclick="goTo('grille-detaillee.html')">
+          <div class="card-icon">📊</div>
+          <div><strong>Grille Détaillée</strong><br><small>26 points de contrôle</small></div>
+        </div>
+
+        <div class="card" onclick="goTo('photo.html')">
+          <div class="card-icon">📸</div>
+          <div><strong>Photo + Analyse IA</strong><br><small>Détection intelligente</small></div>
+        </div>
+
+        <div class="card" onclick="goTo('dashboard.html')">
+          <div class="card-icon">📈</div>
+          <div><strong>Tableau de Bord KPI</strong><br><small>Statistiques globales</small></div>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
-    // Initialisation de la carte centrée sur Île-de-France
-    let map = L.map('map').setView([48.8, 2.1], 9);
+    // Initialisation carte
+    let map = L.map('map').setView([48.75, 2.0], 9);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap'
-    }).addTo(map);
-
-    // Sites avec coordonnées réelles
     const sites = [
-      { name: "TCR", city: "Guyancourt", lat: 48.766, lng: 2.046, color: "red" },
-      { name: "VSF", city: "Villiers-Saint-Frédéric", lat: 48.64, lng: 1.89, color: "blue" },
-      { name: "CTL", city: "Lardy", lat: 48.52, lng: 2.25, color: "green" },
-      { name: "CRI", city: "Boulogne-Billancourt", lat: 48.83, lng: 2.24, color: "purple" },
-      { name: "KIN", city: "Boulogne-Billancourt", lat: 48.835, lng: 2.245, color: "purple" },
-      { name: "CTA", city: "Aubevoye", lat: 49.17, lng: 1.33, color: "orange" }
+      { name: "TCR", full: "Techno-centre Guyancourt", lat: 48.766, lng: 2.046 },
+      { name: "VSF", full: "Villiers Saint Fréderic", lat: 48.64, lng: 1.89 },
+      { name: "CTL", full: "Lardy", lat: 48.52, lng: 2.25 },
+      { name: "CRI", full: "Boulogne-Billancourt", lat: 48.83, lng: 2.24 },
+      { name: "KIN", full: "Boulogne-Billancourt", lat: 48.835, lng: 2.245 },
+      { name: "CTA", full: "Aubevoye", lat: 49.17, lng: 1.33 }
     ];
 
     sites.forEach(site => {
       const marker = L.marker([site.lat, site.lng]).addTo(map);
-      marker.bindPopup(`<b>${site.name}</b><br>${site.city}`);
+      marker.bindPopup(`<b>${site.name}</b><br>${site.full}`);
       marker.on('click', () => {
         localStorage.setItem('selectedSite', site.name);
         window.location.href = "dashboard.html";
       });
     });
+
+    function goTo(page) {
+      window.location.href = page;
+    }
 
     window.onload = () => {
       const email = localStorage.getItem('userEmail');
