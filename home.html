@@ -11,43 +11,66 @@
     :root { --black: #000000; --yellow: #efdf00; }
     body { font-family: Arial, sans-serif; background: #1a1a1a; margin:0; padding:0; color:white; }
     .phone { max-width:420px; margin:20px auto; background:white; color:black; border-radius:35px; overflow:hidden; box-shadow:0 20px 40px rgba(0,0,0,0.7); border:12px solid var(--black); min-height:680px; }
+    
     .header { 
-      background: linear-gradient(135deg, var(--black), #222); 
+      background: linear-gradient(135deg, var(--black), #1f1f1f); 
       color: var(--yellow); 
-      padding: 25px 20px 20px; 
+      padding: 30px 20px 25px; 
       text-align: center; 
     }
-    .logo { height: 70px; margin-bottom: 10px; }
-    .welcome { font-size: 22px; margin: 10px 0 5px; font-weight: bold; }
-    .user { font-size: 16px; color: #ccc; }
+    .logo { height: 75px; margin-bottom: 12px; }
+    .welcome { font-size: 24px; margin: 8px 0 4px; font-weight: bold; }
+    .user { font-size: 15px; opacity: 0.9; }
 
-    .container { padding: 25px 20px; }
+    .container { padding: 25px 20px 80px; position: relative; }
+
     .card {
       background: #f8f8f8;
       border-radius: 16px;
       padding: 20px;
       margin-bottom: 18px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
       display: flex;
       align-items: center;
-      gap: 15px;
-      transition: all 0.3s;
+      gap: 18px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      transition: all 0.3s ease;
+      animation: fadeInUp 0.6s ease forwards;
+      opacity: 0;
     }
-    .card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
-    .card-icon { font-size: 38px; width: 60px; }
-    .card-content h3 { margin: 0 0 5px 0; color: var(--black); }
-    .card-content p { margin: 0; color: #666; font-size: 14px; }
+    .card:hover { transform: translateY(-6px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
 
-    button { 
-      background: var(--black); 
-      color: var(--yellow); 
-      padding: 16px; 
-      font-size: 17px; 
-      font-weight: bold; 
-      border: none; 
-      border-radius: 12px; 
-      width: 100%; 
-      margin-top: 10px; 
+    .card-icon { font-size: 42px; width: 65px; }
+    .card-content h3 { margin: 0 0 6px 0; font-size: 18px; }
+    .card-content p { margin: 0; color: #555; font-size: 14.5px; }
+
+    /* Couleurs par carte */
+    .card-audit { border-left: 6px solid #1976d2; }
+    .card-grille { border-left: 6px solid #388e3c; }
+    .card-photo { border-left: 6px solid #f57c00; }
+    .card-kpi   { border-left: 6px solid #7b1fa2; }
+
+    .floating-btn {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--yellow);
+      color: var(--black);
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+      z-index: 100;
+      border: none;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
@@ -55,14 +78,14 @@
   <div class="phone">
     <div class="header">
       <img src="logo-renault.png" class="logo" alt="Renault">
-      <div class="welcome">Bienvenue sur Audit Terrain</div>
-      <div class="user" id="userDisplay">Chargement...</div>
+      <div class="welcome">Bienvenue</div>
+      <div class="user" id="userDisplay">Utilisateur</div>
     </div>
 
     <div class="container">
-      <h2 style="text-align:center; color:var(--black); margin-bottom:25px;">Que souhaitez-vous faire ?</h2>
+      <h2 style="text-align:center; color:var(--black); margin-bottom:25px;">Que voulez-vous faire ?</h2>
 
-      <div class="card" onclick="goTo('index-form.html')">
+      <div class="card card-audit" onclick="goTo('index-form.html')">
         <div class="card-icon">📋</div>
         <div class="card-content">
           <h3>Audit Simple</h3>
@@ -70,15 +93,15 @@
         </div>
       </div>
 
-      <div class="card" onclick="goTo('grille-detaillee.html')">
-        <div class="card-icon">📋</div>
+      <div class="card card-grille" onclick="goTo('grille-detaillee.html')">
+        <div class="card-icon">📊</div>
         <div class="card-content">
           <h3>Grille Détaillée</h3>
           <p>26 points de contrôle complets</p>
         </div>
       </div>
 
-      <div class="card" onclick="goTo('photo.html')">
+      <div class="card card-photo" onclick="goTo('photo.html')">
         <div class="card-icon">📸</div>
         <div class="card-content">
           <h3>Photo + Analyse IA</h3>
@@ -86,16 +109,17 @@
         </div>
       </div>
 
-      <div class="card" onclick="goTo('dashboard.html')">
-        <div class="card-icon">📊</div>
+      <div class="card card-kpi" onclick="goTo('dashboard.html')">
+        <div class="card-icon">📈</div>
         <div class="card-content">
           <h3>Tableau de Bord KPI</h3>
           <p>Statistiques et conformité</p>
         </div>
       </div>
-
-      <button onclick="logout()">🚪 Déconnexion</button>
     </div>
+
+    <!-- Bouton flottant -->
+    <button class="floating-btn" onclick="goTo('index-form.html')">✚</button>
   </div>
 
   <script>
@@ -103,20 +127,19 @@
       window.location.href = page;
     }
 
-    function logout() {
-      if (confirm("Voulez-vous vraiment vous déconnecter ?")) {
-        localStorage.clear();
-        window.location.href = "index.html";
-      }
-    }
-
     window.onload = () => {
       const email = localStorage.getItem('userEmail');
       if (!email) {
         window.location.href = "index.html";
       } else {
-        document.getElementById('userDisplay').textContent = email;
+        document.getElementById('userDisplay').textContent = email.split('@')[0];
       }
+
+      // Animation des cartes
+      const cards = document.querySelectorAll('.card');
+      cards.forEach((card, index) => {
+        card.style.animationDelay = (index * 0.1) + 's';
+      });
     };
   </script>
 </body>
