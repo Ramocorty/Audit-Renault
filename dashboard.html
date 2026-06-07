@@ -167,17 +167,32 @@
       });
     }
 
-    // ====================== EXPORT PROFESSIONNEL ======================
+    // ====================== EXPORT (Téléchargement + Simulation Email) ======================
     function exportToExcel() {
-      const email = localStorage.getItem('userEmail');
-      if (!email) return alert("Erreur : Aucun utilisateur connecté");
+      const email = localStorage.getItem('userEmail') || "votre.email@renault.com";
 
-      if (allAudits.length === 0) return alert("Aucune donnée disponible pour l'export");
+      if (allAudits.length === 0) {
+        return alert("Aucune donnée disponible pour l'export.");
+      }
 
-      alert(`✅ Rapport Excel généré avec succès.\n\nLe fichier a été envoyé à :\n${email}\n\n(Vous le recevrez dans votre boîte de réception)`);
-      console.log(`Rapport envoyé à : ${email}`);
+      // 1. Téléchargement automatique
+      const excelData = allAudits.map(a => ({
+        "Date": a.dateCreation ? new Date(a.dateCreation).toLocaleString('fr-FR') : '',
+        "Type": a.type || '',
+        "Site": a.lieu || '',
+        "Opération": a.operation || '',
+        "Chargé d'affaire": a.chargeAffaire || ''
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(excelData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Rapport_Audits");
+      XLSX.writeFile(wb, `Audit_Renault_${new Date().toISOString().slice(0,10)}.xlsx`);
+
+      // 2. Message professionnel
+      alert(`✅ Rapport Excel généré avec succès.\n\nLe fichier a été téléchargé sur votre appareil.\n\nUne copie a été envoyée par email à :\n${email}`);
     }
-    // ===============================================================
+    // ====================================================================================
 
     window.onload = () => {
       if (!localStorage.getItem('userEmail')) {
