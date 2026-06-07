@@ -11,115 +11,84 @@
     :root { --black: #000000; --yellow: #efdf00; }
     body { font-family: Arial, sans-serif; background: #1a1a1a; margin:0; padding:0; color:white; }
     .phone { max-width:420px; margin:20px auto; background:white; color:black; border-radius:35px; overflow:hidden; box-shadow:0 20px 40px rgba(0,0,0,0.7); border:12px solid var(--black); min-height:680px; }
-    
-    .header { 
-      background: linear-gradient(135deg, var(--black), #1f1f1f); 
-      color: var(--yellow); 
-      padding: 30px 20px 25px; 
-      text-align: center; 
+    .header { background: linear-gradient(135deg, var(--black), #222); color: var(--yellow); padding: 30px 20px; text-align:center; }
+    .logo { height: 75px; margin-bottom: 10px; }
+    .welcome { font-size: 24px; font-weight: bold; }
+
+    .container { padding: 20px; }
+    .sites-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 25px 0;
     }
-    .logo { height: 75px; margin-bottom: 12px; }
-    .welcome { font-size: 24px; margin: 8px 0 4px; font-weight: bold; }
-    .user { font-size: 15px; opacity: 0.9; }
-
-    .container { padding: 25px 20px 80px; position: relative; }
-
-    .card {
+    .site-card {
       background: #f8f8f8;
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 18px;
-      display: flex;
-      align-items: center;
-      gap: 18px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-      transition: all 0.3s ease;
-      animation: fadeInUp 0.6s ease forwards;
-      opacity: 0;
+      border-radius: 14px;
+      padding: 18px 12px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transition: all 0.3s;
+      cursor: pointer;
     }
-    .card:hover { transform: translateY(-6px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
-
-    .card-icon { font-size: 42px; width: 65px; }
-    .card-content h3 { margin: 0 0 6px 0; font-size: 18px; }
-    .card-content p { margin: 0; color: #555; font-size: 14.5px; }
-
-    /* Couleurs par carte */
-    .card-audit { border-left: 6px solid #1976d2; }
-    .card-grille { border-left: 6px solid #388e3c; }
-    .card-photo { border-left: 6px solid #f57c00; }
-    .card-kpi   { border-left: 6px solid #7b1fa2; }
-
-    .floating-btn {
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--yellow);
-      color: var(--black);
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-      z-index: 100;
-      border: none;
+    .site-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
     }
-
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    .site-card h3 { margin: 8px 0 4px; color: var(--black); }
+    .site-card p { margin: 0; font-size: 13px; color: #555; }
   </style>
 </head>
 <body>
   <div class="phone">
     <div class="header">
       <img src="logo-renault.png" class="logo" alt="Renault">
-      <div class="welcome">Bienvenue</div>
-      <div class="user" id="userDisplay">Utilisateur</div>
+      <div class="welcome">Audit Terrain</div>
+      <div id="userDisplay" style="font-size:15px; opacity:0.9;"></div>
     </div>
 
     <div class="container">
-      <h2 style="text-align:center; color:var(--black); margin-bottom:25px;">Que voulez-vous faire ?</h2>
+      <h2 style="text-align:center; margin-bottom:20px; color:var(--black);">Choisissez un site</h2>
 
-      <div class="card card-audit" onclick="goTo('index-form.html')">
-        <div class="card-icon">📋</div>
-        <div class="card-content">
-          <h3>Audit Simple</h3>
-          <p>Formulaire rapide avec signatures</p>
+      <div class="sites-grid">
+        <div class="site-card" onclick="goToSite('TCR')">
+          <h3>TCR</h3>
+          <p>Techno-centre Guyancourt</p>
+        </div>
+        <div class="site-card" onclick="goToSite('VSF')">
+          <h3>VSF</h3>
+          <p>Villiers Saint Fréderic</p>
+        </div>
+        <div class="site-card" onclick="goToSite('CTL')">
+          <h3>CTL</h3>
+          <p>Lardy</p>
+        </div>
+        <div class="site-card" onclick="goToSite('CRI')">
+          <h3>CRI</h3>
+          <p>Boulogne-Billancourt</p>
+        </div>
+        <div class="site-card" onclick="goToSite('KIN')">
+          <h3>KIN</h3>
+          <p>Boulogne-Billancourt</p>
+        </div>
+        <div class="site-card" onclick="goToSite('CTA')">
+          <h3>CTA</h3>
+          <p>Aubevoye</p>
         </div>
       </div>
 
-      <div class="card card-grille" onclick="goTo('grille-detaillee.html')">
-        <div class="card-icon">📊</div>
-        <div class="card-content">
-          <h3>Grille Détaillée</h3>
-          <p>26 points de contrôle complets</p>
-        </div>
-      </div>
+      <h2 style="text-align:center; margin:30px 0 15px; color:var(--black);">Ou accéder directement</h2>
 
-      <div class="card card-photo" onclick="goTo('photo.html')">
-        <div class="card-icon">📸</div>
-        <div class="card-content">
-          <h3>Photo + Analyse IA</h3>
-          <p>Détection intelligente d'objets</p>
-        </div>
+      <div onclick="goTo('index-form.html')" style="background:#f8f8f8; padding:18px; border-radius:14px; margin-bottom:12px; cursor:pointer;">
+        📋 Audit Simple
       </div>
-
-      <div class="card card-kpi" onclick="goTo('dashboard.html')">
-        <div class="card-icon">📈</div>
-        <div class="card-content">
-          <h3>Tableau de Bord KPI</h3>
-          <p>Statistiques et conformité</p>
-        </div>
+      <div onclick="goTo('grille-detaillee.html')" style="background:#f8f8f8; padding:18px; border-radius:14px; margin-bottom:12px; cursor:pointer;">
+        📋 Grille Détaillée
+      </div>
+      <div onclick="goTo('photo.html')" style="background:#f8f8f8; padding:18px; border-radius:14px; margin-bottom:12px; cursor:pointer;">
+        📸 Photo + Analyse IA
       </div>
     </div>
-
-    <!-- Bouton flottant -->
-    <button class="floating-btn" onclick="goTo('index-form.html')">✚</button>
   </div>
 
   <script>
@@ -127,19 +96,18 @@
       window.location.href = page;
     }
 
+    function goToSite(site) {
+      localStorage.setItem('selectedSite', site);
+      window.location.href = "dashboard.html";
+    }
+
     window.onload = () => {
       const email = localStorage.getItem('userEmail');
       if (!email) {
         window.location.href = "index.html";
       } else {
-        document.getElementById('userDisplay').textContent = email.split('@')[0];
+        document.getElementById('userDisplay').textContent = email;
       }
-
-      // Animation des cartes
-      const cards = document.querySelectorAll('.card');
-      cards.forEach((card, index) => {
-        card.style.animationDelay = (index * 0.1) + 's';
-      });
     };
   </script>
 </body>
