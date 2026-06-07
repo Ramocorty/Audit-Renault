@@ -1,7 +1,7 @@
 {
   "name": "Renault Audit Intelligence",
   "short_name": "RAI",
-  "description": "Application d'audit terrain Renault - RAI",
+  "description": "Application d'audit terrain Renault",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#000000",
@@ -9,13 +9,13 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "logo-renault.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icon-512.png",
+      "src": "logo-renault.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
