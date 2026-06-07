@@ -3,7 +3,7 @@ export async function onRequestPost({ request, env }) {
   try {
     const data = await request.json();
 
-    // === LOGIN ===
+    // LOGIN
     if (data.email) {
       await env.DB.prepare(`
         INSERT INTO logins (email, userType, consentRGPD, dateConnexion)
@@ -12,7 +12,7 @@ export async function onRequestPost({ request, env }) {
       return Response.json({ success: true });
     }
 
-    // === AUDITS + GRILLES ===
+    // AUDITS + GRILLES
     await env.DB.prepare(`
       INSERT INTO audits VALUES (NULL, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
@@ -43,7 +43,7 @@ export async function onRequestGet({ env }) {
   return Response.json(results || []);
 }
 
-// GET Logins (pour le compteur dans KPI)
+// GET Logins (pour KPI)
 export async function onRequestGetLogins({ env }) {
   const { results } = await env.DB.prepare("SELECT * FROM logins ORDER BY dateConnexion DESC").all();
   return Response.json(results || []);
