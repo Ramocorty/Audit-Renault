@@ -47,11 +47,6 @@
         <h1 id="totalAudits" style="font-size:48px;margin:10px 0;color:var(--black);">0</h1>
       </div>
 
-      <div class="stat-card">
-        <h2>Nombre de connexions</h2>
-        <h1 id="totalLogins" style="font-size:48px;margin:10px 0;color:var(--black);">0</h1>
-      </div>
-
       <div class="stat-card compliance-card">
         <h2>% Conformité Global</h2>
         <h1 id="conformitePercent" style="font-size:52px;margin:10px 0;color:#2e7d32;">0%</h1>
@@ -79,13 +74,6 @@
         const audits = await res.json();
 
         document.getElementById('totalAudits').textContent = audits.length;
-
-        // Connexions
-        try {
-          const resLogins = await fetch('/api/logins');
-          const logins = await resLogins.json();
-          document.getElementById('totalLogins').textContent = logins.length || 0;
-        } catch(e) {}
 
         // Conformité
         const grilles = audits.filter(a => a.type === "grille_detaillee");
@@ -115,7 +103,7 @@
         });
         document.getElementById('tableSites').querySelector('tbody').innerHTML = html || '<tr><td colspan="2">Aucun audit</td></tr>';
 
-        // Derniers audits (nouveau format demandé)
+        // Derniers audits
         let htmlDerniers = '';
         audits.slice(0, 10).forEach(a => {
           const date = a.dateCreation ? new Date(a.dateCreation).toLocaleString('fr-FR') : '—';
