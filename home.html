@@ -3,28 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Accueil - Renault Audit Terrain</title>
+  <title>Accueil - Renault Audit Intelligence</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#efdf00">
-
   <style>
     :root { --black: #000000; --yellow: #efdf00; }
     body { font-family: Arial, sans-serif; background: #1a1a1a; margin:0; padding:0; color:white; }
     .phone { max-width:420px; margin:20px auto; background:white; color:black; border-radius:35px; overflow:hidden; box-shadow:0 20px 40px rgba(0,0,0,0.7); border:12px solid var(--black); min-height:680px; }
-
-    .header { 
-      background: linear-gradient(135deg, var(--black), #1f1f1f); 
-      color: var(--yellow); 
-      padding: 40px 20px 30px; 
-      text-align:center; 
+    .header {
+      background: linear-gradient(135deg, var(--black), #1f1f1f);
+      color: var(--yellow);
+      padding: 40px 20px 30px;
+      text-align:center;
     }
     .logo { height: 85px; margin-bottom: 12px; animation: pulse 2s infinite; }
     .welcome { font-size: 26px; font-weight: bold; margin: 10px 0 5px; }
     .user { font-size: 16px; opacity: 0.9; }
-
     .container { padding: 25px 20px; }
     h2 { text-align:center; color:var(--black); margin-bottom:25px; font-size:22px; }
-
     .card {
       background: #f8f8f8;
       border-radius: 18px;
@@ -46,7 +42,6 @@
     .card:hover .card-icon { transform: scale(1.15); }
     .card-content h3 { margin: 0 0 6px 0; font-size: 19px; color: var(--black); }
     .card-content p { margin: 0; color: #444; font-size: 14.5px; }
-
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(40px); }
       to { opacity: 1; transform: translateY(0); }
@@ -61,13 +56,11 @@
   <div class="phone">
     <div class="header">
       <img src="logo-renault.png" class="logo" alt="Renault">
-      <div class="welcome">Bienvenue sur Audit Terrain</div>
+      <div class="welcome">Renault Audit Intelligence</div>
       <div class="user" id="userDisplay">Utilisateur</div>
     </div>
-
     <div class="container">
       <h2>Que souhaitez-vous faire aujourd'hui ?</h2>
-
       <div class="card" onclick="goTo('index-form.html')">
         <div class="card-icon">📋</div>
         <div class="card-content">
@@ -75,7 +68,6 @@
           <p>Formulaire rapide avec signatures digitales</p>
         </div>
       </div>
-
       <div class="card" onclick="goTo('grille-detaillee.html')">
         <div class="card-icon">📊</div>
         <div class="card-content">
@@ -83,7 +75,6 @@
           <p>Analyse complète en 26 points</p>
         </div>
       </div>
-
       <div class="card" onclick="goTo('photo.html')">
         <div class="card-icon">📸</div>
         <div class="card-content">
@@ -91,7 +82,6 @@
           <p>Détection automatique des objets et personnes</p>
         </div>
       </div>
-
       <div class="card" onclick="goTo('dashboard.html')">
         <div class="card-icon">📈</div>
         <div class="card-content">
@@ -101,12 +91,10 @@
       </div>
     </div>
   </div>
-
   <script>
     function goTo(page) {
       window.location.href = page;
     }
-
     window.onload = () => {
       const email = localStorage.getItem('userEmail');
       if (!email) {
