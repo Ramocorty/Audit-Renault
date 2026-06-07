@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Audit Simple - Renault Audit Terrain</title>
+  <title>Audit Simple - Renault Audit Intelligence</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#efdf00">
-
   <style>
     :root { --black: #000000; --yellow: #efdf00; }
     body { font-family: Arial, sans-serif; background: #1a1a1a; margin:0; padding:0; color:white; }
@@ -28,17 +27,16 @@
 <body>
   <div class="phone">
     <div class="header">
-      <h1>Renault Audit Terrain</h1>
+      <h1>Renault Audit Intelligence</h1>
       <img src="logo-renault.png" height="45" alt="Renault">
     </div>
-
     <div class="nav-menu">
       <a href="index-form.html" class="nav-btn active">📋 Audit Simple</a>
       <a href="grille-detaillee.html" class="nav-btn">📋 Grille Détaillée</a>
-      <a href="photo.html" class="nav-btn">📸 Photo</a>
+      <a href="photo.html" class="nav-btn">📸 Photo IA</a>
       <a href="dashboard.html" class="nav-btn">📊 KPI</a>
     </div>
-  
+ 
     <div class="container">
       <h2>Nouvel Audit Simple</h2>
       <div class="section">
@@ -97,14 +95,12 @@
       <button onclick="validerAudit()">✅ Valider & Sauvegarder l'Audit</button>
     </div>
   </div>
-
   <script>
     let canvasR = document.getElementById('sigRenault');
     let canvasE = document.getElementById('sigExterne');
     let ctxR = canvasR.getContext('2d');
     let ctxE = canvasE.getContext('2d');
     let drawing = false;
-
     function initSignature(canvas, ctx) {
       canvas.width = canvas.offsetWidth;
       canvas.height = 160;
@@ -118,16 +114,14 @@
       canvas.addEventListener('touchmove', draw);
       canvas.addEventListener('touchend', stopDrawing);
     }
-
     function startDrawing(e) { drawing = true; draw(e); }
     function stopDrawing() { drawing = false; }
-
     function draw(e) {
       if (!drawing) return;
       const rect = e.target.getBoundingClientRect();
       const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
       const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
-     
+    
       if (e.target.id === 'sigRenault') {
         ctxR.lineTo(x, y);
         ctxR.stroke();
@@ -140,22 +134,18 @@
         ctxE.moveTo(x, y);
       }
     }
-
     function clearSig(type) {
       if (type === 'Renault') ctxR.clearRect(0, 0, canvasR.width, canvasR.height);
       else ctxE.clearRect(0, 0, canvasE.width, canvasE.height);
     }
-
     async function validerAudit() {
       const lieu = document.getElementById('lieu').value;
       if (!lieu) {
         alert("⚠️ Veuillez choisir un lieu d'intervention");
         return;
       }
-
       const sigRenault = canvasR.toDataURL('image/png');
       const sigExterne = canvasE.toDataURL('image/png');
-
       const auditData = {
         type: "audit_simple",
         lieu: lieu,
@@ -173,7 +163,6 @@
         nomExterne: document.getElementById('nomExterne').value,
         signatureExterne: sigExterne
       };
-
       try {
         const response = await fetch('/api/audits', {
           method: 'POST',
@@ -190,7 +179,6 @@
         alert("❌ Impossible de sauvegarder.");
       }
     }
-
     window.onload = () => {
       if (!localStorage.getItem('userEmail')) {
         window.location.href = "index.html";
