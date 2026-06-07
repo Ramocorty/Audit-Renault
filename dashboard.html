@@ -16,13 +16,16 @@
     .nav-btn { flex:1; padding:12px; text-align:center; color:white; text-decoration:none; font-weight:bold; border-radius:8px; margin:0 5px; font-size:13.5px; }
     .nav-btn.active { background:var(--yellow); color:var(--black); }
     .container { padding:20px; }
-    h2 { text-align:center; color:var(--black); margin:20px 0 15px; }
-    .stat-card { background:#f8f8f8; padding:18px; border-radius:12px; margin-bottom:15px; text-align:center; }
-    .compliance-card { background:linear-gradient(135deg, #e8f5e9, #c8e6c9); }
+    h2 { text-align:center; color:var(--black); margin:20px 0 12px; }
+    .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+    .stat-card { background:#f8f8f8; padding:16px; border-radius:12px; text-align:center; }
+    .stat-card h3 { margin:0 0 8px 0; font-size:14px; color:#555; }
+    .stat-card h1 { margin:0; font-size:32px; }
+    .compliance-card { background:linear-gradient(135deg, #e8f5e9, #c8e6c9); grid-column: span 2; }
     table { width:100%; border-collapse:collapse; margin:15px 0; }
     th, td { border:1px solid #ddd; padding:10px; text-align:left; }
     th { background:var(--black); color:var(--yellow); }
-    button, select { background:var(--black); color:var(--yellow); padding:14px; font-size:16px; font-weight:bold; border:none; border-radius:10px; width:100%; margin:10px 0; }
+    button, select { background:var(--black); color:var(--yellow); padding:14px; font-size:16px; font-weight:bold; border:none; border-radius:10px; width:100%; margin:8px 0; }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
@@ -48,25 +51,25 @@
       <button onclick="loadStats()">🔄 Actualiser</button>
       <button onclick="exportToExcel()">📊 Exporter en Excel</button>
 
-      <div class="stat-card">
-        <h2>Audits Simples</h2>
-        <h1 id="simpleCount" style="font-size:42px;color:var(--black);">0</h1>
-      </div>
-
-      <div class="stat-card">
-        <h2>Grilles Détaillées</h2>
-        <h1 id="grilleCount" style="font-size:42px;color:var(--black);">0</h1>
-      </div>
-
-      <div class="stat-card">
-        <h2>Non-Conformités Critiques</h2>
-        <h1 id="nonCount" style="font-size:42px;color:#d32f2f;">0</h1>
-      </div>
-
-      <div class="stat-card compliance-card">
-        <h2>% Conformité Global</h2>
-        <h1 id="conformitePercent" style="font-size:52px;margin:10px 0;color:#2e7d32;">0%</h1>
-        <p id="conformiteDetail" style="margin:5px 0; color:#1b5e20;"></p>
+      <!-- Compteurs compacts -->
+      <div class="stat-grid">
+        <div class="stat-card">
+          <h3>Audits Simples</h3>
+          <h1 id="simpleCount" style="color:#1976d2;">0</h1>
+        </div>
+        <div class="stat-card">
+          <h3>Grilles Détaillées</h3>
+          <h1 id="grilleCount" style="color:#388e3c;">0</h1>
+        </div>
+        <div class="stat-card">
+          <h3>Non-Conformités</h3>
+          <h1 id="nonCount" style="color:#d32f2f;">0</h1>
+        </div>
+        <div class="stat-card compliance-card">
+          <h3>% Conformité Global</h3>
+          <h1 id="conformitePercent" style="font-size:48px;color:#2e7d32;">0%</h1>
+          <p id="conformiteDetail" style="margin:5px 0; color:#1b5e20; font-size:14px;"></p>
+        </div>
       </div>
 
       <h2>Audits par site</h2>
@@ -92,14 +95,8 @@
         allAudits = await res.json();
 
         const selectedSite = document.getElementById('siteFilter').value;
+        let filtered = selectedSite ? allAudits.filter(a => a.lieu === selectedSite) : allAudits;
 
-        // Filtrage par site
-        let filtered = allAudits;
-        if (selectedSite) {
-          filtered = allAudits.filter(a => a.lieu === selectedSite);
-        }
-
-        // Comptages
         const simples = filtered.filter(a => a.type === "audit_simple").length;
         const grilles = filtered.filter(a => a.type === "grille_detaillee").length;
 
@@ -126,22 +123,17 @@
         });
         const percent = totalQ > 0 ? Math.round((totalOui / totalQ) * 100) : 0;
         document.getElementById('conformitePercent').textContent = percent + "%";
-        document.getElementById('conformiteDetail').textContent = `${totalOui} Oui / ${totalQ} réponses`;
+        document.getElementById('conformiteDetail').textContent = `${totalOui} Oui / ${totalQ}`;
 
-        // Mise à jour du filtre sites
         updateSiteFilter();
-
-        // Tableaux
         renderTables(filtered);
 
-      } catch (e) {
-        console.error(e);
-      }
+      } catch (e) { console.error(e); }
     }
 
     function updateSiteFilter() {
       const select = document.getElementById('siteFilter');
-      const sites = new Set(allAudits.map(a => a.lieu).filter(Boolean));
+      const sites = [...new Set(allAudits.map(a => a.lieu).filter(Boolean))];
       select.innerHTML = '<option value="">Tous les sites</option>';
       sites.forEach(site => {
         const opt = document.createElement('option');
@@ -167,7 +159,7 @@
       // Derniers audits
       let htmlDerniers = '';
       filtered.slice(0, 10).forEach(a => {
-        const date = a.dateCreation ? new Date(a.dateCreation).toLocaleString('fr-FR') : '—';
+        const date = a.dateCreation ? new Date(a.dateCreation).toLocaleString('fr-FR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) : '—';
         htmlDerniers += `<tr>
           <td>${date}</td>
           <td>${a.lieu || '—'}</td>
@@ -179,7 +171,6 @@
     }
 
     function exportToExcel() {
-      // Même fonction que précédemment
       if (allAudits.length === 0) return alert("Aucune donnée");
       const excelData = allAudits.map(a => ({
         "Date": a.dateCreation ? new Date(a.dateCreation).toLocaleString('fr-FR') : '',
@@ -195,11 +186,8 @@
     }
 
     window.onload = () => {
-      if (!localStorage.getItem('userEmail')) {
-        window.location.href = "index.html";
-      } else {
-        loadStats();
-      }
+      if (!localStorage.getItem('userEmail')) window.location.href = "index.html";
+      else loadStats();
     };
   </script>
 </body>
