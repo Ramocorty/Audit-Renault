@@ -25,13 +25,14 @@
     .stat-card { background:#f8f8f8; padding:16px; border-radius:12px; text-align:center; }
     .stat-card h3 { margin:0 0 8px 0; font-size:14px; color:#555; }
     .stat-card h1 { margin:0; font-size:32px; }
-    .score-card { background:linear-gradient(135deg, #e3f2fd, #bbdefb); grid-column: span 2; padding:20px; }
-    .score-card h1 { font-size:52px; margin:8px 0; }
-
-    table { width:100%; border-collapse:collapse; margin:15px 0; }
-    th, td { border:1px solid #ddd; padding:10px; text-align:left; }
-    th { background:var(--black); color:var(--yellow); }
-    button { background:var(--black); color:var(--yellow); padding:14px; font-size:16px; font-weight:bold; border:none; border-radius:10px; width:100%; margin:8px 0; }
+    
+    .score-card { 
+      background:linear-gradient(135deg, #e8f5e9, #c8e6c9); 
+      grid-column: span 2; 
+      padding:20px; 
+      text-align:center; 
+    }
+    .score-card h1 { font-size:56px; margin:8px 0; color:#2e7d32; }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
@@ -75,11 +76,11 @@
           <h1 id="nonCount" style="color:#d32f2f;">0</h1>
         </div>
 
-        <!-- Nouveau Score Global -->
+        <!-- Score Global en % bien visible -->
         <div class="stat-card score-card">
           <h3>Score Global de Conformité</h3>
-          <h1 id="globalScore" style="font-size:52px;color:#2e7d32;">0</h1>
-          <p id="scoreLabel" style="margin:5px 0; font-weight:bold;">Excellent</p>
+          <h1 id="globalScore">0%</h1>
+          <p id="scoreLabel" style="font-size:15px; margin:5px 0; font-weight:bold;"></p>
         </div>
       </div>
 
@@ -122,7 +123,7 @@
         document.getElementById('grilleCount').textContent = grilles;
         document.getElementById('nonCount').textContent = nonCount;
 
-        // === Calcul du Score Global ===
+        // Score Global en %
         let totalQ = 0, totalOui = 0;
         filtered.filter(a => a.type === "grille_detaillee").forEach(g => {
           for (let i = 1; i <= 26; i++) {
@@ -133,18 +134,15 @@
           }
         });
 
-        const conformite = totalQ > 0 ? Math.round((totalOui / totalQ) * 100) : 0;
-        document.getElementById('globalScore').textContent = conformite;
+        const score = totalQ > 0 ? Math.round((totalOui / totalQ) * 100) : 0;
+        document.getElementById('globalScore').textContent = score + "%";
 
-        // Label du score
         let label = "Faible";
-        let color = "#d32f2f";
-        if (conformite >= 85) { label = "Excellent"; color = "#2e7d32"; }
-        else if (conformite >= 70) { label = "Bon"; color = "#388e3c"; }
-        else if (conformite >= 50) { label = "Moyen"; color = "#f57c00"; }
+        if (score >= 85) label = "Excellent";
+        else if (score >= 70) label = "Bon";
+        else if (score >= 50) label = "Moyen";
 
         document.getElementById('scoreLabel').textContent = label;
-        document.getElementById('globalScore').style.color = color;
 
         updateSiteFilter();
         renderTables(filtered);
@@ -152,7 +150,7 @@
       } catch (e) { console.error(e); }
     }
 
-    // ... (le reste des fonctions updateSiteFilter, renderTables, exportToExcel restent identiques)
+    // Le reste des fonctions (updateSiteFilter, renderTables, exportToExcel) reste identique à la version précédente
 
     function updateSiteFilter() {
       const select = document.getElementById('siteFilter');
@@ -167,7 +165,6 @@
     }
 
     function renderTables(filtered) {
-      // Audits par site
       const parSite = {};
       filtered.forEach(a => {
         const site = a.lieu || "Non renseigné";
@@ -179,7 +176,6 @@
       });
       document.getElementById('tableSites').querySelector('tbody').innerHTML = html || '<tr><td colspan="2">Aucun audit</td></tr>';
 
-      // Derniers Audits Simples
       let htmlDerniers = '';
       filtered.filter(a => a.type === "audit_simple").slice(0, 10).forEach(a => {
         const date = a.dateCreation ? new Date(a.dateCreation).toLocaleString('fr-FR') : '—';
