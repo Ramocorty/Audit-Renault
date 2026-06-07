@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Connexion - Renault Audit Terrain</title>
+  <title>Connexion - Renault Audit Intelligence</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#efdf00">
-
   <style>
     :root { --black: #000000; --yellow: #efdf00; }
     body { 
@@ -30,7 +29,7 @@
       text-align:center; 
     }
     .logo { height: 95px; margin-bottom: 15px; }
-    .title { font-size: 28px; font-weight: bold; margin: 10px 0 5px; }
+    .title { font-size: 26px; font-weight: bold; margin: 10px 0 5px; }
     .subtitle { font-size: 16px; opacity: 0.85; }
 
     .container { padding: 30px 25px; }
@@ -70,8 +69,8 @@
   <div class="phone">
     <div class="header">
       <img src="logo-renault.png" class="logo" alt="Renault">
-      <div class="title">Audit Terrain</div>
-      <div class="subtitle">Sécurité & Conformité</div>
+      <div class="title">Renault Audit Intelligence</div>
+      <div class="subtitle">RAI - Système d'Audit Terrain Intelligent</div>
     </div>
 
     <div class="container">
@@ -100,7 +99,7 @@
       <div class="consent">
         <input type="checkbox" id="consentCheck" onchange="toggleButton()">
         <label for="consentCheck" style="display:inline; font-weight:normal;">
-          J'accepte la collecte de mes données pour ce MVP Audit Renault (RGPD)
+          J'accepte la collecte de mes données dans le cadre du MVP Renault Audit Intelligence (RGPD)
         </label>
       </div>
 
@@ -137,7 +136,12 @@
         await fetch('/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, userType, consentRGPD: true, dateConnexion: new Date().toISOString() })
+          body: JSON.stringify({ 
+            email, 
+            userType, 
+            consentRGPD: true, 
+            dateConnexion: new Date().toISOString() 
+          })
         });
       } catch (e) {}
 
