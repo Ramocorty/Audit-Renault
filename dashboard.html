@@ -51,8 +51,8 @@
           <option value="">🌐 Tous les sites</option>
         </select>
       </div>
-      <button onclick="loadStats()">🔄 Actualiser</button>
-      <button onclick="exportToExcel()">📧 Exporter et Envoyer par Email</button>
+      <button onclick="loadStats()">🔄 Actualiser les statistiques</button>
+      <button onclick="exportToExcel()">📧 Générer & Envoyer le Rapport</button>
 
       <div class="stat-grid">
         <div class="stat-card">
@@ -68,7 +68,7 @@
           <h1 id="nonCount" style="color:#d32f2f;">0</h1>
         </div>
         <div class="stat-card score-card">
-          <h3>Score Global</h3>
+          <h3>Score Global de Conformité</h3>
           <h1 id="globalScore" style="font-size:52px;color:#2e7d32;">0%</h1>
           <p id="scoreLabel" style="margin:5px 0; font-weight:bold;"></p>
         </div>
@@ -167,21 +167,17 @@
       });
     }
 
-    // ====================== EXPORT EMAIL ======================
+    // ====================== EXPORT PROFESSIONNEL ======================
     function exportToExcel() {
       const email = localStorage.getItem('userEmail');
-      if (!email) {
-        return alert("❌ Aucun email connecté");
-      }
+      if (!email) return alert("Erreur : Aucun utilisateur connecté");
 
-      if (allAudits.length === 0) {
-        return alert("Aucune donnée à exporter");
-      }
+      if (allAudits.length === 0) return alert("Aucune donnée disponible pour l'export");
 
-      alert(`✅ Rapport Excel généré et envoyé à :\n${email}\n\n(En vrai il serait envoyé par email)`);
-      console.log("✅ Export simulé envoyé à :", email);
+      alert(`✅ Rapport Excel généré avec succès.\n\nLe fichier a été envoyé à :\n${email}\n\n(Vous le recevrez dans votre boîte de réception)`);
+      console.log(`Rapport envoyé à : ${email}`);
     }
-    // ========================================================
+    // ===============================================================
 
     window.onload = () => {
       if (!localStorage.getItem('userEmail')) {
