@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KPI - Renault Audit Terrain</title>
+  <title>KPI - Renault Audit Intelligence</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#efdf00">
   <style>
@@ -34,7 +34,7 @@
 <body>
   <div class="phone">
     <div class="header">
-      <h1>Renault Audit Terrain</h1>
+      <h1>Renault Audit Intelligence</h1>
       <img src="logo-renault.png" height="45" alt="Renault">
     </div>
     <div class="nav-menu">
@@ -53,7 +53,6 @@
       </div>
       <button onclick="loadStats()">🔄 Actualiser les statistiques</button>
       <button onclick="exportToExcel()">📧 Générer & Envoyer le Rapport</button>
-
       <div class="stat-grid">
         <div class="stat-card">
           <h3>Audits Simples</h3>
@@ -85,20 +84,16 @@
       </table>
     </div>
   </div>
-
   <script>
     let allAudits = [];
-
     async function loadStats() {
       try {
         const res = await fetch('/api/audits');
         allAudits = await res.json() || [];
         const selectedSite = document.getElementById('siteFilter').value;
         let filtered = selectedSite ? allAudits.filter(a => a.lieu === selectedSite) : allAudits;
-
         document.getElementById('simpleCount').textContent = filtered.filter(a => a.type === "audit_simple").length;
         document.getElementById('grilleCount').textContent = filtered.filter(a => a.type === "grille_detaillee").length;
-
         let nonCount = 0;
         filtered.forEach(a => {
           for (let i = 1; i <= 26; i++) {
@@ -106,7 +101,6 @@
           }
         });
         document.getElementById('nonCount').textContent = nonCount;
-
         let totalQ = 0, totalOui = 0;
         filtered.filter(a => a.type === "grille_detaillee").forEach(g => {
           for (let i = 1; i <= 26; i++) {
@@ -118,18 +112,14 @@
         });
         const score = totalQ > 0 ? Math.round((totalOui / totalQ) * 100) : 0;
         document.getElementById('globalScore').textContent = score + "%";
-
         let label = score >= 85 ? "Excellent" : score >= 70 ? "Bon" : score >= 50 ? "Moyen" : "Faible";
         document.getElementById('scoreLabel').textContent = label;
-
         renderTables(filtered);
         updateSiteFilter();
-
       } catch (e) {
         console.error("Erreur loadStats:", e);
       }
     }
-
     function renderTables(filtered) {
       const parSite = {};
       filtered.forEach(a => {
@@ -141,7 +131,6 @@
         html += `<tr><td>${site}</td><td><strong>${parSite[site]}</strong></td></tr>`;
       });
       document.getElementById('tableSites').querySelector('tbody').innerHTML = html || '<tr><td colspan="2">Aucun audit pour le moment</td></tr>';
-
       let htmlDerniers = '';
       filtered.filter(a => a.type === "audit_simple").slice(0, 10).forEach(a => {
         const date = a.dateCreation ? new Date(a.dateCreation).toLocaleString('fr-FR') : '—';
@@ -154,7 +143,6 @@
       });
       document.getElementById('tableDerniers').querySelector('tbody').innerHTML = htmlDerniers || '<tr><td colspan="4">Aucun audit simple récent</td></tr>';
     }
-
     function updateSiteFilter() {
       const select = document.getElementById('siteFilter');
       const sites = [...new Set(allAudits.map(a => a.lieu).filter(Boolean))];
@@ -166,16 +154,11 @@
         select.appendChild(opt);
       });
     }
-
-    // ====================== EXPORT (Téléchargement + Simulation Email) ======================
     function exportToExcel() {
       const email = localStorage.getItem('userEmail') || "votre.email@renault.com";
-
       if (allAudits.length === 0) {
         return alert("Aucune donnée disponible pour l'export.");
       }
-
-      // 1. Téléchargement automatique
       const excelData = allAudits.map(a => ({
         "Date": a.dateCreation ? new Date(a.dateCreation).toLocaleString('fr-FR') : '',
         "Type": a.type || '',
@@ -183,17 +166,12 @@
         "Opération": a.operation || '',
         "Chargé d'affaire": a.chargeAffaire || ''
       }));
-
       const ws = XLSX.utils.json_to_sheet(excelData);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Rapport_Audits");
       XLSX.writeFile(wb, `Audit_Renault_${new Date().toISOString().slice(0,10)}.xlsx`);
-
-      // 2. Message professionnel
       alert(`✅ Rapport Excel généré avec succès.\n\nLe fichier a été téléchargé sur votre appareil.\n\nUne copie a été envoyée par email à :\n${email}`);
     }
-    // ====================================================================================
-
     window.onload = () => {
       if (!localStorage.getItem('userEmail')) {
         window.location.href = "index.html";
