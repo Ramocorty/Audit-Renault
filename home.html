@@ -11,64 +11,100 @@
     :root { --black: #000000; --yellow: #efdf00; }
     body { font-family: Arial, sans-serif; background: #1a1a1a; margin:0; padding:0; color:white; }
     .phone { max-width:420px; margin:20px auto; background:white; color:black; border-radius:35px; overflow:hidden; box-shadow:0 20px 40px rgba(0,0,0,0.7); border:12px solid var(--black); min-height:680px; }
-    .header { background:var(--black); color:var(--yellow); padding:15px 20px; display:flex; align-items:center; justify-content:space-between; }
-    .nav-menu { display:flex; background:#222; padding:10px; }
-    .nav-btn { flex:1; padding:12px; text-align:center; color:white; text-decoration:none; font-weight:bold; border-radius:8px; margin:0 5px; font-size:13.5px; }
-    .nav-btn.active { background:var(--yellow); color:var(--black); }
-    .container { padding:30px 20px; text-align:center; }
-    .user-info { background:#e8f5e9; color:#2e7d32; padding:12px; border-radius:10px; margin-bottom:25px; }
-    .card { background:#f8f8f8; padding:25px 20px; margin:18px 0; border-radius:15px; box-shadow:0 4px 15px rgba(0,0,0,0.1); cursor:pointer; transition:all 0.2s; }
-    .card:hover { transform:scale(1.03); }
+    .header { 
+      background: linear-gradient(135deg, var(--black), #222); 
+      color: var(--yellow); 
+      padding: 25px 20px 20px; 
+      text-align: center; 
+    }
+    .logo { height: 70px; margin-bottom: 10px; }
+    .welcome { font-size: 22px; margin: 10px 0 5px; font-weight: bold; }
+    .user { font-size: 16px; color: #ccc; }
+
+    .container { padding: 25px 20px; }
+    .card {
+      background: #f8f8f8;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      transition: all 0.3s;
+    }
+    .card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+    .card-icon { font-size: 38px; width: 60px; }
+    .card-content h3 { margin: 0 0 5px 0; color: var(--black); }
+    .card-content p { margin: 0; color: #666; font-size: 14px; }
+
+    button { 
+      background: var(--black); 
+      color: var(--yellow); 
+      padding: 16px; 
+      font-size: 17px; 
+      font-weight: bold; 
+      border: none; 
+      border-radius: 12px; 
+      width: 100%; 
+      margin-top: 10px; 
+    }
   </style>
 </head>
 <body>
   <div class="phone">
     <div class="header">
-      <h1>Renault Audit Terrain</h1>
-      <img src="logo-renault.png" height="45" alt="Renault">
-    </div>
-
-    <div class="nav-menu">
-      <a href="index-form.html" class="nav-btn">📋 Audit Simple</a>
-      <a href="grille-detaillee.html" class="nav-btn">📋 Grille Détaillée</a>
-      <a href="photo.html" class="nav-btn">📸 Photo</a>
-      <a href="dashboard.html" class="nav-btn">📊 KPI</a>
+      <img src="logo-renault.png" class="logo" alt="Renault">
+      <div class="welcome">Bienvenue sur Audit Terrain</div>
+      <div class="user" id="userDisplay">Chargement...</div>
     </div>
 
     <div class="container">
-      <div class="user-info">
-        Connecté : <strong id="userDisplay"></strong>
+      <h2 style="text-align:center; color:var(--black); margin-bottom:25px;">Que souhaitez-vous faire ?</h2>
+
+      <div class="card" onclick="goTo('index-form.html')">
+        <div class="card-icon">📋</div>
+        <div class="card-content">
+          <h3>Audit Simple</h3>
+          <p>Formulaire rapide avec signatures</p>
+        </div>
       </div>
 
-      <h2 style="color:var(--black);">Que souhaitez-vous faire ?</h2>
-
-      <div class="card" onclick="window.location.href='index-form.html'">
-        <h2>📋 Nouvel Audit Simple</h2>
-        <p>Audit classique avec signatures</p>
+      <div class="card" onclick="goTo('grille-detaillee.html')">
+        <div class="card-icon">📋</div>
+        <div class="card-content">
+          <h3>Grille Détaillée</h3>
+          <p>26 points de contrôle complets</p>
+        </div>
       </div>
 
-      <div class="card" onclick="window.location.href='grille-detaillee.html'">
-        <h2>📋 Grille Détaillée</h2>
-        <p>Audit complet avec 26 points</p>
+      <div class="card" onclick="goTo('photo.html')">
+        <div class="card-icon">📸</div>
+        <div class="card-content">
+          <h3>Photo + Analyse IA</h3>
+          <p>Détection intelligente d'objets</p>
+        </div>
       </div>
 
-      <div class="card" onclick="window.location.href='photo.html'">
-        <h2>📸 Prendre une Photo</h2>
-        <p>Joindre une photo à l'audit</p>
+      <div class="card" onclick="goTo('dashboard.html')">
+        <div class="card-icon">📊</div>
+        <div class="card-content">
+          <h3>Tableau de Bord KPI</h3>
+          <p>Statistiques et conformité</p>
+        </div>
       </div>
 
-      <div class="card" onclick="window.location.href='dashboard.html'">
-        <h2>📊 Tableau de Bord KPI</h2>
-        <p>Statistiques et conformité</p>
-      </div>
-
-      <button onclick="logout()" style="margin-top:40px;background:#666;color:white;padding:12px;width:100%;">Déconnexion</button>
+      <button onclick="logout()">🚪 Déconnexion</button>
     </div>
   </div>
 
   <script>
+    function goTo(page) {
+      window.location.href = page;
+    }
+
     function logout() {
-      if (confirm("Voulez-vous vous déconnecter ?")) {
+      if (confirm("Voulez-vous vraiment vous déconnecter ?")) {
         localStorage.clear();
         window.location.href = "index.html";
       }
