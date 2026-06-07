@@ -24,6 +24,8 @@
     th { background:var(--black); color:var(--yellow); }
     button { background:var(--black); color:var(--yellow); padding:14px; font-size:16px; font-weight:bold; border:none; border-radius:10px; width:100%; margin:10px 0; }
   </style>
+  <!-- SheetJS pour export Excel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
   <div class="phone">
@@ -35,12 +37,13 @@
     <div class="nav-menu">
       <a href="index-form.html" class="nav-btn">📋 Audit Simple</a>
       <a href="grille-detaillee.html" class="nav-btn">📋 Grille Détaillée</a>
-      <a href="photo.html" class="nav-btn">📸 Photo</a>
+      <a href="photo.html" class="nav-btn">📸 Photo IA</a>
       <a href="dashboard.html" class="nav-btn active">📊 KPI</a>
     </div>
 
     <div class="container">
       <button onclick="loadStats()">🔄 Actualiser les statistiques</button>
+      <button onclick="exportToExcel()">📊 Exporter tout en Excel</button>
 
       <div class="stat-card">
         <h2>Nombre total d'audits</h2>
@@ -119,6 +122,31 @@
       } catch (e) {
         console.error(e);
       }
+    }
+
+    function exportToExcel() {
+      fetch('/api/audits')
+        .then(res => res.json())
+        .then(data => {
+          if (data.length === 0) return alert("Aucune donnée à exporter");
+
+          const excelData = data.map(a => ({
+            "Date": a.dateCreation ? new Date(a.dateCreation).toLocaleString('fr-FR') : '',
+            "Type": a.type || '',
+            "Site": a.lieu || '',
+            "Opération": a.operation || '',
+            "Chargé d'affaire": a.chargeAffaire || '',
+            "Conformité": a.type === "grille_detaillee" ? "Grille détaillée" : "Audit simple"
+          }));
+
+          const ws = XLSX.utils.json_to_sheet(excelData);
+          const wb = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(wb, ws, "Audits");
+
+          XLSX.writeFile(wb, `Audit_Renault_${new Date().toISOString().slice(0,10)}.xlsx`);
+          alert("✅ Export Excel téléchargé !");
+        })
+        .catch(() => alert("Erreur lors de l'export"));
     }
 
     window.onload = () => {
