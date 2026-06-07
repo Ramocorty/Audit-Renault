@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Photo - Renault Audit Terrain</title>
+  <title>Photo IA - Renault Audit Terrain</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#efdf00">
 
@@ -19,7 +19,8 @@
     button { background:var(--black); color:var(--yellow); padding:14px; font-size:16px; font-weight:bold; border:none; border-radius:10px; width:100%; margin:10px 0; }
     #camera { width:100%; border-radius:12px; margin:10px 0; background:#000; }
     #photoPreview { max-width:100%; border-radius:12px; margin:15px 0; display:none; }
-    #detectionResult { margin:15px 0; padding:15px; background:#f8f8f8; border-radius:12px; text-align:left; min-height:150px; }
+    #detectionResult { margin:15px 0; padding:15px; background:#f0f0f0; border-radius:12px; text-align:left; font-size:15px; }
+    .person { color: #d32f2f; font-weight: bold; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.2"></script>
@@ -34,7 +35,128 @@
     <div class="nav-menu">
       <a href="index-form.html" class="nav-btn">📋 Audit Simple</a>
       <a href="grille-detaillee.html" class="nav-btn">📋 Grille Détaillée</a>
-      <a href="photo.html" class="nav-btn active">📸 Photo</a>
+      <a href="photo.html" class="nav-btn active">📸 Photo IA</a>
+      <a href="dashboard.html" class="nav-btn">📊 KPI</a>
+    </div>
+
+    <div class="container">
+      <h2>📸 Photo + Détection IA</h2>
+      
+      <video id="camera" autoplay playsinline></video>
+      <canvas id="canvas" style="display:none;"></canvas>
+      <img id="photoPreview" alt="Photo prise">
+
+      <button onclick="takePhoto()">📸 Prendre la Photo</button>
+      <button onclick="detectObjects()">🔍 Analyser tous les Objets</button>
+      <button onclick="savePhoto()">💾 Sauvegarder la Photo</button>
+      <button onclick="window.location.href='home.html'">⬅️ Retour Accueil</button>
+
+      <div id="detectionResult"></div>
+    </div>
+  </div>
+
+  <script>
+    let stream = null;
+    let model = null;
+    const video = document.getElementById('camera');
+    const canvas = document.getElementById('canvas');
+    const photoPreview = document.getElementById('photoPreview');
+    const resultDiv = document.getElementById('detectionResult');
+
+    async function startCamera() {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        video.srcObject = stream;
+      } catch (err) {
+        alert("Impossible d'accéder à la caméra");
+      }
+    }
+
+    async function loadModel() {
+      if (!model) {
+        resultDiv.innerHTML = "<p>Chargement du modèle d'intelligence artificielle...</p>";
+        model = await cocoSsd.load();
+      }
+    }
+
+    function takePhoto() {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      photoPreview.src = canvas.toDataURL('image/png');
+      photoPreview.style.display = 'block';
+      resultDiv.innerHTML = "";
+    }
+
+    async function detectObjects() {
+      if (!photoPreview.src || photoPreview.src === "") {
+        return alert("Prenez d'abord une photo !");
+      }
+
+      await loadModel();
+      resultDiv.innerHTML = "<p>Analyse IA en cours...</p>";
+
+      const img = new Image();
+      img.src = photoPreview.src;
+      img.onload = async () => {
+        const predictions = await model.detect(img);
+
+        let html = `<strong>📋 Objets détectés (${predictions.length}) :</strong><br><br>`;
+        let personCount = 0;
+
+        predictions.sort((a, b) => b.score - a.score); // Trier par confiance
+
+        predictions.forEach(p => {
+          const score = Math.round(p.score * 100);
+          if (p.class === "person") {
+            html += `<span class="person">• 👤 Personne (${score}%)</span><br>`;
+            personCount++;
+          } else {
+            html += `• ${p.class} (${score}%)<br>`;
+          }
+        });
+
+        if (personCount > 0) {
+          html += `<br><strong>${personCount} personne(s) détectée(s) sur la photo</strong>`;
+        }
+        if (predictions.length === 0) {
+          html += "Aucun objet détecté.";
+        }
+
+        resultDiv.innerHTML = html;
+      };
+    }
+
+    async function savePhoto() {
+      if (!photoPreview.src) return alert("Prenez d'abord une photo");
+      
+      const email = localStorage.getItem('userEmail') || "inconnu";
+      try {
+        await fetch('/api/photo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: email,
+            photo_base64: photoPreview.src,
+            description: "Photo audit " + new Date().toLocaleString('fr-FR')
+          })
+        });
+        alert("✅ Photo sauvegardée avec succès !");
+      } catch (e) {
+        alert("❌ Impossible de sauvegarder la photo");
+      }
+    }
+
+    window.onload = () => {
+      if (!localStorage.getItem('userEmail')) {
+        window.location.href = "index.html";
+      } else {
+        startCamera();
+      }
+    };
+  </script>
+</body>
+</html>      <a href="photo.html" class="nav-btn active">📸 Photo</a>
       <a href="dashboard.html" class="nav-btn">📊 KPI</a>
     </div>
 
