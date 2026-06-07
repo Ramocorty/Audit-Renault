@@ -19,32 +19,32 @@
 
     .map-container {
       position: relative;
-      height: 280px;
-      background: #f0f0f0;
+      height: 290px;
+      background: #d4e0d4 url('https://i.imgur.com/8vJqKzP.png') center/cover; /* Carte stylisée France / IDF */
       border-radius: 16px;
       margin: 15px 0;
       overflow: hidden;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-      border: 2px solid #ddd;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      border: 3px solid #333;
     }
     .map-pin {
       position: absolute;
-      font-size: 32px;
+      font-size: 34px;
       cursor: pointer;
       transition: all 0.3s;
-      text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+      filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5));
     }
-    .map-pin:hover { transform: scale(1.35); }
+    .map-pin:hover { transform: scale(1.4); }
     .pin-label {
       position: absolute;
       background: white;
-      color: black;
+      color: #000;
       font-size: 13px;
-      padding: 3px 10px;
+      padding: 4px 10px;
       border-radius: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.4);
       white-space: nowrap;
-      pointer-events: none;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -56,30 +56,29 @@
     </div>
 
     <div class="container">
-      <h2>Choisissez un site d'intervention</h2>
+      <h2>Carte des Sites d'Audit</h2>
       
-      <!-- Carte France / Île-de-France stylisée -->
       <div class="map-container">
-        <!-- Pins bien positionnés -->
-        <div class="map-pin" style="top:38%; left:52%;" onclick="goToSite('TCR')">📍</div>
-        <div class="pin-label" style="top:32%; left:45%;">TCR<br>Guyancourt</div>
+        <!-- Pins avec positions améliorées -->
+        <div class="map-pin" style="top:35%; left:52%;" onclick="goToSite('TCR')">📍</div>
+        <div class="pin-label" style="top:28%; left:42%;">TCR<br>Guyancourt</div>
 
-        <div class="map-pin" style="top:48%; left:38%;" onclick="goToSite('VSF')">📍</div>
-        <div class="pin-label" style="top:50%; left:25%;">VSF</div>
+        <div class="map-pin" style="top:48%; left:35%;" onclick="goToSite('VSF')">📍</div>
+        <div class="pin-label" style="top:50%; left:22%;">VSF</div>
 
-        <div class="map-pin" style="top:62%; left:48%;" onclick="goToSite('CTL')">📍</div>
-        <div class="pin-label" style="top:65%; left:42%;">CTL - Lardy</div>
+        <div class="map-pin" style="top:65%; left:48%;" onclick="goToSite('CTL')">📍</div>
+        <div class="pin-label" style="top:68%; left:40%;">CTL - Lardy</div>
 
-        <div class="map-pin" style="top:28%; left:72%;" onclick="goToSite('CRI')">📍</div>
-        <div class="pin-label" style="top:23%; left:65%;">CRI / KIN</div>
+        <div class="map-pin" style="top:25%; left:72%;" onclick="goToSite('CRI')">📍</div>
+        <div class="pin-label" style="top:20%; left:65%;">CRI / KIN</div>
 
-        <div class="map-pin" style="top:55%; left:65%;" onclick="goToSite('CTA')">📍</div>
-        <div class="pin-label" style="top:58%; left:68%;">CTA - Aubevoye</div>
+        <div class="map-pin" style="top:58%; left:68%;" onclick="goToSite('CTA')">📍</div>
+        <div class="pin-label" style="top:61%; left:70%;">CTA</div>
       </div>
 
-      <p style="text-align:center; color:#666; margin:10px 0 25px;">Cliquez sur les épingles pour accéder directement au KPI du site</p>
+      <p style="text-align:center; color:#555; margin-top:10px;">Cliquez sur les 📍 pour accéder au KPI du site</p>
 
-      <h2 style="margin-top:20px;">Accès rapide</h2>
+      <h2 style="margin:30px 0 15px; text-align:center;">Accès Rapide</h2>
 
       <div onclick="goTo('index-form.html')" style="background:#f8f8f8;padding:18px;border-radius:14px;margin-bottom:12px;cursor:pointer;">
         📋 Audit Simple
