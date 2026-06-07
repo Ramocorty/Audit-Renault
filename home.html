@@ -11,18 +11,35 @@
     :root { --black: #000000; --yellow: #efdf00; }
     body { font-family: Arial, sans-serif; background: #1a1a1a; margin:0; padding:0; color:white; }
     .phone { max-width:420px; margin:20px auto; background:white; color:black; border-radius:35px; overflow:hidden; box-shadow:0 20px 40px rgba(0,0,0,0.7); border:12px solid var(--black); min-height:680px; }
-    .header { background: linear-gradient(135deg, var(--black), #222); color: var(--yellow); padding: 25px 20px; text-align:center; }
+    .header { 
+      background: linear-gradient(135deg, var(--black), #222); 
+      color: var(--yellow); 
+      padding: 25px 20px; 
+      text-align:center; 
+    }
     .logo { height: 70px; margin-bottom: 8px; }
 
     .container { padding: 20px; }
-    h2 { text-align:center; color:var(--black); margin:20px 0 15px; }
+    h2 { text-align:center; color:var(--black); margin:25px 0 15px; }
 
     #map { 
-      height: 300px; 
+      height: 280px; 
       border-radius: 16px; 
       margin: 15px 0; 
       box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
+
+    .quick-access .card {
+      background: #f8f8f8;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      cursor: pointer;
+    }
+    .card-icon { font-size: 38px; width: 60px; }
   </style>
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -36,17 +53,41 @@
     </div>
 
     <div class="container">
-      <h2>Carte des Sites d'Audit</h2>
+      <h2>Carte des Sites</h2>
       <div id="map"></div>
 
-      <p style="text-align:center; color:#555; margin-top:10px;">Cliquez sur les marqueurs pour aller au KPI du site</p>
+      <p style="text-align:center; color:#555; margin:10px 0 25px;">Cliquez sur les marqueurs pour ouvrir le KPI du site</p>
+
+      <div class="quick-access">
+        <h2 style="text-align:center; margin:20px 0 15px;">Accès Rapide</h2>
+        
+        <div class="card" onclick="goTo('index-form.html')">
+          <div class="card-icon">📋</div>
+          <div><strong>Audit Simple</strong><br><small>Formulaire rapide</small></div>
+        </div>
+
+        <div class="card" onclick="goTo('grille-detaillee.html')">
+          <div class="card-icon">📊</div>
+          <div><strong>Grille Détaillée</strong><br><small>26 points de contrôle</small></div>
+        </div>
+
+        <div class="card" onclick="goTo('photo.html')">
+          <div class="card-icon">📸</div>
+          <div><strong>Photo + Analyse IA</strong><br><small>Détection intelligente</small></div>
+        </div>
+
+        <div class="card" onclick="goTo('dashboard.html')">
+          <div class="card-icon">📈</div>
+          <div><strong>Tableau de Bord KPI</strong><br><small>Statistiques & Conformité</small></div>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
     let map = L.map('map').setView([48.8, 2.0], 9);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap'
     }).addTo(map);
 
@@ -61,19 +102,17 @@
 
     sites.forEach(site => {
       const marker = L.marker([site.lat, site.lng]).addTo(map);
+      marker.bindPopup(`<b>${site.name}</b><br>${site.full}`);
       
-      // Popup avec nom complet
-      marker.bindPopup(`<b>${site.name}</b><br>${site.full}`, {
-        closeButton: false,
-        offset: [0, -10]
-      });
-
-      // Au clic → aller au KPI avec filtre
       marker.on('click', () => {
         localStorage.setItem('selectedSite', site.name);
         window.location.href = "dashboard.html";
       });
     });
+
+    function goTo(page) {
+      window.location.href = page;
+    }
 
     window.onload = () => {
       const email = localStorage.getItem('userEmail');
