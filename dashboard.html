@@ -18,34 +18,15 @@
     .container { padding:20px; }
     h2 { text-align:center; color:var(--black); margin:20px 0 12px; }
 
-    .filter-box {
-      background: #f8f8f8;
-      padding: 14px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      border-left: 5px solid var(--yellow);
-    }
-    .filter-box label {
-      font-weight: bold;
-      color: #333;
-      margin-bottom: 6px;
-      display: block;
-    }
-    select {
-      width: 100%;
-      padding: 14px;
-      font-size: 16px;
-      border: 2px solid #ddd;
-      border-radius: 10px;
-      background: white;
-      color: #222;
-    }
+    .filter-box { background:#f8f8f8; padding:14px; border-radius:12px; margin-bottom:20px; border-left:5px solid var(--yellow); }
+    select { width:100%; padding:14px; font-size:16px; border:2px solid #ddd; border-radius:10px; }
 
     .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
     .stat-card { background:#f8f8f8; padding:16px; border-radius:12px; text-align:center; }
     .stat-card h3 { margin:0 0 8px 0; font-size:14px; color:#555; }
     .stat-card h1 { margin:0; font-size:32px; }
-    .compliance-card { background:linear-gradient(135deg, #e8f5e9, #c8e6c9); grid-column: span 2; }
+    .score-card { background:linear-gradient(135deg, #e3f2fd, #bbdefb); grid-column: span 2; padding:20px; }
+    .score-card h1 { font-size:52px; margin:8px 0; }
 
     table { width:100%; border-collapse:collapse; margin:15px 0; }
     th, td { border:1px solid #ddd; padding:10px; text-align:left; }
@@ -62,6 +43,7 @@
     </div>
 
     <div class="nav-menu">
+      <a href="home.html" class="nav-btn">🏠 Accueil</a>
       <a href="index-form.html" class="nav-btn">📋 Audit Simple</a>
       <a href="grille-detaillee.html" class="nav-btn">📋 Grille Détaillée</a>
       <a href="photo.html" class="nav-btn">📸 Photo IA</a>
@@ -92,10 +74,12 @@
           <h3>Non-Conformités</h3>
           <h1 id="nonCount" style="color:#d32f2f;">0</h1>
         </div>
-        <div class="stat-card compliance-card">
-          <h3>% Conformité Global</h3>
-          <h1 id="conformitePercent" style="font-size:48px;color:#2e7d32;">0%</h1>
-          <p id="conformiteDetail" style="margin:5px 0; color:#1b5e20;"></p>
+
+        <!-- Nouveau Score Global -->
+        <div class="stat-card score-card">
+          <h3>Score Global de Conformité</h3>
+          <h1 id="globalScore" style="font-size:52px;color:#2e7d32;">0</h1>
+          <p id="scoreLabel" style="margin:5px 0; font-weight:bold;">Excellent</p>
         </div>
       </div>
 
@@ -124,9 +108,9 @@
         const selectedSite = document.getElementById('siteFilter').value;
         let filtered = selectedSite ? allAudits.filter(a => a.lieu === selectedSite) : allAudits;
 
-        // Comptages
         const simples = filtered.filter(a => a.type === "audit_simple").length;
         const grilles = filtered.filter(a => a.type === "grille_detaillee").length;
+
         let nonCount = 0;
         filtered.forEach(a => {
           for (let i = 1; i <= 26; i++) {
@@ -138,7 +122,7 @@
         document.getElementById('grilleCount').textContent = grilles;
         document.getElementById('nonCount').textContent = nonCount;
 
-        // Conformité
+        // === Calcul du Score Global ===
         let totalQ = 0, totalOui = 0;
         filtered.filter(a => a.type === "grille_detaillee").forEach(g => {
           for (let i = 1; i <= 26; i++) {
@@ -148,15 +132,27 @@
             }
           }
         });
-        const percent = totalQ > 0 ? Math.round((totalOui / totalQ) * 100) : 0;
-        document.getElementById('conformitePercent').textContent = percent + "%";
-        document.getElementById('conformiteDetail').textContent = `${totalOui} Oui / ${totalQ}`;
+
+        const conformite = totalQ > 0 ? Math.round((totalOui / totalQ) * 100) : 0;
+        document.getElementById('globalScore').textContent = conformite;
+
+        // Label du score
+        let label = "Faible";
+        let color = "#d32f2f";
+        if (conformite >= 85) { label = "Excellent"; color = "#2e7d32"; }
+        else if (conformite >= 70) { label = "Bon"; color = "#388e3c"; }
+        else if (conformite >= 50) { label = "Moyen"; color = "#f57c00"; }
+
+        document.getElementById('scoreLabel').textContent = label;
+        document.getElementById('globalScore').style.color = color;
 
         updateSiteFilter();
         renderTables(filtered);
 
       } catch (e) { console.error(e); }
     }
+
+    // ... (le reste des fonctions updateSiteFilter, renderTables, exportToExcel restent identiques)
 
     function updateSiteFilter() {
       const select = document.getElementById('siteFilter');
@@ -183,7 +179,7 @@
       });
       document.getElementById('tableSites').querySelector('tbody').innerHTML = html || '<tr><td colspan="2">Aucun audit</td></tr>';
 
-      // Derniers Audits Simples UNIQUEMENT
+      // Derniers Audits Simples
       let htmlDerniers = '';
       filtered.filter(a => a.type === "audit_simple").slice(0, 10).forEach(a => {
         const date = a.dateCreation ? new Date(a.dateCreation).toLocaleString('fr-FR') : '—';
