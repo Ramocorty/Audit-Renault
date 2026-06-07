@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Photo IA - Renault Audit Terrain</title>
+  <title>Photo IA - Renault Audit Intelligence</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#efdf00">
-
   <style>
     :root { --black: #000000; --yellow: #efdf00; }
     body { font-family: Arial, sans-serif; background: #1a1a1a; margin:0; padding:0; color:white; }
@@ -28,42 +27,35 @@
 <body>
   <div class="phone">
     <div class="header">
-      <h1>Renault Audit Terrain</h1>
+      <h1>Renault Audit Intelligence</h1>
       <img src="logo-renault.png" height="45" alt="Renault">
     </div>
-
     <div class="nav-menu">
       <a href="index-form.html" class="nav-btn">📋 Audit Simple</a>
       <a href="grille-detaillee.html" class="nav-btn">📋 Grille Détaillée</a>
       <a href="photo.html" class="nav-btn active">📸 Photo IA</a>
       <a href="dashboard.html" class="nav-btn">📊 KPI</a>
     </div>
-
     <div class="container">
       <h2>📸 Photo + Analyse Chantier</h2>
-      
+     
       <video id="camera" autoplay playsinline></video>
       <canvas id="canvas" style="display:none;"></canvas>
       <img id="photoPreview" alt="Photo prise">
-
       <button onclick="takePhoto()">📸 Prendre la Photo</button>
       <button onclick="detectObjects()">🔍 Analyser le Chantier</button>
       <button onclick="savePhoto()">💾 Sauvegarder la Photo</button>
       <button onclick="window.location.href='home.html'">⬅️ Retour Accueil</button>
-
       <div id="detectionResult"></div>
     </div>
   </div>
-
   <script>
     let stream = null;
     let model = null;
-
     const video = document.getElementById('camera');
     const canvas = document.getElementById('canvas');
     const photoPreview = document.getElementById('photoPreview');
     const resultDiv = document.getElementById('detectionResult');
-
     async function startCamera() {
       try {
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
@@ -72,14 +64,12 @@
         alert("Impossible d'accéder à la caméra");
       }
     }
-
     async function loadModel() {
       if (!model) {
         resultDiv.innerHTML = "<p>Chargement du modèle IA...</p>";
         model = await cocoSsd.load();
       }
     }
-
     function takePhoto() {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
@@ -88,25 +78,20 @@
       photoPreview.style.display = 'block';
       resultDiv.innerHTML = "";
     }
-
     async function detectObjects() {
       if (!photoPreview.src || photoPreview.src === "") {
         return alert("Prenez d'abord une photo !");
       }
-
       await loadModel();
       resultDiv.innerHTML = "<p>Analyse du chantier en cours...</p>";
-
       const img = new Image();
       img.src = photoPreview.src;
       img.onload = async () => {
         const predictions = await model.detect(img);
-        
+       
         let html = `<strong>📋 Objets détectés sur le chantier (${predictions.length}) :</strong><br><br>`;
         let personCount = 0;
-
         predictions.sort((a, b) => b.score - a.score);
-
         predictions.forEach(p => {
           const score = Math.round(p.score * 100);
           if (p.class === "person") {
@@ -116,21 +101,18 @@
             html += `• ${p.class} (${score}%)<br>`;
           }
         });
-
         if (personCount > 0) {
           html += `<br><strong>${personCount} personne(s) détectée(s) sur le chantier</strong>`;
         }
         if (predictions.length === 0) {
           html += "Aucun objet détecté.";
         }
-
         resultDiv.innerHTML = html;
       };
     }
-
     async function savePhoto() {
       if (!photoPreview.src) return alert("Prenez d'abord une photo");
-      
+     
       const email = localStorage.getItem('userEmail') || "inconnu";
       try {
         await fetch('/api/photo', {
@@ -147,7 +129,6 @@
         alert("❌ Impossible de sauvegarder la photo");
       }
     }
-
     window.onload = () => {
       if (!localStorage.getItem('userEmail')) {
         window.location.href = "index.html";
