@@ -22,9 +22,8 @@
     table { width:100%; border-collapse:collapse; margin:15px 0; }
     th, td { border:1px solid #ddd; padding:10px; text-align:left; }
     th { background:var(--black); color:var(--yellow); }
-    button { background:var(--black); color:var(--yellow); padding:14px; font-size:16px; font-weight:bold; border:none; border-radius:10px; width:100%; margin:10px 0; }
+    button, select { background:var(--black); color:var(--yellow); padding:14px; font-size:16px; font-weight:bold; border:none; border-radius:10px; width:100%; margin:10px 0; }
   </style>
-  <!-- SheetJS pour export Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
@@ -42,18 +41,32 @@
     </div>
 
     <div class="container">
-      <button onclick="loadStats()">🔄 Actualiser les statistiques</button>
-      <button onclick="exportToExcel()">📊 Exporter tout en Excel</button>
+      <select id="siteFilter" onchange="loadStats()">
+        <option value="">Tous les sites</option>
+      </select>
+
+      <button onclick="loadStats()">🔄 Actualiser</button>
+      <button onclick="exportToExcel()">📊 Exporter en Excel</button>
 
       <div class="stat-card">
-        <h2>Nombre total d'audits</h2>
-        <h1 id="totalAudits" style="font-size:48px;margin:10px 0;color:var(--black);">0</h1>
+        <h2>Audits Simples</h2>
+        <h1 id="simpleCount" style="font-size:42px;color:var(--black);">0</h1>
+      </div>
+
+      <div class="stat-card">
+        <h2>Grilles Détaillées</h2>
+        <h1 id="grilleCount" style="font-size:42px;color:var(--black);">0</h1>
+      </div>
+
+      <div class="stat-card">
+        <h2>Non-Conformités Critiques</h2>
+        <h1 id="nonCount" style="font-size:42px;color:#d32f2f;">0</h1>
       </div>
 
       <div class="stat-card compliance-card">
         <h2>% Conformité Global</h2>
         <h1 id="conformitePercent" style="font-size:52px;margin:10px 0;color:#2e7d32;">0%</h1>
-        <p id="conformiteDetail" style="margin:5px 0; color:#1b5e20;">Calculé sur les grilles</p>
+        <p id="conformiteDetail" style="margin:5px 0; color:#1b5e20;"></p>
       </div>
 
       <h2>Audits par site</h2>
@@ -64,29 +77,50 @@
 
       <h2>Derniers audits</h2>
       <table id="tableDerniers">
-        <thead><tr><th>Date</th><th>Site</th><th>Opération réalisée</th><th>Chargé d'affaires</th></tr></thead>
+        <thead><tr><th>Date</th><th>Site</th><th>Opération</th><th>Chargé</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
   </div>
 
   <script>
+    let allAudits = [];
+
     async function loadStats() {
       try {
         const res = await fetch('/api/audits');
-        const audits = await res.json();
+        allAudits = await res.json();
 
-        document.getElementById('totalAudits').textContent = audits.length;
+        const selectedSite = document.getElementById('siteFilter').value;
+
+        // Filtrage par site
+        let filtered = allAudits;
+        if (selectedSite) {
+          filtered = allAudits.filter(a => a.lieu === selectedSite);
+        }
+
+        // Comptages
+        const simples = filtered.filter(a => a.type === "audit_simple").length;
+        const grilles = filtered.filter(a => a.type === "grille_detaillee").length;
+
+        let nonCount = 0;
+        filtered.forEach(a => {
+          for (let i = 1; i <= 26; i++) {
+            if (a[`q${i}`] === "Non") nonCount++;
+          }
+        });
+
+        document.getElementById('simpleCount').textContent = simples;
+        document.getElementById('grilleCount').textContent = grilles;
+        document.getElementById('nonCount').textContent = nonCount;
 
         // Conformité
-        const grilles = audits.filter(a => a.type === "grille_detaillee");
         let totalQ = 0, totalOui = 0;
-        grilles.forEach(g => {
+        filtered.filter(a => a.type === "grille_detaillee").forEach(g => {
           for (let i = 1; i <= 26; i++) {
-            const rep = g[`q${i}`];
-            if (rep) {
+            if (g[`q${i}`]) {
               totalQ++;
-              if (rep === "Oui") totalOui++;
+              if (g[`q${i}`] === "Oui") totalOui++;
             }
           }
         });
@@ -94,59 +128,70 @@
         document.getElementById('conformitePercent').textContent = percent + "%";
         document.getElementById('conformiteDetail').textContent = `${totalOui} Oui / ${totalQ} réponses`;
 
-        // Audits par site
-        const parSite = {};
-        audits.forEach(a => {
-          const site = a.lieu ? a.lieu.trim() : "Non renseigné";
-          parSite[site] = (parSite[site] || 0) + 1;
-        });
-        let html = '';
-        Object.keys(parSite).sort().forEach(site => {
-          html += `<tr><td>${site}</td><td><strong>${parSite[site]}</strong></td></tr>`;
-        });
-        document.getElementById('tableSites').querySelector('tbody').innerHTML = html || '<tr><td colspan="2">Aucun audit</td></tr>';
+        // Mise à jour du filtre sites
+        updateSiteFilter();
 
-        // Derniers audits
-        let htmlDerniers = '';
-        audits.slice(0, 10).forEach(a => {
-          const date = a.dateCreation ? new Date(a.dateCreation).toLocaleString('fr-FR') : '—';
-          htmlDerniers += `<tr>
-            <td>${date}</td>
-            <td>${a.lieu || '—'}</td>
-            <td>${a.operation || '—'}</td>
-            <td>${a.chargeAffaire || '—'}</td>
-          </tr>`;
-        });
-        document.getElementById('tableDerniers').querySelector('tbody').innerHTML = htmlDerniers || '<tr><td colspan="4">Aucun audit récent</td></tr>';
+        // Tableaux
+        renderTables(filtered);
 
       } catch (e) {
         console.error(e);
       }
     }
 
+    function updateSiteFilter() {
+      const select = document.getElementById('siteFilter');
+      const sites = new Set(allAudits.map(a => a.lieu).filter(Boolean));
+      select.innerHTML = '<option value="">Tous les sites</option>';
+      sites.forEach(site => {
+        const opt = document.createElement('option');
+        opt.value = site;
+        opt.textContent = site;
+        select.appendChild(opt);
+      });
+    }
+
+    function renderTables(filtered) {
+      // Audits par site
+      const parSite = {};
+      filtered.forEach(a => {
+        const site = a.lieu || "Non renseigné";
+        parSite[site] = (parSite[site] || 0) + 1;
+      });
+      let html = '';
+      Object.keys(parSite).sort().forEach(site => {
+        html += `<tr><td>${site}</td><td><strong>${parSite[site]}</strong></td></tr>`;
+      });
+      document.getElementById('tableSites').querySelector('tbody').innerHTML = html || '<tr><td colspan="2">Aucun audit</td></tr>';
+
+      // Derniers audits
+      let htmlDerniers = '';
+      filtered.slice(0, 10).forEach(a => {
+        const date = a.dateCreation ? new Date(a.dateCreation).toLocaleString('fr-FR') : '—';
+        htmlDerniers += `<tr>
+          <td>${date}</td>
+          <td>${a.lieu || '—'}</td>
+          <td>${a.operation || '—'}</td>
+          <td>${a.chargeAffaire || '—'}</td>
+        </tr>`;
+      });
+      document.getElementById('tableDerniers').querySelector('tbody').innerHTML = htmlDerniers || '<tr><td colspan="4">Aucun audit récent</td></tr>';
+    }
+
     function exportToExcel() {
-      fetch('/api/audits')
-        .then(res => res.json())
-        .then(data => {
-          if (data.length === 0) return alert("Aucune donnée à exporter");
-
-          const excelData = data.map(a => ({
-            "Date": a.dateCreation ? new Date(a.dateCreation).toLocaleString('fr-FR') : '',
-            "Type": a.type || '',
-            "Site": a.lieu || '',
-            "Opération": a.operation || '',
-            "Chargé d'affaire": a.chargeAffaire || '',
-            "Conformité": a.type === "grille_detaillee" ? "Grille détaillée" : "Audit simple"
-          }));
-
-          const ws = XLSX.utils.json_to_sheet(excelData);
-          const wb = XLSX.utils.book_new();
-          XLSX.utils.book_append_sheet(wb, ws, "Audits");
-
-          XLSX.writeFile(wb, `Audit_Renault_${new Date().toISOString().slice(0,10)}.xlsx`);
-          alert("✅ Export Excel téléchargé !");
-        })
-        .catch(() => alert("Erreur lors de l'export"));
+      // Même fonction que précédemment
+      if (allAudits.length === 0) return alert("Aucune donnée");
+      const excelData = allAudits.map(a => ({
+        "Date": a.dateCreation ? new Date(a.dateCreation).toLocaleString('fr-FR') : '',
+        "Type": a.type || '',
+        "Site": a.lieu || '',
+        "Opération": a.operation || '',
+        "Chargé d'affaire": a.chargeAffaire || ''
+      }));
+      const ws = XLSX.utils.json_to_sheet(excelData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Audits");
+      XLSX.writeFile(wb, `Audit_Renault_${new Date().toISOString().slice(0,10)}.xlsx`);
     }
 
     window.onload = () => {
